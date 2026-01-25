@@ -1,0 +1,11 @@
+services:
+  basefaq.identity.app:
+    image: basefaq.identity.app
+    build:
+      context: .
+      dockerfile: ../dotnet/BaseFaq.Identity.App/Dockerfile
+    ports:
+      - "6000:6001"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__DefaultConnection=Server=localhost,1433;Database=bf_identity_db;User Id=sa;Password=Pass123$;TrustServerCertificate=True;

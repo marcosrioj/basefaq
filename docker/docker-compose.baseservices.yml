@@ -1,0 +1,80 @@
+networks:
+  bf-network:
+    driver: bridge
+    name: bf-network
+
+volumes:
+  rabbitmq:
+  cache:
+  smtp4dev-data:
+  mssql:
+
+services:
+  mssql:
+    image: mcr.microsoft.com/mssql/server:2022-CU13-ubuntu-22.04
+    container_name: mssql
+    restart: always
+    ports:
+      - '1434:1433'
+    user: root
+    environment:
+      - ACCEPT_EULA=Y
+      - MSSQL_PID=Developer
+      - MSSQL_USER=SA
+      - MSSQL_SA_PASSWORD=Pass123$$
+    volumes:
+      - mssql:/var/opt/mssql
+      - ./mssql:/bak
+    networks:
+      - bf-network
+    healthcheck:
+      test: ["CMD", "/opt/mssql-tools/bin/sqlcmd", "-Usa", "-PPass123$$", "-Q", "select 1"]
+      interval: 2s
+      timeout: 20s
+      retries: 20
+      start_period: 3s
+
+  smtp:
+    container_name: smtp
+    restart: always
+    image: rnwood/smtp4dev:3.2.0-ci20220809112
+    ports:
+      - '4590:80'
+      - '1025:1025'
+    volumes:
+      - smtp4dev-data:/smtp4dev
+    environment:
+      - ServerOptions__Port=1025
+    networks:
+      - bf-network
+
+  rabbitmq:
+    container_name: rabbitmq
+    restart: always
+    image: rabbitmq:3-management-alpine
+    ulimits:
+      nproc: 65535
+      nofile:
+        soft: 65535
+        hard: 65535
+    ports:
+      - '15672:15672'
+      - '5672:5672'
+    volumes:
+      - rabbitmq:/var/lib/rabbitmq
+    networks:
+      - bf-network
+    environment:
+      - RABBITMQ_MANAGEMENT_DISABLE_HTTP_AUTH=true
+
+  cache:
+    container_name: redis
+    restart: always
+    image: redis:latest
+    ports:
+      - '6379:6379'
+    command: redis-server --save 20 1 --loglevel warning
+    networks:
+      - bf-network
+    volumes:
+      - cache:/data
