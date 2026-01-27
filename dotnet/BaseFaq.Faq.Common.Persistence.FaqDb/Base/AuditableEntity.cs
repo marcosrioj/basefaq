@@ -1,4 +1,4 @@
-namespace BaseFaq.Mas.Common.Persistence.MasDb.Base;
+namespace BaseFaq.Faq.Common.Persistence.FaqDb.Base;
 
 public class AuditableEntity
 {

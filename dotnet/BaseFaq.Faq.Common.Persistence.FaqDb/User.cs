@@ -1,7 +1,7 @@
-using BaseFaq.Mas.Common.Persistence.MasDb.Base;
+using BaseFaq.Faq.Common.Persistence.FaqDb.Base;
 using BaseFaq.Models.Enums;
 
-namespace BaseFaq.Mas.Common.Persistence.MasDb;
+namespace BaseFaq.Faq.Common.Persistence.FaqDb;
 
 public class User : BaseEntity
 {

@@ -1,4 +1,4 @@
-namespace BaseFaq.Mas.Common.Persistence.MasDb;
+namespace BaseFaq.Faq.Common.Persistence.FaqDb;
 
 public class Address
 {

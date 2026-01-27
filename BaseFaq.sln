@@ -1,8 +1,8 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BaseFaq.Mas.Common.Persistence.MasDb", "dotnet\BaseFaq.Mas.Common.Persistence.MasDb\BaseFaq.Mas.Common.Persistence.MasDb.csproj", "{02B192E6-26BF-4FAA-888B-B3ADBDD32E19}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BaseFaq.Faq.Common.Persistence.FaqDb", "dotnet\BaseFaq.Faq.Common.Persistence.FaqDb\BaseFaq.Faq.Common.Persistence.FaqDb.csproj", "{02B192E6-26BF-4FAA-888B-B3ADBDD32E19}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Mas", "Mas", "{3CB44992-3CBF-4A43-9BAF-4EEA3BE6F769}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Faq", "Faq", "{3CB44992-3CBF-4A43-9BAF-4EEA3BE6F769}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Common", "Common", "{E797DF8B-A0A0-4DC6-991E-DC31C5BA6AFD}"
 EndProject
