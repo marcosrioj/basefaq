@@ -10,5 +10,5 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
 {
     public DbSet<Group> Groups { get; set; }
 
-    public DbSet<DataProtectionKey> DataProtectionKeys { get; }
+    public DbSet<DataProtectionKey> DataProtectionKeys { get; } = null!;
 }
