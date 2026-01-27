@@ -1,8 +1,14 @@
+using BaseFaq.Common.Infrastructure.Core.Options;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
+
 namespace BaseFaq.Common.Infrastructure.Core.Configuration;
 
 public static class CorsConfiguration
 {
-    private static WebSocketOptions _webSocketOptions;
+    private static WebSocketOptions? _webSocketOptions;
 
     public static void LoadCustomCorsOptions(this IServiceCollection services,
         ConfigurationManager configuration)
