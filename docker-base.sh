@@ -18,9 +18,9 @@ docker system prune -f
 # Step 3: Start core services with docker compose
 docker compose -p bf_baseservices -f ./docker/docker-compose.baseservices.yml up -d --force-recreate --no-build --remove-orphans --wait
 
-username="sa"
+username="postgres"
 password="Pass123$"
 
-command="/opt/mssql-tools/bin/sqlcmd -S localhost -U $username -P $password -i /bak/check_databases.sql"
+command="PGPASSWORD=$password psql -U $username -d postgres -f /docker-entrypoint-initdb.d/create_databases.sql"
 
-docker exec -i mssql bash -c "$command"
+docker exec -i postgres sh -c "$command"

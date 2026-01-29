@@ -7,28 +7,25 @@ volumes:
   rabbitmq:
   cache:
   smtp4dev-data:
-  mssql:
+  postgres:
 
 services:
-  mssql:
-    image: mcr.microsoft.com/mssql/server:2022-CU13-ubuntu-22.04
-    container_name: mssql
+  postgres:
+    image: postgres:16-alpine
+    container_name: postgres
     restart: always
     ports:
-      - '1434:1433'
-    user: root
+      - '5432:5432'
     environment:
-      - ACCEPT_EULA=Y
-      - MSSQL_PID=Developer
-      - MSSQL_USER=SA
-      - MSSQL_SA_PASSWORD=Pass123$$
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=Pass123$$
     volumes:
-      - mssql:/var/opt/mssql
-      - ./mssql:/bak
+      - postgres:/var/lib/postgresql/data
+      - ./postgres:/docker-entrypoint-initdb.d
     networks:
       - bf-network
     healthcheck:
-      test: ["CMD", "/opt/mssql-tools/bin/sqlcmd", "-Usa", "-PPass123$$", "-Q", "select 1"]
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 2s
       timeout: 20s
       retries: 20

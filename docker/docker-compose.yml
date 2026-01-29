@@ -8,4 +8,11 @@ services:
       - "6000:6001"
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - ConnectionStrings__DefaultConnection=Server=localhost,1433;Database=bf_identity_db;User Id=sa;Password=Pass123$;TrustServerCertificate=True;
+      - ConnectionStrings__DefaultConnection=Host=postgres;Port=5432;Database=bf_identity_db;Username=postgres;Password=Pass123$;
+    networks:
+      - bf-network
+
+networks:
+  bf-network:
+    external: true
+    name: bf-network
