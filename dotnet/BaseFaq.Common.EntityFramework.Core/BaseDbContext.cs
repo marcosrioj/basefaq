@@ -1,0 +1,203 @@
+using System.Linq.Expressions;
+using BaseFaq.Common.EntityFramework.Core.Abstractions;
+using BaseFaq.Common.EntityFramework.Core.Entities;
+using BaseFaq.Common.EntityFramework.Core.Helpers;
+using BaseFaq.Common.Infrastructure.Core.Abstractions;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Configuration;
+
+namespace BaseFaq.Common.EntityFramework.Core;
+
+public abstract class BaseDbContext<TContext> : DbContext where TContext : DbContext
+{
+    private readonly IConfiguration _configuration;
+    private readonly IMemoryCache _memoryCache;
+    private readonly ISessionService _sessionService;
+    private readonly ITenantConnectionStringProvider _tenantConnectionStringProvider;
+
+    protected BaseDbContext(
+        DbContextOptions<TContext> options,
+        ISessionService sessionService,
+        IConfiguration configuration,
+        IMemoryCache memoryCache,
+        ITenantConnectionStringProvider tenantConnectionStringProvider)
+        : base(options)
+    {
+        _sessionService = sessionService;
+        _configuration = configuration;
+        _memoryCache = memoryCache;
+        _tenantConnectionStringProvider = tenantConnectionStringProvider;
+    }
+
+    protected abstract string ConfigurationNamespace { get; }
+
+    protected virtual IEnumerable<string> ConfigurationNamespaces =>
+    [
+        ConfigurationNamespace
+    ];
+
+    protected Guid? SessionTenantId => _sessionService.TenantId;
+
+    public DbSet<Tenant> Tenants { get; set; } = null!;
+    public DbSet<User> Users { get; set; } = null!;
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        base.OnModelCreating(modelBuilder);
+
+        modelBuilder.UseCollation("Latin1_General_100_CI_AS_SC_UTF8");
+
+        var configurationLoader = new EfConfigurationLoader<TContext>();
+        foreach (var configurationNamespace in ConfigurationNamespaces)
+        {
+            configurationLoader.LoadFromNameSpace(modelBuilder, configurationNamespace);
+        }
+
+        ApplyGlobalFilters(modelBuilder);
+        ApplyTenantIndexes(modelBuilder);
+    }
+
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    {
+        var connectionString = ResolveConnectionString();
+
+        if (!string.IsNullOrWhiteSpace(connectionString))
+        {
+            optionsBuilder.UseSqlServer(connectionString);
+        }
+    }
+
+    protected virtual string ResolveConnectionString()
+    {
+        var defaultConnectionStringName = "DefaultConnection";
+        var connectionStringCacheDuration = TimeSpan.FromMinutes(10);
+
+        var defaultConnectionString = _memoryCache.GetOrCreate(
+            "ConnectionString:Default",
+            entry =>
+            {
+                entry.AbsoluteExpirationRelativeToNow = connectionStringCacheDuration;
+                return _configuration.GetConnectionString(defaultConnectionStringName);
+            });
+
+        if (string.IsNullOrWhiteSpace(defaultConnectionString))
+        {
+            throw new InvalidOperationException(
+                $"Missing connection string '{defaultConnectionStringName}'.");
+        }
+
+        var tenantId = _sessionService.TenantId;
+
+        if (tenantId is null)
+        {
+            return defaultConnectionString;
+        }
+
+        var cacheKey = $"TenantConnectionString:{tenantId}";
+        var tenantConnectionString = _memoryCache.GetOrCreate(
+            cacheKey,
+            entry =>
+            {
+                entry.AbsoluteExpirationRelativeToNow = connectionStringCacheDuration;
+                return _tenantConnectionStringProvider.GetConnectionString(tenantId.Value, defaultConnectionString);
+            });
+
+        if (string.IsNullOrWhiteSpace(tenantConnectionString))
+        {
+            throw new InvalidOperationException(
+                $"Tenant '{tenantId}' has an invalid connection string.");
+        }
+
+        return tenantConnectionString;
+    }
+
+    private void ApplyGlobalFilters(ModelBuilder modelBuilder)
+    {
+        foreach (var entityType in modelBuilder.Model.GetEntityTypes())
+        {
+            var filter = BuildFilterExpression(entityType.ClrType);
+            if (filter is null)
+            {
+                continue;
+            }
+
+            modelBuilder.Entity(entityType.ClrType).HasQueryFilter(filter);
+        }
+    }
+
+    private LambdaExpression? BuildFilterExpression(Type entityType)
+    {
+        var parameter = Expression.Parameter(entityType, "e");
+        Expression? filterBody = null;
+
+        if (typeof(ISoftDelete).IsAssignableFrom(entityType))
+        {
+            var isDeletedProperty = Expression.Property(
+                Expression.Convert(parameter, typeof(ISoftDelete)),
+                nameof(ISoftDelete.IsDeleted));
+
+            var notDeleted = Expression.Not(isDeletedProperty);
+            filterBody = filterBody is null ? notDeleted : Expression.AndAlso(filterBody, notDeleted);
+        }
+
+        var currentTenantId = Expression.Property(Expression.Constant(this), nameof(SessionTenantId));
+        var tenantIsNull = Expression.Equal(currentTenantId, Expression.Constant(null, typeof(Guid?)));
+
+        if (typeof(IMustHaveTenant).IsAssignableFrom(entityType))
+        {
+            var tenantProperty = Expression.Property(
+                Expression.Convert(parameter, typeof(IMustHaveTenant)),
+                nameof(IMustHaveTenant.TenantId));
+
+            var tenantMatches = Expression.Equal(
+                Expression.Convert(tenantProperty, typeof(Guid?)),
+                currentTenantId);
+
+            var tenantFilter = Expression.OrElse(tenantIsNull, tenantMatches);
+            filterBody = filterBody is null ? tenantFilter : Expression.AndAlso(filterBody, tenantFilter);
+        }
+        else if (typeof(IMayHaveTenant).IsAssignableFrom(entityType))
+        {
+            var tenantProperty = Expression.Property(
+                Expression.Convert(parameter, typeof(IMayHaveTenant)),
+                nameof(IMayHaveTenant.TenantId));
+
+            var tenantIsNullOnEntity = Expression.Equal(
+                tenantProperty,
+                Expression.Constant(null, typeof(Guid?)));
+
+            var tenantMatches = Expression.Equal(tenantProperty, currentTenantId);
+            var tenantFilter = Expression.OrElse(
+                tenantIsNull,
+                Expression.OrElse(tenantIsNullOnEntity, tenantMatches));
+
+            filterBody = filterBody is null ? tenantFilter : Expression.AndAlso(filterBody, tenantFilter);
+        }
+
+        return filterBody is null
+            ? null
+            : Expression.Lambda(filterBody, parameter);
+    }
+
+    private static void ApplyTenantIndexes(ModelBuilder modelBuilder)
+    {
+        foreach (var entityType in modelBuilder.Model.GetEntityTypes())
+        {
+            if (typeof(IMustHaveTenant).IsAssignableFrom(entityType.ClrType))
+            {
+                modelBuilder.Entity(entityType.ClrType)
+                    .HasIndex(nameof(IMustHaveTenant.TenantId))
+                    .HasDatabaseName($"IX_{entityType.ClrType.Name}_TenantId");
+                continue;
+            }
+
+            if (typeof(IMayHaveTenant).IsAssignableFrom(entityType.ClrType))
+            {
+                modelBuilder.Entity(entityType.ClrType)
+                    .HasIndex(nameof(IMayHaveTenant.TenantId))
+                    .HasDatabaseName($"IX_{entityType.ClrType.Name}_TenantId");
+            }
+        }
+    }
+}
