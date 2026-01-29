@@ -21,6 +21,7 @@ public class TenantDbContext(
         tenantConnectionStringProvider)
 {
     public DbSet<Entities.Tenant> Tenants { get; set; } = null!;
+    public DbSet<Entities.User> Users { get; set; } = null!;
 
     protected override string ConfigurationNamespace =>
         "BaseFaq.Common.EntityFramework.Tenant.Configurations";

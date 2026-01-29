@@ -22,6 +22,7 @@ public static class ServiceCollectionExtensions
 
         services.AddScoped<ITenantConnectionStringProvider, TenantConnectionStringProvider>();
         services.AddScoped<ITenantRepository, TenantRepository>();
+        services.AddScoped<IUserRepository, UserRepository>();
 
         return services;
     }
