@@ -13,7 +13,7 @@ public static class ServiceCollectionExtensions
         var migrationsAssembly = typeof(ApplicationDbContext).GetTypeInfo().Assembly.GetName().Name;
 
         services.AddDbContext<ApplicationDbContext>(options =>
-            options.UseSqlServer(connectionString,
+            options.UseNpgsql(connectionString,
                 b => b.EnableRetryOnFailure().MigrationsAssembly(migrationsAssembly)));
     }
 }

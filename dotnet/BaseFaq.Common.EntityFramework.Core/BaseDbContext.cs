@@ -60,7 +60,7 @@ public abstract class BaseDbContext<TContext> : DbContext where TContext : DbCon
 
         if (!string.IsNullOrWhiteSpace(connectionString))
         {
-            optionsBuilder.UseSqlServer(connectionString);
+            optionsBuilder.UseNpgsql(connectionString);
         }
     }
 

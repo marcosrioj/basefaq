@@ -10,17 +10,17 @@ namespace BaseFaq.Identity.App.Extensions;
 internal static class HostingExtensions
 {
     private const string _5DaysTokenProviderName = "5DaysProvider";
-    
+
     public static WebApplication ConfigureServices(this WebApplicationBuilder builder)
     {
         builder.Services.AddControllers();
         // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
         builder.Services.AddOpenApi();
 
-        //ApplicationDbContext - SQL Server
+        //ApplicationDbContext - PostgreSQL
         builder.Services.AddDbContext<ApplicationDbContext>(options =>
-            options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
-        
+            options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+
         builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
             {
                 options.Password.RequireDigit = true;

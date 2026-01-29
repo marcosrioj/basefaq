@@ -1,6 +1,6 @@
 using BaseFaq.Common.EntityFramework.Core.Abstractions;
 using BaseFaq.Common.EntityFramework.Core.Security;
-using Microsoft.Data.SqlClient;
+using Npgsql;
 
 namespace BaseFaq.Common.EntityFramework.Tenant.Providers;
 
@@ -22,11 +22,11 @@ public sealed class TenantConnectionStringProvider : ITenantConnectionStringProv
 
     private static string GetEncryptedConnectionString(string defaultConnectionString, Guid tenantId)
     {
-        using var connection = new SqlConnection(defaultConnectionString);
+        using var connection = new NpgsqlConnection(defaultConnectionString);
         using var command = connection.CreateCommand();
 
-        command.CommandText = "SELECT ConnectionString FROM Tenants WHERE Id = @TenantId";
-        command.Parameters.Add(new SqlParameter("@TenantId", tenantId));
+        command.CommandText = "SELECT \"ConnectionString\" FROM \"Tenants\" WHERE \"Id\" = @TenantId";
+        command.Parameters.Add(new NpgsqlParameter("@TenantId", tenantId));
 
         connection.Open();
         var result = command.ExecuteScalar();
