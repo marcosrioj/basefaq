@@ -1,7 +1,7 @@
 using BaseFaq.Common.EntityFramework.Core.Abstractions;
 using BaseFaq.Common.EntityFramework.Tenant.Providers;
 using BaseFaq.Common.EntityFramework.Tenant.Repositories;
-using BaseFaq.Common.Infrastructure.Core.Configuration;
+using BaseFaq.Common.Infrastructure.Core.Extensions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 

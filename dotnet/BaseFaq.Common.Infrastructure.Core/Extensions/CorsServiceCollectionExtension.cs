@@ -4,9 +4,9 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
-namespace BaseFaq.Common.Infrastructure.Core.Configuration;
+namespace BaseFaq.Common.Infrastructure.Core.Extensions;
 
-public static class CorsConfiguration
+public static class CorsServiceCollectionExtension
 {
     private static WebSocketOptions? _webSocketOptions;
 

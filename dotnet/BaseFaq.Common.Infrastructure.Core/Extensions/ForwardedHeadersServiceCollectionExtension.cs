@@ -2,9 +2,9 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace BaseFaq.Common.Infrastructure.Core.Configuration;
+namespace BaseFaq.Common.Infrastructure.Core.Extensions;
 
-public static class ForwardedHeadersConfiguration
+public static class ForwardedHeadersServiceCollectionExtension
 {
     public static void AddCustomForwardedHeaders(this IServiceCollection services)
     {
