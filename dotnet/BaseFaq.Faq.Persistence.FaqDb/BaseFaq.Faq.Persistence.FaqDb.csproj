@@ -4,11 +4,14 @@
         <TargetFramework>net10.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
+        <AssemblyName>BaseFaq.Faq.Persistence.FaqDb</AssemblyName>
+        <RootNamespace>BaseFaq.Faq.Persistence.FaqDb</RootNamespace>
     </PropertyGroup>
 
     <ItemGroup>
         <ProjectReference Include="..\BaseFaq.Common.EntityFramework.Core\BaseFaq.Common.EntityFramework.Core.csproj"/>
-      <ProjectReference Include="..\BaseFaq.Models.Enums\BaseFaq.Models.Enums.csproj" />
+        <ProjectReference Include="..\BaseFaq.Common.Infrastructure.Core\BaseFaq.Common.Infrastructure.Core.csproj"/>
+        <ProjectReference Include="..\BaseFaq.Models.Enums\BaseFaq.Models.Enums.csproj"/>
     </ItemGroup>
 
     <ItemGroup>

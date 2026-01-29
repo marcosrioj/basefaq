@@ -1,7 +1,7 @@
 using System.Security.Cryptography;
 using System.Text;
 
-namespace BaseFaq.Faq.Common.Persistence.FaqDb.Security;
+namespace BaseFaq.Common.EntityFramework.Core.Security;
 
 public sealed class StringCipher
 {

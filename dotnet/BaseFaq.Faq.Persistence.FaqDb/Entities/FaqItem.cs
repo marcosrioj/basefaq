@@ -1,7 +1,8 @@
-using BaseFaq.Faq.Common.Persistence.FaqDb.Base;
+using BaseFaq.Common.EntityFramework.Core.Entities;
+using BaseFaq.Common.EntityFramework.Core.Entities.Base;
 using BaseFaq.Models.Enums;
 
-namespace BaseFaq.Faq.Common.Persistence.FaqDb.Entities;
+namespace BaseFaq.Faq.Persistence.FaqDb.Entities;
 
 public class FaqItem : BaseEntity
 {

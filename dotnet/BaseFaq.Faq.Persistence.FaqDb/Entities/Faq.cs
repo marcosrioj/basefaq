@@ -1,10 +1,11 @@
-using BaseFaq.Faq.Common.Persistence.FaqDb.Base;
+using BaseFaq.Common.EntityFramework.Core.Abstractions;
+using BaseFaq.Common.EntityFramework.Core.Entities;
+using BaseFaq.Common.EntityFramework.Core.Entities.Base;
 using BaseFaq.Models.Enums;
-using BaseFaq.Models.Enums.Helpers;
 
-namespace BaseFaq.Faq.Common.Persistence.FaqDb.Entities;
+namespace BaseFaq.Faq.Persistence.FaqDb.Entities;
 
-public class Faq : BaseEntity
+public class Faq : BaseEntity, IMustHaveTenant
 {
     public required string Name { get; set; }
     public required string Language { get; set; }
