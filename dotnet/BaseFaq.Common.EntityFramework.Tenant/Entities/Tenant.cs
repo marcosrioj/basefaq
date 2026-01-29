@@ -1,8 +1,8 @@
 using BaseFaq.Common.EntityFramework.Core.Entities.Base;
-using BaseFaq.Common.EntityFramework.Core.Helpers;
+using BaseFaq.Common.EntityFramework.Tenant.Helpers;
 using BaseFaq.Models.Enums;
 
-namespace BaseFaq.Common.EntityFramework.Core.Entities;
+namespace BaseFaq.Common.EntityFramework.Tenant.Entities;
 
 public class Tenant : BaseEntity
 {

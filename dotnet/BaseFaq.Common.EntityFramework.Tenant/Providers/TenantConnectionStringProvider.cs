@@ -2,7 +2,7 @@ using BaseFaq.Common.EntityFramework.Core.Abstractions;
 using BaseFaq.Common.EntityFramework.Core.Security;
 using Microsoft.Data.SqlClient;
 
-namespace BaseFaq.Common.EntityFramework.Core.Providers;
+namespace BaseFaq.Common.EntityFramework.Tenant.Providers;
 
 public sealed class TenantConnectionStringProvider : ITenantConnectionStringProvider
 {

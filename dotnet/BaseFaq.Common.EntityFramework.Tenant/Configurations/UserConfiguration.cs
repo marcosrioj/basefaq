@@ -1,9 +1,9 @@
 using BaseFaq.Common.EntityFramework.Core.Configurations.Base;
-using BaseFaq.Common.EntityFramework.Core.Entities;
+using BaseFaq.Common.EntityFramework.Tenant.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace BaseFaq.Common.EntityFramework.Core.Configurations;
+namespace BaseFaq.Common.EntityFramework.Tenant.Configurations;
 
 public class UserConfiguration : BaseConfiguration<User>
 {

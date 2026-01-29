@@ -2,7 +2,7 @@ using BaseFaq.Common.EntityFramework.Core.Abstractions;
 using BaseFaq.Common.EntityFramework.Core.Entities.Base;
 using BaseFaq.Models.Enums;
 
-namespace BaseFaq.Common.EntityFramework.Core.Entities;
+namespace BaseFaq.Common.EntityFramework.Tenant.Entities;
 
 public class User : BaseEntity, IMayHaveTenant
 {

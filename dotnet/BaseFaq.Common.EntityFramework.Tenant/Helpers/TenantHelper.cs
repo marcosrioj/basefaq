@@ -1,7 +1,7 @@
 using System.Globalization;
 using System.Text;
 
-namespace BaseFaq.Common.EntityFramework.Core.Helpers;
+namespace BaseFaq.Common.EntityFramework.Tenant.Helpers;
 
 public static class TenantHelper
 {

@@ -1,36 +1,29 @@
 using BaseFaq.Common.EntityFramework.Core;
 using BaseFaq.Common.EntityFramework.Core.Abstractions;
+using BaseFaq.Common.EntityFramework.Tenant.Entities;
 using BaseFaq.Common.Infrastructure.Core.Abstractions;
-using BaseFaq.Faq.Persistence.FaqDb.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 
-namespace BaseFaq.Faq.Persistence.FaqDb;
+namespace BaseFaq.Common.EntityFramework.Tenant;
 
-public class FaqDbContext(
-    DbContextOptions<FaqDbContext> options,
+public class TenantDbContext(
+    DbContextOptions<TenantDbContext> options,
     ISessionService sessionService,
     IConfiguration configuration,
     IMemoryCache memoryCache,
     ITenantConnectionStringProvider tenantConnectionStringProvider)
-    : BaseDbContext<FaqDbContext>(
+    : BaseDbContext<TenantDbContext>(
         options,
         sessionService,
         configuration,
         memoryCache,
         tenantConnectionStringProvider)
 {
-    public DbSet<Entities.Faq> Faqs { get; set; }
-
-    public DbSet<FaqItem> FaqItems { get; set; }
+    public DbSet<Entities.Tenant> Tenants { get; set; } = null!;
+    public DbSet<User> Users { get; set; } = null!;
 
     protected override string ConfigurationNamespace =>
-        "BaseFaq.Faq.Persistence.FaqDb.Configurations";
-
-    protected override IEnumerable<string> ConfigurationNamespaces =>
-    [
-        ConfigurationNamespace,
-        "BaseFaq.Common.EntityFramework.Tenant.Configurations"
-    ];
+        "BaseFaq.Common.EntityFramework.Tenant.Configurations";
 }

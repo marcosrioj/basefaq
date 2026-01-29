@@ -1,6 +1,5 @@
 using System.Linq.Expressions;
 using BaseFaq.Common.EntityFramework.Core.Abstractions;
-using BaseFaq.Common.EntityFramework.Core.Entities;
 using BaseFaq.Common.EntityFramework.Core.Helpers;
 using BaseFaq.Common.Infrastructure.Core.Abstractions;
 using Microsoft.EntityFrameworkCore;
@@ -38,9 +37,6 @@ public abstract class BaseDbContext<TContext> : DbContext where TContext : DbCon
     ];
 
     protected Guid? SessionTenantId => _sessionService.TenantId;
-
-    public DbSet<Tenant> Tenants { get; set; } = null!;
-    public DbSet<User> Users { get; set; } = null!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

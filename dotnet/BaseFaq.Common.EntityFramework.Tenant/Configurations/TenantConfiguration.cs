@@ -1,13 +1,13 @@
 using BaseFaq.Common.EntityFramework.Core.Configurations.Base;
-using BaseFaq.Common.EntityFramework.Core.Entities;
+using BaseFaq.Common.EntityFramework.Tenant.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace BaseFaq.Common.EntityFramework.Core.Configurations;
+namespace BaseFaq.Common.EntityFramework.Tenant.Configurations;
 
-public class TenantConfiguration : BaseConfiguration<Tenant>
+public class TenantConfiguration : BaseConfiguration<Entities.Tenant>
 {
-    public override void Configure(EntityTypeBuilder<Tenant> builder)
+    public override void Configure(EntityTypeBuilder<Entities.Tenant> builder)
     {
         base.Configure(builder);
 
@@ -15,15 +15,15 @@ public class TenantConfiguration : BaseConfiguration<Tenant>
 
         builder.Property(p => p.Slug)
             .IsRequired()
-            .HasMaxLength(Tenant.MaxSlugLength);
+            .HasMaxLength(Entities.Tenant.MaxSlugLength);
 
         builder.Property(p => p.Name)
             .IsRequired()
-            .HasMaxLength(Tenant.MaxNameLength);
+            .HasMaxLength(Entities.Tenant.MaxNameLength);
 
         builder.Property(p => p.ConnectionString)
             .IsRequired()
-            .HasMaxLength(Tenant.MaxConnectionStringLength);
+            .HasMaxLength(Entities.Tenant.MaxConnectionStringLength);
 
         builder.Property(p => p.Edition)
             .IsRequired();
