@@ -2,8 +2,6 @@
 
 public enum UserRoleType
 {
-    Buyer = 1,
-    Seller = 2,
-    BuyerAndSeller = 3,
-    Admin = 4
+    Member = 0,
+    Admin = 1
 }

@@ -7,7 +7,14 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <ProjectReference Include="..\BaseFaq.Common.EntityFramework.Core\BaseFaq.Common.EntityFramework.Core.csproj"/>
       <ProjectReference Include="..\BaseFaq.Models.Enums\BaseFaq.Models.Enums.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <Reference Include="Microsoft.EntityFrameworkCore">
+            <HintPath>..\..\..\..\.nuget\packages\microsoft.entityframeworkcore\10.0.1\lib\net10.0\Microsoft.EntityFrameworkCore.dll</HintPath>
+        </Reference>
     </ItemGroup>
 
 </Project>
