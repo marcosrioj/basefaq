@@ -3,41 +3,21 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using BaseFaq.Identity.Persistence.IdentityDb;
+using BaseFaq.Identity.Persistence.IdentityDb.Extensions;
 using BaseFaq.Identity.Persistence.IdentityDb.Models;
 
 namespace BaseFaq.Identity.App.Extensions;
 
 internal static class HostingExtensions
 {
-    private const string _5DaysTokenProviderName = "5DaysProvider";
-
     public static WebApplication ConfigureServices(this WebApplicationBuilder builder)
     {
         builder.Services.AddControllers();
         // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
         builder.Services.AddOpenApi();
 
-        //ApplicationDbContext - PostgreSQL
-        builder.Services.AddDbContext<ApplicationDbContext>(options =>
-            options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+        builder.Services.AddIdentityDb(builder.Configuration.GetConnectionString("DefaultConnection"));
 
-        builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
-            {
-                options.Password.RequireDigit = true;
-                options.Password.RequireLowercase = true;
-                options.Password.RequireUppercase = true;
-                options.Password.RequireNonAlphanumeric = true;
-                options.Password.RequiredLength = 8;
-                options.Tokens.PasswordResetTokenProvider = _5DaysTokenProviderName;
-                // Lockout settings.
-                options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(2);
-                options.Lockout.MaxFailedAccessAttempts = 10;
-                options.Lockout.AllowedForNewUsers = true;
-            })
-            .AddEntityFrameworkStores<ApplicationDbContext>()
-            .AddDefaultTokenProviders()
-            .AddTokenProvider<
-                DataProtectorTokenProvider<ApplicationUser>>(_5DaysTokenProviderName); //Added extended token provider
 
         builder.Services.AddIdentityServer(options => { })
             .AddAspNetIdentity<ApplicationUser>()

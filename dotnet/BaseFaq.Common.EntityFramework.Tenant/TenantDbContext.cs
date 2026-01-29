@@ -1,6 +1,5 @@
 using BaseFaq.Common.EntityFramework.Core;
 using BaseFaq.Common.EntityFramework.Core.Abstractions;
-using BaseFaq.Common.EntityFramework.Tenant.Entities;
 using BaseFaq.Common.Infrastructure.Core.Abstractions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
@@ -22,7 +21,6 @@ public class TenantDbContext(
         tenantConnectionStringProvider)
 {
     public DbSet<Entities.Tenant> Tenants { get; set; } = null!;
-    public DbSet<User> Users { get; set; } = null!;
 
     protected override string ConfigurationNamespace =>
         "BaseFaq.Common.EntityFramework.Tenant.Configurations";
