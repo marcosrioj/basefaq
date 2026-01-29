@@ -36,7 +36,19 @@ public abstract class BaseDbContext<TContext> : DbContext where TContext : DbCon
         ConfigurationNamespace
     ];
 
+    protected virtual bool UseTenantConnectionString => true;
+    protected virtual TimeSpan ConnectionStringCacheDuration => TimeSpan.FromMinutes(10);
+
     protected Guid? SessionTenantId => _sessionService.TenantId;
+
+    public bool GlobalFiltersEnabled { get; set; } = true;
+
+    public IDisposable DisableGlobalFilters()
+    {
+        var previousValue = GlobalFiltersEnabled;
+        GlobalFiltersEnabled = false;
+        return new ResetOnDispose(() => GlobalFiltersEnabled = previousValue);
+    }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -56,6 +68,11 @@ public abstract class BaseDbContext<TContext> : DbContext where TContext : DbCon
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
+        if (optionsBuilder.IsConfigured)
+        {
+            return;
+        }
+
         var connectionString = ResolveConnectionString();
 
         if (!string.IsNullOrWhiteSpace(connectionString))
@@ -66,21 +83,11 @@ public abstract class BaseDbContext<TContext> : DbContext where TContext : DbCon
 
     protected virtual string ResolveConnectionString()
     {
-        var defaultConnectionStringName = "DefaultConnection";
-        var connectionStringCacheDuration = TimeSpan.FromMinutes(10);
+        var defaultConnectionString = GetDefaultConnectionString();
 
-        var defaultConnectionString = _memoryCache.GetOrCreate(
-            "ConnectionString:Default",
-            entry =>
-            {
-                entry.AbsoluteExpirationRelativeToNow = connectionStringCacheDuration;
-                return _configuration.GetConnectionString(defaultConnectionStringName);
-            });
-
-        if (string.IsNullOrWhiteSpace(defaultConnectionString))
+        if (!UseTenantConnectionString)
         {
-            throw new InvalidOperationException(
-                $"Missing connection string '{defaultConnectionStringName}'.");
+            return defaultConnectionString;
         }
 
         var tenantId = _sessionService.TenantId;
@@ -95,7 +102,7 @@ public abstract class BaseDbContext<TContext> : DbContext where TContext : DbCon
             cacheKey,
             entry =>
             {
-                entry.AbsoluteExpirationRelativeToNow = connectionStringCacheDuration;
+                entry.AbsoluteExpirationRelativeToNow = ConnectionStringCacheDuration;
                 return _tenantConnectionStringProvider.GetConnectionString(tenantId.Value, defaultConnectionString);
             });
 
@@ -106,6 +113,26 @@ public abstract class BaseDbContext<TContext> : DbContext where TContext : DbCon
         }
 
         return tenantConnectionString;
+    }
+
+    protected virtual string GetDefaultConnectionString()
+    {
+        const string defaultConnectionStringName = "DefaultConnection";
+        var defaultConnectionString = _memoryCache.GetOrCreate(
+            "ConnectionString:Default",
+            entry =>
+            {
+                entry.AbsoluteExpirationRelativeToNow = ConnectionStringCacheDuration;
+                return _configuration.GetConnectionString(defaultConnectionStringName);
+            });
+
+        if (string.IsNullOrWhiteSpace(defaultConnectionString))
+        {
+            throw new InvalidOperationException(
+                $"Missing connection string '{defaultConnectionStringName}'.");
+        }
+
+        return defaultConnectionString;
     }
 
     private void ApplyGlobalFilters(ModelBuilder modelBuilder)
@@ -171,9 +198,19 @@ public abstract class BaseDbContext<TContext> : DbContext where TContext : DbCon
             filterBody = filterBody is null ? tenantFilter : Expression.AndAlso(filterBody, tenantFilter);
         }
 
-        return filterBody is null
-            ? null
-            : Expression.Lambda(filterBody, parameter);
+        if (filterBody is null)
+        {
+            return null;
+        }
+
+        var globalFiltersEnabled = Expression.Property(
+            Expression.Constant(this),
+            nameof(GlobalFiltersEnabled));
+
+        var ignoreFilters = Expression.Not(globalFiltersEnabled);
+        var finalFilter = Expression.OrElse(ignoreFilters, filterBody);
+
+        return Expression.Lambda(finalFilter, parameter);
     }
 
     private static void ApplyTenantIndexes(ModelBuilder modelBuilder)
@@ -194,6 +231,28 @@ public abstract class BaseDbContext<TContext> : DbContext where TContext : DbCon
                     .HasIndex(nameof(IMayHaveTenant.TenantId))
                     .HasDatabaseName($"IX_{entityType.ClrType.Name}_TenantId");
             }
+        }
+    }
+
+    private sealed class ResetOnDispose : IDisposable
+    {
+        private readonly Action _reset;
+        private bool _disposed;
+
+        public ResetOnDispose(Action reset)
+        {
+            _reset = reset;
+        }
+
+        public void Dispose()
+        {
+            if (_disposed)
+            {
+                return;
+            }
+
+            _reset();
+            _disposed = true;
         }
     }
 }

@@ -1,6 +1,6 @@
 using BaseFaq.Common.EntityFramework.Core.Abstractions;
 
-namespace BaseFaq.Common.EntityFramework.Core.Entities.Base;
+namespace BaseFaq.Common.EntityFramework.Core.Entities;
 
 public class AuditableEntity : ISoftDelete
 {

@@ -1,4 +1,4 @@
-using BaseFaq.Common.EntityFramework.Core.Entities.Base;
+using BaseFaq.Common.EntityFramework.Core.Entities;
 using BaseFaq.Common.EntityFramework.Tenant.Helpers;
 using BaseFaq.Models.Enums;
 

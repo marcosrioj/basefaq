@@ -1,5 +1,5 @@
 using BaseFaq.Common.EntityFramework.Core.Abstractions;
-using BaseFaq.Common.EntityFramework.Core.Entities.Base;
+using BaseFaq.Common.EntityFramework.Core.Entities;
 using BaseFaq.Models.Enums;
 
 namespace BaseFaq.Faq.Persistence.FaqDb.Entities;

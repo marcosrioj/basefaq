@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace BaseFaq.Common.EntityFramework.Core.Entities.Base;
+namespace BaseFaq.Common.EntityFramework.Core.Entities;
 
 public class BaseEntity : AuditableEntity
 {

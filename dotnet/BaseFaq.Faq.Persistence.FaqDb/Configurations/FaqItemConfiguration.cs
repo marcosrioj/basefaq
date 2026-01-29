@@ -1,4 +1,4 @@
-using BaseFaq.Common.EntityFramework.Core.Configurations.Base;
+using BaseFaq.Common.EntityFramework.Core.Configurations;
 using BaseFaq.Faq.Persistence.FaqDb.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;

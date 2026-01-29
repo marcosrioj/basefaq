@@ -1,8 +1,8 @@
-using BaseFaq.Common.EntityFramework.Core.Entities.Base;
+using BaseFaq.Common.EntityFramework.Core.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace BaseFaq.Common.EntityFramework.Core.Configurations.Base;
+namespace BaseFaq.Common.EntityFramework.Core.Configurations;
 
 public abstract class BaseConfiguration<TEntity> : IEntityTypeConfiguration<TEntity>
     where TEntity : BaseEntity

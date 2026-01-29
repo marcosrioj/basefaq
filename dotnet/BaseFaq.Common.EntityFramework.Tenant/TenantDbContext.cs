@@ -24,4 +24,6 @@ public class TenantDbContext(
 
     protected override string ConfigurationNamespace =>
         "BaseFaq.Common.EntityFramework.Tenant.Configurations";
+
+    protected override bool UseTenantConnectionString => false;
 }
