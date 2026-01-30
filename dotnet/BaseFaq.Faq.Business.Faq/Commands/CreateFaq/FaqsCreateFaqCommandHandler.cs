@@ -5,9 +5,20 @@ namespace BaseFaq.Faq.Business.Faq.Commands.CreateFaq;
 
 public class FaqsCreateFaqCommandHandler(IFaqRepository faqRepository) : IRequestHandler<FaqsCreateFaqCommand, Guid>
 {
-    public Task<Guid> Handle(FaqsCreateFaqCommand request, CancellationToken cancellationToken)
+    public async Task<Guid> Handle(FaqsCreateFaqCommand request, CancellationToken cancellationToken)
     {
-        //TODO Create a Faq with faqRepository
-        throw new NotImplementedException();
+        var faq = new Persistence.FaqDb.Entities.Faq
+        {
+            Name = request.Name,
+            Language = request.Language,
+            Status = request.Status,
+            SortType = request.SortType,
+            TenantId = request.TenantId
+        };
+
+        await faqRepository.AddAsync(faq, cancellationToken);
+        await faqRepository.SaveChangesAsync(cancellationToken);
+
+        return faq.Id;
     }
 }

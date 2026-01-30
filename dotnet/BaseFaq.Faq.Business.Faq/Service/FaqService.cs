@@ -1,6 +1,7 @@
 using BaseFaq.Common.Infrastructure.Core.Abstractions;
 using BaseFaq.Faq.Business.Faq.Abstractions;
 using BaseFaq.Faq.Business.Faq.Commands.CreateFaq;
+using BaseFaq.Faq.Business.Faq.Queries.GetFaq;
 using BaseFaq.Models.Faq.Dtos.Faq;
 using MediatR;
 
@@ -10,26 +11,39 @@ public class FaqService(IMediator mediator, ISessionService sessionService) : IF
 {
     public async Task<FaqDto> Create(FaqCreateRequestDto requestDto, CancellationToken token)
     {
+        ArgumentNullException.ThrowIfNull(requestDto);
+
+        var tenantId = sessionService.TenantId
+                       ?? throw new InvalidOperationException("TenantId is missing from the current session.");
+
         var command = new FaqsCreateFaqCommand
         {
             Name = requestDto.Name,
             Language = requestDto.Language,
             Status = requestDto.Status,
             SortType = requestDto.SortType,
-            TenantId = sessionService.TenantId!.Value
+            TenantId = tenantId
         };
 
         var id = await mediator.Send(command, token);
 
-        //TODO
-        //var query = new FaqsGetFaqQuery { Id = id };
+        var result = await mediator.Send(new FaqsGetFaqQuery { Id = id }, token);
+        if (result is null)
+        {
+            throw new InvalidOperationException($"Created FAQ '{id}' was not found.");
+        }
 
-        //var result = await mediator.Send(query, token);
+        return result;
+    }
 
-        //await PublishCouchbaseSync(feedlotId, id, DataSyncEventAction.LotCreate, token);
+    public async Task<FaqDto> GetById(Guid id, CancellationToken token)
+    {
+        var result = await mediator.Send(new FaqsGetFaqQuery { Id = id }, token);
+        if (result is null)
+        {
+            throw new KeyNotFoundException($"FAQ '{id}' was not found.");
+        }
 
-        //return result;
-
-        return null;
+        return result;
     }
 }
