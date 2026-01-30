@@ -8,4 +8,8 @@
         <RootNamespace>BaseFaq.Models.Faq</RootNamespace>
     </PropertyGroup>
 
+    <ItemGroup>
+        <ProjectReference Include="..\BaseFaq.Models.Common\BaseFaq.Models.Common.csproj"/>
+    </ItemGroup>
+
 </Project>

@@ -1,7 +1,10 @@
 using BaseFaq.Common.Infrastructure.Core.Abstractions;
 using BaseFaq.Faq.Business.Faq.Abstractions;
 using BaseFaq.Faq.Business.Faq.Commands.CreateFaq;
+using BaseFaq.Faq.Business.Faq.Commands.UpdateFaq;
 using BaseFaq.Faq.Business.Faq.Queries.GetFaq;
+using BaseFaq.Faq.Business.Faq.Queries.GetFaqList;
+using BaseFaq.Models.Common.Dtos;
 using BaseFaq.Models.Faq.Dtos.Faq;
 using MediatR;
 
@@ -36,6 +39,13 @@ public class FaqService(IMediator mediator, ISessionService sessionService) : IF
         return result;
     }
 
+    public Task<PagedResultDto<FaqDto>> GetAll(FaqGetAllRequestDto requestDto, CancellationToken token)
+    {
+        ArgumentNullException.ThrowIfNull(requestDto);
+
+        return mediator.Send(new FaqsGetFaqListQuery { Request = requestDto }, token);
+    }
+
     public async Task<FaqDto> GetById(Guid id, CancellationToken token)
     {
         var result = await mediator.Send(new FaqsGetFaqQuery { Id = id }, token);
@@ -45,5 +55,23 @@ public class FaqService(IMediator mediator, ISessionService sessionService) : IF
         }
 
         return result;
+    }
+
+    public async Task<FaqDto> Update(Guid id, FaqUpdateRequestDto requestDto, CancellationToken token)
+    {
+        ArgumentNullException.ThrowIfNull(requestDto);
+
+        var command = new FaqsUpdateFaqCommand
+        {
+            Id = id,
+            Name = requestDto.Name,
+            Language = requestDto.Language,
+            Status = requestDto.Status,
+            SortType = requestDto.SortType
+        };
+
+        await mediator.Send(command, token);
+
+        return await GetById(id, token);
     }
 }
