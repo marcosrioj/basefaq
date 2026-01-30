@@ -1,10 +1,10 @@
 using BaseFaq.Faq.FaqWeb.Persistence.FaqDb.Entities;
-using BaseFaq.Faq.FaqWeb.Persistence.FaqDb.Repositories;
+using BaseFaq.Faq.FaqWeb.Persistence.FaqDb;
 using MediatR;
 
 namespace BaseFaq.Faq.FaqWeb.Business.Faq.Commands.CreateFaqItem;
 
-public class FaqItemsCreateFaqItemCommandHandler(IFaqItemRepository faqItemRepository)
+public class FaqItemsCreateFaqItemCommandHandler(FaqDbContext dbContext)
     : IRequestHandler<FaqItemsCreateFaqItemCommand, Guid>
 {
     public async Task<Guid> Handle(FaqItemsCreateFaqItemCommand request, CancellationToken cancellationToken)
@@ -21,8 +21,8 @@ public class FaqItemsCreateFaqItemCommandHandler(IFaqItemRepository faqItemRepos
             FaqId = request.FaqId
         };
 
-        await faqItemRepository.AddAsync(faqItem, cancellationToken);
-        await faqItemRepository.SaveChangesAsync(cancellationToken);
+        await dbContext.FaqItems.AddAsync(faqItem, cancellationToken);
+        await dbContext.SaveChangesAsync(cancellationToken);
 
         return faqItem.Id;
     }

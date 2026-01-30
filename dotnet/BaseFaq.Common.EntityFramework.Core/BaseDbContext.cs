@@ -1,5 +1,6 @@
 using System.Linq.Expressions;
 using BaseFaq.Common.EntityFramework.Core.Abstractions;
+using BaseFaq.Common.EntityFramework.Core.Entities;
 using BaseFaq.Common.EntityFramework.Core.Helpers;
 using BaseFaq.Common.Infrastructure.Core.Abstractions;
 using Microsoft.EntityFrameworkCore;
@@ -48,6 +49,26 @@ public abstract class BaseDbContext<TContext> : DbContext where TContext : DbCon
         var previousValue = GlobalFiltersEnabled;
         GlobalFiltersEnabled = false;
         return new ResetOnDispose(() => GlobalFiltersEnabled = previousValue);
+    }
+
+    public override int SaveChanges(bool acceptAllChangesOnSuccess)
+    {
+        ApplySoftDeleteRules();
+        return base.SaveChanges(acceptAllChangesOnSuccess);
+    }
+
+    public override Task<int> SaveChangesAsync(
+        bool acceptAllChangesOnSuccess,
+        CancellationToken cancellationToken = default)
+    {
+        ApplySoftDeleteRules();
+        return base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
+    }
+
+    public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+    {
+        ApplySoftDeleteRules();
+        return base.SaveChangesAsync(cancellationToken);
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -211,6 +232,25 @@ public abstract class BaseDbContext<TContext> : DbContext where TContext : DbCon
         var finalFilter = Expression.OrElse(ignoreFilters, filterBody);
 
         return Expression.Lambda(finalFilter, parameter);
+    }
+
+    private void ApplySoftDeleteRules()
+    {
+        foreach (var entry in ChangeTracker.Entries<ISoftDelete>())
+        {
+            if (entry.State != EntityState.Deleted)
+            {
+                continue;
+            }
+
+            entry.State = EntityState.Modified;
+            entry.Entity.IsDeleted = true;
+
+            if (entry.Entity is AuditableEntity auditableEntity)
+            {
+                auditableEntity.DeletedDate = DateTime.UtcNow;
+            }
+        }
     }
 
     private static void ApplyTenantIndexes(ModelBuilder modelBuilder)

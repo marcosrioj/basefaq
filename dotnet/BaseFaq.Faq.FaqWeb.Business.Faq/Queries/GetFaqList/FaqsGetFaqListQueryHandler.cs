@@ -1,4 +1,4 @@
-using BaseFaq.Faq.FaqWeb.Persistence.FaqDb.Repositories;
+using BaseFaq.Faq.FaqWeb.Persistence.FaqDb;
 using BaseFaq.Models.Common.Dtos;
 using BaseFaq.Models.Faq.Dtos.Faq;
 using MediatR;
@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace BaseFaq.Faq.FaqWeb.Business.Faq.Queries.GetFaqList;
 
-public class FaqsGetFaqListQueryHandler(IFaqRepository faqRepository)
+public class FaqsGetFaqListQueryHandler(FaqDbContext dbContext)
     : IRequestHandler<FaqsGetFaqListQuery, PagedResultDto<FaqDto>>
 {
     public async Task<PagedResultDto<FaqDto>> Handle(FaqsGetFaqListQuery request, CancellationToken cancellationToken)
@@ -14,7 +14,7 @@ public class FaqsGetFaqListQueryHandler(IFaqRepository faqRepository)
         ArgumentNullException.ThrowIfNull(request);
         ArgumentNullException.ThrowIfNull(request.Request);
 
-        var query = faqRepository.Query(tracking: false);
+        var query = dbContext.Faqs.AsNoTracking();
         query = ApplySorting(query, request.Request.Sorting);
 
         var totalCount = await query.CountAsync(cancellationToken);

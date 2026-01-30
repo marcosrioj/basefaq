@@ -1,15 +1,18 @@
-using BaseFaq.Faq.FaqWeb.Persistence.FaqDb.Repositories;
+using BaseFaq.Faq.FaqWeb.Persistence.FaqDb;
 using BaseFaq.Models.Faq.Dtos.FaqItem;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 
 namespace BaseFaq.Faq.FaqWeb.Business.Faq.Queries.GetFaqItem;
 
-public class FaqItemsGetFaqItemQueryHandler(IFaqItemRepository faqItemRepository)
+public class FaqItemsGetFaqItemQueryHandler(FaqDbContext dbContext)
     : IRequestHandler<FaqItemsGetFaqItemQuery, FaqItemDto?>
 {
     public async Task<FaqItemDto?> Handle(FaqItemsGetFaqItemQuery request, CancellationToken cancellationToken)
     {
-        var faqItem = await faqItemRepository.GetByIdAsync(request.Id, cancellationToken);
+        var faqItem = await dbContext.FaqItems
+            .AsNoTracking()
+            .FirstOrDefaultAsync(entity => entity.Id == request.Id, cancellationToken);
         if (faqItem is null)
         {
             return null;

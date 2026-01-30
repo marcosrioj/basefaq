@@ -1,7 +1,9 @@
 using BaseFaq.Common.EntityFramework.Core;
 using BaseFaq.Common.EntityFramework.Core.Abstractions;
+using BaseFaq.Common.EntityFramework.Core.Security;
 using BaseFaq.Common.Infrastructure.Core.Abstractions;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 
@@ -27,4 +29,43 @@ public class TenantDbContext(
         "BaseFaq.Common.EntityFramework.Tenant.Configurations";
 
     protected override bool UseTenantConnectionString => false;
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        base.OnModelCreating(modelBuilder);
+
+        var converter = new ValueConverter<string, string>(
+            value => EncryptConnectionString(value),
+            value => DecryptConnectionString(value));
+
+        modelBuilder.Entity<Entities.Tenant>()
+            .Property(tenant => tenant.ConnectionString)
+            .HasConversion(converter);
+    }
+
+    private static string EncryptConnectionString(string value)
+    {
+        if (string.IsNullOrWhiteSpace(value) || IsEncrypted(value))
+        {
+            return value;
+        }
+
+        return StringCipher.Instance.Encrypt(value) ?? string.Empty;
+    }
+
+    private static string DecryptConnectionString(string value)
+    {
+        if (string.IsNullOrWhiteSpace(value) || !IsEncrypted(value))
+        {
+            return value;
+        }
+
+        return StringCipher.Instance.Decrypt(value) ?? string.Empty;
+    }
+
+    private static bool IsEncrypted(string? value)
+    {
+        return !string.IsNullOrWhiteSpace(value) &&
+               value.StartsWith("v1:", StringComparison.Ordinal);
+    }
 }

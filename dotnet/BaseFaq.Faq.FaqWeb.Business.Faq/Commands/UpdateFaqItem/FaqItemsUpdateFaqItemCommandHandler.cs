@@ -1,14 +1,17 @@
-using BaseFaq.Faq.FaqWeb.Persistence.FaqDb.Repositories;
+using BaseFaq.Faq.FaqWeb.Persistence.FaqDb;
+using Microsoft.EntityFrameworkCore;
 using MediatR;
 
 namespace BaseFaq.Faq.FaqWeb.Business.Faq.Commands.UpdateFaqItem;
 
-public class FaqItemsUpdateFaqItemCommandHandler(IFaqItemRepository faqItemRepository)
+public class FaqItemsUpdateFaqItemCommandHandler(FaqDbContext dbContext)
     : IRequestHandler<FaqItemsUpdateFaqItemCommand>
 {
     public async Task Handle(FaqItemsUpdateFaqItemCommand request, CancellationToken cancellationToken)
     {
-        var faqItem = await faqItemRepository.GetByIdAsync(request.Id, cancellationToken);
+        var faqItem = await dbContext.FaqItems.FirstOrDefaultAsync(
+            entity => entity.Id == request.Id,
+            cancellationToken);
         if (faqItem is null)
         {
             throw new KeyNotFoundException($"FAQ item '{request.Id}' was not found.");
@@ -23,7 +26,7 @@ public class FaqItemsUpdateFaqItemCommandHandler(IFaqItemRepository faqItemRepos
         faqItem.IsActive = request.IsActive;
         faqItem.FaqId = request.FaqId;
 
-        faqItemRepository.Update(faqItem);
-        await faqItemRepository.SaveChangesAsync(cancellationToken);
+        dbContext.FaqItems.Update(faqItem);
+        await dbContext.SaveChangesAsync(cancellationToken);
     }
 }

@@ -1,6 +1,5 @@
 using BaseFaq.Common.EntityFramework.Core.Abstractions;
 using BaseFaq.Common.EntityFramework.Tenant.Providers;
-using BaseFaq.Common.EntityFramework.Tenant.Repositories;
 using BaseFaq.Common.Infrastructure.Core.Extensions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -21,8 +20,6 @@ public static class ServiceCollectionExtensions
         services.AddSessionService();
 
         services.AddScoped<ITenantConnectionStringProvider, TenantConnectionStringProvider>();
-        services.AddScoped<ITenantRepository, TenantRepository>();
-        services.AddScoped<IUserRepository, UserRepository>();
 
         return services;
     }
