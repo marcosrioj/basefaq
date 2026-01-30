@@ -1,10 +1,8 @@
-using BaseFaq.Common.EntityFramework.Core.Abstractions;
-using BaseFaq.Common.EntityFramework.Core.Entities;
 using BaseFaq.Models.Faq.Enums;
 
-namespace BaseFaq.Faq.Persistence.FaqDb.Entities;
+namespace BaseFaq.Models.Faq.Dtos.Faq;
 
-public class Faq : BaseEntity, IMustHaveTenant
+public class FaqDto
 {
     public required string Name { get; set; }
     public required string Language { get; set; }
@@ -12,6 +10,4 @@ public class Faq : BaseEntity, IMustHaveTenant
     public required FaqSortType SortType { get; set; }
 
     public required Guid TenantId { get; set; }
-
-    public ICollection<FaqItem> Items { get; set; } = [];
 }

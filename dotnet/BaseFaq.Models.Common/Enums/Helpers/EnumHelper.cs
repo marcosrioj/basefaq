@@ -1,6 +1,6 @@
 using System.ComponentModel;
 
-namespace BaseFaq.Models.Enums.Helpers;
+namespace BaseFaq.Models.Common.Enums.Helpers;
 
 public static class EnumHelper
 {

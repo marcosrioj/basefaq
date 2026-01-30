@@ -1,4 +1,4 @@
-namespace BaseFaq.Models.Enums;
+namespace BaseFaq.Models.Tenant.Enums;
 
 public enum TenantEdition
 {

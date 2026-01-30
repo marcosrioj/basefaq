@@ -1,4 +1,4 @@
-namespace BaseFaq.Models.Enums;
+namespace BaseFaq.Models.Faq.Enums;
 
 public enum FaqItemOrigin
 {

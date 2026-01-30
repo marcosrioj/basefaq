@@ -1,10 +1,9 @@
-using BaseFaq.Common.EntityFramework.Core.Abstractions;
-using BaseFaq.Common.EntityFramework.Core.Entities;
 using BaseFaq.Models.Faq.Enums;
+using MediatR;
 
-namespace BaseFaq.Faq.Persistence.FaqDb.Entities;
+namespace BaseFaq.Faq.Business.Faq.Commands.CreateFaq;
 
-public class Faq : BaseEntity, IMustHaveTenant
+public class FaqsCreateFaqCommand : IRequest<Guid>
 {
     public required string Name { get; set; }
     public required string Language { get; set; }
@@ -12,6 +11,4 @@ public class Faq : BaseEntity, IMustHaveTenant
     public required FaqSortType SortType { get; set; }
 
     public required Guid TenantId { get; set; }
-
-    public ICollection<FaqItem> Items { get; set; } = [];
 }
