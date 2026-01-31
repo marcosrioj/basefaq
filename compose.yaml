@@ -5,3 +5,15 @@
       context: .
       dockerfile: dotnet/BaseFaq.Faq.FaqWeb.App/Dockerfile
 
+  basefaq.faq.faqweb.app-1:
+    image: basefaq.faq.faqweb.app-1
+    build:
+      context: .
+      dockerfile: dotnet/BaseFaq.Faq.FaqWeb.App/Dockerfile
+
+  basefaq.faq.faqweb.app-2:
+    image: basefaq.faq.faqweb.app-2
+    build:
+      context: .
+      dockerfile: dotnet/BaseFaq.Faq.FaqWeb.App/Dockerfile
+
