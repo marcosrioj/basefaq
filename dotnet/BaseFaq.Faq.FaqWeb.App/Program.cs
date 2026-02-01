@@ -1,3 +1,5 @@
+using BaseFaq.Common.Infrastructure.Sentry.Extensions;
+
 namespace BaseFaq.Faq.FaqWeb.App;
 
 public class Program
@@ -18,6 +20,8 @@ public class Program
         // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
         builder.Services.AddOpenApi();
 
+        builder.WebHost.AddConfiguredSentry();
+
         var app = builder.Build();
 
         // Configure the HTTP request pipeline.
@@ -28,6 +32,8 @@ public class Program
 
         app.UseHttpsRedirection();
 
+        app.UseConfiguredSentry();
+
         app.UseAuthorization();
 
         var summaries = new[]
@@ -37,6 +43,8 @@ public class Program
 
         app.MapGet("/weatherforecast", (HttpContext httpContext) =>
             {
+                int? test = null;
+
                 var forecast = Enumerable.Range(1, 5).Select(index =>
                         new WeatherForecast
                         {
@@ -45,6 +53,8 @@ public class Program
                             Summary = summaries[Random.Shared.Next(summaries.Length)]
                         })
                     .ToArray();
+
+                var test2 = test.Value;
                 return forecast;
             })
             .WithName("GetWeatherForecast");
