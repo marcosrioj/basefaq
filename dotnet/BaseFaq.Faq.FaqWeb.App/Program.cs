@@ -43,8 +43,6 @@ public class Program
 
         app.MapGet("/weatherforecast", (HttpContext httpContext) =>
             {
-                int? test = null;
-
                 var forecast = Enumerable.Range(1, 5).Select(index =>
                         new WeatherForecast
                         {
@@ -54,7 +52,6 @@ public class Program
                         })
                     .ToArray();
 
-                var test2 = test.Value;
                 return forecast;
             })
             .WithName("GetWeatherForecast");
