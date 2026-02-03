@@ -1,0 +1,25 @@
+using BaseFaq.Common.EntityFramework.Tenant;
+using MediatR;
+
+namespace BaseFaq.Tenant.TenantWeb.Business.Commands.CreateTenant;
+
+public class TenantsCreateTenantCommandHandler(TenantDbContext dbContext)
+    : IRequestHandler<TenantsCreateTenantCommand, Guid>
+{
+    public async Task<Guid> Handle(TenantsCreateTenantCommand request, CancellationToken cancellationToken)
+    {
+        var tenant = new BaseFaq.Common.EntityFramework.Tenant.Entities.Tenant
+        {
+            Slug = request.Slug,
+            Name = request.Name,
+            Edition = request.Edition,
+            ConnectionString = request.ConnectionString,
+            IsActive = request.IsActive
+        };
+
+        await dbContext.Tenants.AddAsync(tenant, cancellationToken);
+        await dbContext.SaveChangesAsync(cancellationToken);
+
+        return tenant.Id;
+    }
+}
