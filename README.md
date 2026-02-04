@@ -101,6 +101,12 @@ This compose file:
 
 If you run APIs in Docker, ensure connection strings point to the base services container (use `Host=postgres`, not `localhost`).
 
+You can also use the helper script:
+
+```bash
+./docker.sh
+```
+
 ## Service Ports
 - PostgreSQL: `localhost:5432` (databases `bf_identity_db`, `bf_tenant_db`, `bf_faq_db`)
 - SMTP4Dev UI: `http://localhost:4590` (SMTP on `1025`)
