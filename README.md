@@ -69,7 +69,6 @@ dotnet run --project dotnet/BaseFaq.Identity.App
 
 Endpoints:
 - HTTP: `http://localhost:5000`
-- HTTPS: `https://localhost:5001`
 
 FAQ Web API (requires Identity API for auth by default):
 
@@ -79,7 +78,6 @@ dotnet run --project dotnet/BaseFaq.Faq.FaqWeb.App
 
 Endpoints:
 - HTTP: `http://localhost:5010`
-- HTTPS: `https://localhost:5011`
 
 Swagger / OpenAPI (FAQ app, Development only):
 - Swagger UI: `/swagger`
@@ -108,7 +106,7 @@ If you run APIs in Docker, ensure connection strings point to the base services 
 - SMTP4Dev UI: `http://localhost:4590` (SMTP on `1025`)
 - RabbitMQ UI: `http://localhost:15672` (AMQP on `5672`, auth disabled)
 - Redis: `localhost:6379`
-- Identity API (Docker): `https://localhost:6000` (mapped from container `5001`)
+- Identity API (Docker): `http://localhost:5000`
 - FAQ Web API (Docker): `http://localhost:5010`
 
 ## Stop services
