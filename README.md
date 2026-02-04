@@ -90,13 +90,16 @@ Swagger / OpenAPI (FAQ app, Development only):
 Identity + FAQ APIs (Docker):
 
 ```bash
-docker compose -f docker/docker-compose.yml up -d --build
+docker compose -p bf_services -f docker/docker-compose.yml up -d --build
 ```
 
 This compose file:
-- Runs the Identity API and FAQ Web API.
+- Runs these services:
+  - `basefaq.identity.app`
+  - `basefaq.faq.faqweb.app`
 - Wires both to the `bf-network` network created by the base services.
 - Injects connection strings and Identity endpoints for the FAQ app.
+- Uses the repo root as the build context, so run the command from the repo root.
 
 If you run APIs in Docker, ensure connection strings point to the base services container (use `Host=postgres`, not `localhost`).
 
