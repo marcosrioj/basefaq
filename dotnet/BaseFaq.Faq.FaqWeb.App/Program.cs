@@ -89,7 +89,7 @@ public class Program
             {
                 options.OAuthClientId("basefaq-api-swagger-dev");
                 options.OAuthClientSecret("secret");
-                options.OAuthScopes("profile", "openid", "BaseFaq.All");
+                options.OAuthScopes("profile", "openid", "BaseFaq.App");
                 options.EnablePersistAuthorization();
             });
 
