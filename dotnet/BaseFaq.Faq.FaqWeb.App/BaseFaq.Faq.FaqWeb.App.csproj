@@ -18,7 +18,10 @@
     </ItemGroup>
 
     <ItemGroup>
+        <ProjectReference Include="..\BaseFaq.Common.Infrastructure.Mvc\BaseFaq.Common.Infrastructure.Mvc.csproj"/>
         <ProjectReference Include="..\BaseFaq.Common.Infrastructure.Sentry\BaseFaq.Common.Infrastructure.Sentry.csproj"/>
+        <ProjectReference Include="..\BaseFaq.Common.Infrastructure.Swagger\BaseFaq.Common.Infrastructure.Swagger.csproj"/>
+        <ProjectReference Include="..\BaseFaq.Faq.FaqWeb.Business.Faq\BaseFaq.Faq.FaqWeb.Business.Faq.csproj"/>
     </ItemGroup>
 
 </Project>

@@ -86,7 +86,7 @@ public static class CorsServiceCollectionExtension
             throw new Exception("Cors Options Not Found");
         }
 
-        if (corsOptions.EnableWebSocketCors)
+        if (corsOptions.EnableWebSocketCors && _webSocketOptions != null)
         {
             app.UseWebSockets(_webSocketOptions);
         }

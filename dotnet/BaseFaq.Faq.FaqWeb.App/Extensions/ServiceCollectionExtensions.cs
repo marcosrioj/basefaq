@@ -5,13 +5,10 @@ namespace BaseFaq.Faq.FaqWeb.App.Extensions;
 
 public static class ServiceCollectionExtensions
 {
-    // public static void AddFeatures(this IServiceCollection services, IConfiguration configuration)
-    // {
-    //     services.AddUserProfile(configuration);
-    //     services.AddEventsFeature();
-    //     services.AddCommonOperation();
-    //     services.AddPermissions();
-    // }
+    public static void AddFeatures(this IServiceCollection services, IConfiguration configuration)
+    {
+        //services.AddEventsFeature();
+    }
 
     public static void AddIdentityService(this IServiceCollection services, ConfigurationManager configuration)
     {
