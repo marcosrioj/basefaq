@@ -58,7 +58,7 @@ Connection strings live in:
 - `dotnet/BaseFaq.Identity.App/appsettings.json`
 - `dotnet/BaseFaq.Faq.FaqWeb.App/appsettings.json`
 
-Note: the FAQ app defaults to `bf_fad_db` in `appsettings.json`. Update it to `bf_faq_db` or override with `ConnectionStrings__DefaultConnection` to match the created database.
+Note: the FAQ app defaults to `bf_faq_db` in `appsettings.json`. Update it or override with `ConnectionStrings__FaqDb` to match the created database.
 
 ## 3) Run the APIs locally
 Identity API:
