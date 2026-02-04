@@ -10,12 +10,12 @@ public class User : BaseEntity, IMustHaveTenant
     public const int MaxSurNameLength = 100;
     public const int MaxEmailLength = 200;
     public const int MaxPhoneNumberLength = 200;
-    public const int MaxPasswordHashLength = 200;
+    public const int MaxExternalIdLength = 200;
 
     public required string GivenName { get; set; }
     public string? SurName { get; set; }
     public required string Email { get; set; }
-    public string PasswordHash { get; set; } = string.Empty;
+    public required string ExternalId { get; set; }
     public string PhoneNumber { get; set; } = string.Empty;
     public UserRoleType Role { get; set; }
 

@@ -8,7 +8,8 @@ public class IdentityService(IHttpContextAccessor httpContextAccessor) : IIdenti
 {
     public string? GetUserIdentity()
     {
-        return httpContextAccessor.HttpContext?.User.FindFirstValue("sub");
+        var user = httpContextAccessor.HttpContext?.User;
+        return user?.FindFirstValue("oid") ?? user?.FindFirstValue("sub");
     }
 
     public ClaimsPrincipal? GetUser()

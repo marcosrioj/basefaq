@@ -24,7 +24,7 @@ public class UserService(IMediator mediator, ISessionService sessionService) : I
             GivenName = requestDto.GivenName,
             SurName = requestDto.SurName,
             Email = requestDto.Email,
-            PasswordHash = requestDto.PasswordHash,
+            ExternalId = requestDto.ExternalId,
             PhoneNumber = requestDto.PhoneNumber,
             Role = requestDto.Role,
             TenantId = tenantId
@@ -69,7 +69,7 @@ public class UserService(IMediator mediator, ISessionService sessionService) : I
             GivenName = requestDto.GivenName,
             SurName = requestDto.SurName,
             Email = requestDto.Email,
-            PasswordHash = requestDto.PasswordHash,
+            ExternalId = requestDto.ExternalId,
             PhoneNumber = requestDto.PhoneNumber,
             Role = requestDto.Role
         };

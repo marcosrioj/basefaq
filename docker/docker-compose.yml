@@ -1,18 +1,4 @@
 services:
-  basefaq.identity.app:
-    image: basefaq.identity.app
-    build:
-      context: ..
-      dockerfile: dotnet/BaseFaq.Identity.App/Dockerfile
-    ports:
-      - "5000:5000"
-    environment:
-      - ASPNETCORE_ENVIRONMENT=Development
-      - ASPNETCORE_URLS=http://+:5000
-      - ConnectionStrings__DefaultConnection=Host=postgres;Port=5432;Database=bf_identity_db;Username=postgres;Password=Pass123$;
-    networks:
-      - bf-network
-
   basefaq.faq.faqweb.app:
     image: basefaq.faq.faqweb.app
     build:
@@ -23,13 +9,8 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:5010
-      - ConnectionStrings__DefaultConnection=Host=postgres;Port=5432;Database=bf_faq_db;Username=postgres;Password=Pass123$;
-      - JwtAuthentication__Authority=http://basefaq.identity.app:5000
-      - JwtAuthentication__Audience=BaseFaq
-      - SwaggerOptions__swaggerAuth__AuthorizeEndpoint=http://basefaq.identity.app:5000/connect/authorize
-      - SwaggerOptions__swaggerAuth__TokenEndpoint=http://basefaq.identity.app:5000/connect/token
-    depends_on:
-      - basefaq.identity.app
+      - ConnectionStrings__FaqDb=Host=postgres;Port=5432;Database=bf_faq_db;Username=postgres;Password=Pass123$;
+      - ConnectionStrings__TenantDb=Host=postgres;Port=5432;Database=bf_tenant_db;Username=postgres;Password=Pass123$;
     networks:
       - bf-network
 

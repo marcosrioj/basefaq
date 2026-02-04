@@ -52,7 +52,10 @@ public sealed class SessionService : ISessionService
         }
 
         var tenantClaimType = _options.Value.TenantIdClaimType;
-        var tenantValue = httpContext.User?.FindFirst(tenantClaimType)?.Value;
+        var tenantHeaderName = _options.Value.TenantIdHeaderName;
+        var tenantValue = httpContext.Request.Headers.TryGetValue(tenantHeaderName, out var tenantHeader)
+            ? tenantHeader.FirstOrDefault()
+            : httpContext.User?.FindFirst(tenantClaimType)?.Value;
         var tenantId = Guid.TryParse(tenantValue, out var parsedTenantId)
             ? parsedTenantId
             : (Guid?)null;

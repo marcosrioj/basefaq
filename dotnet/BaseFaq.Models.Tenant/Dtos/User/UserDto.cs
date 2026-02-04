@@ -8,6 +8,7 @@ public class UserDto
     public required string GivenName { get; set; }
     public string? SurName { get; set; }
     public required string Email { get; set; }
+    public required string ExternalId { get; set; }
     public required string PhoneNumber { get; set; }
     public required UserRoleType Role { get; set; }
     public required Guid TenantId { get; set; }

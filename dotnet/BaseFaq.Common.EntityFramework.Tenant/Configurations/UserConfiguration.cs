@@ -24,8 +24,9 @@ public class UserConfiguration : BaseConfiguration<User>
             .IsRequired()
             .HasMaxLength(User.MaxEmailLength);
 
-        builder.Property(p => p.PasswordHash)
-            .HasMaxLength(User.MaxPasswordHashLength);
+        builder.Property(p => p.ExternalId)
+            .IsRequired()
+            .HasMaxLength(User.MaxExternalIdLength);
 
         builder.Property(p => p.PhoneNumber)
             .HasMaxLength(User.MaxPhoneNumberLength);
@@ -38,5 +39,9 @@ public class UserConfiguration : BaseConfiguration<User>
 
         builder.HasIndex(p => p.Email)
             .HasDatabaseName("IX_User_Email");
+
+        builder.HasIndex(p => new { p.TenantId, p.ExternalId })
+            .IsUnique()
+            .HasDatabaseName("IX_User_Tenant_ExternalId");
     }
 }

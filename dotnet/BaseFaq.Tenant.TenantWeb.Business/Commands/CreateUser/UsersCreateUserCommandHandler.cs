@@ -14,7 +14,7 @@ public class UsersCreateUserCommandHandler(TenantDbContext dbContext)
             GivenName = request.GivenName,
             SurName = request.SurName,
             Email = request.Email,
-            PasswordHash = request.PasswordHash ?? string.Empty,
+            ExternalId = request.ExternalId,
             PhoneNumber = request.PhoneNumber ?? string.Empty,
             Role = request.Role,
             TenantId = request.TenantId

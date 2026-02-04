@@ -25,6 +25,7 @@ public class UsersGetUserQueryHandler(TenantDbContext dbContext)
             GivenName = user.GivenName,
             SurName = user.SurName,
             Email = user.Email,
+            ExternalId = user.ExternalId,
             PhoneNumber = user.PhoneNumber,
             Role = user.Role,
             TenantId = user.TenantId

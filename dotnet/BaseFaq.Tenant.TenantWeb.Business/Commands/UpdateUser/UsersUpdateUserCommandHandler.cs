@@ -18,7 +18,7 @@ public class UsersUpdateUserCommandHandler(TenantDbContext dbContext)
         user.GivenName = request.GivenName;
         user.SurName = request.SurName;
         user.Email = request.Email;
-        user.PasswordHash = request.PasswordHash ?? string.Empty;
+        user.ExternalId = request.ExternalId;
         user.PhoneNumber = request.PhoneNumber ?? string.Empty;
         user.Role = request.Role;
 

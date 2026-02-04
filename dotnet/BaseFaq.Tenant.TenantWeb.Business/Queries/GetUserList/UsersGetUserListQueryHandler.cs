@@ -29,6 +29,7 @@ public class UsersGetUserListQueryHandler(TenantDbContext dbContext)
                 GivenName = user.GivenName,
                 SurName = user.SurName,
                 Email = user.Email,
+                ExternalId = user.ExternalId,
                 PhoneNumber = user.PhoneNumber,
                 Role = user.Role,
                 TenantId = user.TenantId
@@ -95,6 +96,13 @@ public class UsersGetUserListQueryHandler(TenantDbContext dbContext)
                     .ThenByDescending(user => user.Email)
                     : ((IOrderedQueryable<BaseFaq.Common.EntityFramework.Tenant.Entities.User>)query)
                     .ThenBy(user => user.Email)),
+            "externalid" => isFirst
+                ? (desc ? query.OrderByDescending(user => user.ExternalId) : query.OrderBy(user => user.ExternalId))
+                : (desc
+                    ? ((IOrderedQueryable<BaseFaq.Common.EntityFramework.Tenant.Entities.User>)query)
+                    .ThenByDescending(user => user.ExternalId)
+                    : ((IOrderedQueryable<BaseFaq.Common.EntityFramework.Tenant.Entities.User>)query)
+                    .ThenBy(user => user.ExternalId)),
             "phonenumber" => isFirst
                 ? (desc ? query.OrderByDescending(user => user.PhoneNumber) : query.OrderBy(user => user.PhoneNumber))
                 : (desc
