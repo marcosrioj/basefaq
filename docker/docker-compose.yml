@@ -12,6 +12,26 @@ services:
     networks:
       - bf-network
 
+  basefaq.faq.faqweb.app:
+    image: basefaq.faq.faqweb.app
+    build:
+      context: .
+      dockerfile: ../dotnet/BaseFaq.Faq.FaqWeb.App/Dockerfile
+    ports:
+      - "5010:5011"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:5010
+      - ConnectionStrings__DefaultConnection=Host=postgres;Port=5432;Database=bf_faq_db;Username=postgres;Password=Pass123$;
+      - JwtAuthentication__Authority=http://basefaq.identity.app:5000
+      - JwtAuthentication__Audience=BaseFaq
+      - SwaggerOptions__swaggerAuth__AuthorizeEndpoint=http://basefaq.identity.app:5000/connect/authorize
+      - SwaggerOptions__swaggerAuth__TokenEndpoint=http://basefaq.identity.app:5000/connect/token
+    depends_on:
+      - basefaq.identity.app
+    networks:
+      - bf-network
+
 networks:
   bf-network:
     external: true
