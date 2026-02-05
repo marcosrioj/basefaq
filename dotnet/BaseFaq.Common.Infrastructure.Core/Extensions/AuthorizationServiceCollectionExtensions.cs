@@ -11,7 +11,7 @@ public static class AuthorizationServiceCollectionExtensions
         Action<AuthorizationOptions> configurePolicies)
     {
         services.AddAuthorization(configurePolicies);
-        services.AddSingleton<IAuthorizationHandler, TenantRoleAuthorizationHandler>();
+        services.AddScoped<IAuthorizationHandler, TenantRoleAuthorizationHandler>();
 
         return services;
     }
