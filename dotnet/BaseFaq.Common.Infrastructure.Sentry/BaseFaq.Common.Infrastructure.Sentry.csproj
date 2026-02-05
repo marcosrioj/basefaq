@@ -12,7 +12,7 @@
 
     <ItemGroup>
         <ProjectReference Include="..\BaseFaq.Common.Infrastructure.Core\BaseFaq.Common.Infrastructure.Core.csproj"/>
-        <ProjectReference Include="..\BaseFaq.Faq.Infrastructure.ApiErrorHandling\BaseFaq.Faq.Infrastructure.ApiErrorHandling.csproj"/>
+        <ProjectReference Include="..\BaseFaq.Common.Infrastructure.ApiErrorHandling\BaseFaq.Common.Infrastructure.ApiErrorHandling.csproj"/>
     </ItemGroup>
 
     <ItemGroup>

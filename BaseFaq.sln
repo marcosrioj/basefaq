@@ -57,7 +57,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BaseFaq.Faq.FaqWeb.App", "d
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ApiErrorHandling", "ApiErrorHandling", "{7F666E35-BE7F-4418-A106-5CA38D06F2A6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BaseFaq.Faq.Infrastructure.ApiErrorHandling", "dotnet\BaseFaq.Faq.Infrastructure.ApiErrorHandling\BaseFaq.Faq.Infrastructure.ApiErrorHandling.csproj", "{65B44DE2-91C0-430C-BDB6-97FC6587D9DB}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BaseFaq.Common.Infrastructure.ApiErrorHandling", "dotnet\BaseFaq.Common.Infrastructure.ApiErrorHandling\BaseFaq.Common.Infrastructure.ApiErrorHandling.csproj", "{65B44DE2-91C0-430C-BDB6-97FC6587D9DB}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Sentry", "Sentry", "{31D4CE56-2B35-44E0-9664-A25135BE5844}"
 EndProject
