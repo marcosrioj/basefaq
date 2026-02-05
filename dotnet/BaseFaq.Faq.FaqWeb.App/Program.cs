@@ -85,13 +85,7 @@ public class Program
         if (!app.Environment.IsProduction())
         {
             app.UseSwagger();
-            app.UseSwaggerUI(options =>
-            {
-                options.OAuthClientId("basefaq-api-swagger-dev");
-                options.OAuthClientSecret("secret");
-                options.OAuthScopes("profile", "openid", "BaseFaq.App");
-                options.EnablePersistAuthorization();
-            });
+            app.UseSwaggerUIWithAuth();
 
             app.MapOpenApi();
         }

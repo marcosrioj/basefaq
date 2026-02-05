@@ -14,7 +14,10 @@ public class SwaggerAuthOptions
 {
     public bool EnableClientCredentials { get; set; }
 
+    public string? ClientId { get; set; }
+    public string? ClientSecret { get; set; }
+    public List<string>? Scopes { get; set; }
+
     [Required] public string AuthorizeEndpoint { get; set; } = string.Empty;
     [Required] public string TokenEndpoint { get; set; } = string.Empty;
-    [Required] public Dictionary<string, string> Scopes { get; set; } =  new Dictionary<string, string>();
 }

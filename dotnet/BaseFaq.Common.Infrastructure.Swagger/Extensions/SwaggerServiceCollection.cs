@@ -1,4 +1,5 @@
 using BaseFaq.Common.Infrastructure.Swagger.Options;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.OpenApi;
@@ -47,6 +48,14 @@ public static class SwaggerServiceCollection
         services.LoadSwaggerOptions(configuration);
 
         var options = configuration.GetSection("SwaggerOptions").Get<SwaggerOptions>();
+        var scopeList = configuration
+            .GetSection("SwaggerOptions:swaggerAuth:Scopes")
+            .GetChildren()
+            .Select(child => child.Value)
+            .Where(value => !string.IsNullOrWhiteSpace(value))
+            .Select(value => value!)
+            .ToArray();
+        var effectiveScopes = scopeList.ToDictionary(scope => scope, _ => "API access");
 
         services.AddSwaggerGen(c =>
         {
@@ -73,7 +82,7 @@ public static class SwaggerServiceCollection
                     {
                         AuthorizationUrl = new Uri(options!.swaggerAuth!.AuthorizeEndpoint),
                         TokenUrl = new Uri(options.swaggerAuth.TokenEndpoint),
-                        Scopes = options.swaggerAuth.Scopes
+                        Scopes = effectiveScopes
                     }
                 },
                 Description = "Server OpenId Security Scheme"
@@ -86,7 +95,7 @@ public static class SwaggerServiceCollection
                 {
                     AuthorizationUrl = new Uri(options.swaggerAuth.AuthorizeEndpoint),
                     TokenUrl = new Uri(options.swaggerAuth.TokenEndpoint),
-                    Scopes = options.swaggerAuth.Scopes
+                    Scopes = effectiveScopes
                 };
             }
 
@@ -97,5 +106,44 @@ public static class SwaggerServiceCollection
                 [new OpenApiSecuritySchemeReference("OAuth2", document)] = []
             });
         });
+    }
+
+    public static IApplicationBuilder UseSwaggerUIWithAuth(this IApplicationBuilder app)
+    {
+        var configuration = app.ApplicationServices.GetRequiredService<IConfiguration>();
+
+        app.UseSwaggerUI(options =>
+        {
+            var swaggerAuth = configuration.GetSection("SwaggerOptions")
+                .Get<SwaggerOptions>()?.swaggerAuth;
+
+            if (!string.IsNullOrWhiteSpace(swaggerAuth?.ClientId))
+            {
+                options.OAuthClientId(swaggerAuth.ClientId);
+            }
+
+            if (!string.IsNullOrWhiteSpace(swaggerAuth?.ClientSecret))
+            {
+                options.OAuthClientSecret(swaggerAuth.ClientSecret);
+            }
+
+            var scopeKeys = configuration
+                .GetSection("SwaggerOptions:swaggerAuth:ScopeList")
+                .GetChildren()
+                .Select(child => child.Value)
+                .Where(value => !string.IsNullOrWhiteSpace(value))
+                .ToArray();
+
+            if (scopeKeys is { Length: > 0 })
+            {
+                options.OAuthScopes(scopeKeys);
+            }
+
+            options.OAuthUsePkce();
+            options.OAuthScopeSeparator(" ");
+            options.EnablePersistAuthorization();
+        });
+
+        return app;
     }
 }

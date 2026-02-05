@@ -106,12 +106,11 @@ In **Expose an API**:
 - Set **Application ID URI** to `api://<API_APP_CLIENT_ID>`
 - Add scope: `BaseFaq.App`
 
-### 3) Client app configuration
+### 3) Client app configuration (Swagger UI = SPA)
 In **Authentication**:
-- Add **Web** platform
-- Redirect URIs:
-  - `https://localhost:5011/swagger/oauth2-redirect.html`
-  - `http://localhost:5010/swagger/oauth2-redirect.html`
+- Add **Single-page application (SPA)** platform
+- Redirect URI: `http://localhost:5010/swagger/oauth2-redirect.html`
+- Ensure PKCE/public client flow is enabled (no client secret)
 
 In **API permissions**:
 - Add `api://<API_APP_CLIENT_ID>/BaseFaq.App`
@@ -123,7 +122,8 @@ Edit `dotnet/BaseFaq.Faq.FaqWeb.App/appsettings.json`:
 - `JwtAuthentication:Audience` = `api://<API_APP_CLIENT_ID>`
 - `SwaggerOptions:swaggerAuth:AuthorizeEndpoint` = `https://login.microsoftonline.com/<TENANT_ID_OR_COMMON>/oauth2/v2.0/authorize`
 - `SwaggerOptions:swaggerAuth:TokenEndpoint` = `https://login.microsoftonline.com/<TENANT_ID_OR_COMMON>/oauth2/v2.0/token`
-- `SwaggerOptions:swaggerAuth:Scopes` = `api://<API_APP_CLIENT_ID>/BaseFaq.App`
+- `SwaggerOptions:swaggerAuth:ScopeList` = `[ "api://<API_APP_CLIENT_ID>/BaseFaq.App", "openid", "profile" ]`
+- `SwaggerOptions:swaggerAuth:ClientId` = `<CLIENT_APP_CLIENT_ID>`
 
 Use `<TENANT_ID_OR_COMMON>`:
 - Single-tenant: your tenant ID
