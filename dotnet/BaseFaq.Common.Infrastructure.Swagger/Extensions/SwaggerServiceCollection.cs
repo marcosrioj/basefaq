@@ -48,13 +48,10 @@ public static class SwaggerServiceCollection
         services.LoadSwaggerOptions(configuration);
 
         var options = configuration.GetSection("SwaggerOptions").Get<SwaggerOptions>();
-        var scopeList = configuration
-            .GetSection("SwaggerOptions:swaggerAuth:Scopes")
-            .GetChildren()
-            .Select(child => child.Value)
+        var scopeList = options?.swaggerAuth?.Scopes?
             .Where(value => !string.IsNullOrWhiteSpace(value))
             .Select(value => value!)
-            .ToArray();
+            .ToArray() ?? Array.Empty<string>();
         var effectiveScopes = scopeList.ToDictionary(scope => scope, _ => "API access");
 
         services.AddSwaggerGen(c =>
@@ -127,10 +124,7 @@ public static class SwaggerServiceCollection
                 options.OAuthClientSecret(swaggerAuth.ClientSecret);
             }
 
-            var scopeKeys = configuration
-                .GetSection("SwaggerOptions:swaggerAuth:ScopeList")
-                .GetChildren()
-                .Select(child => child.Value)
+            var scopeKeys = swaggerAuth?.Scopes?
                 .Where(value => !string.IsNullOrWhiteSpace(value))
                 .ToArray();
 
