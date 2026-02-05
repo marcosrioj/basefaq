@@ -51,6 +51,19 @@ Connection strings live in:
 
 Note: the FAQ app defaults to `bf_faq_db` in `appsettings.json`. Update it or override with `ConnectionStrings__FaqDb` to match the created database.
 
+Tenant DB:
+
+```bash
+dotnet ef database update \
+  --project dotnet/BaseFaq.Common.EntityFramework.Tenant \
+  --startup-project dotnet/BaseFaq.Tenant.TenantWeb.App
+```
+
+Connection strings live in:
+- `dotnet/BaseFaq.Tenant.TenantWeb.App/appsettings.json`
+
+Note: the Tenant app defaults to `bf_tenant_db` in `appsettings.json`. Update it or override with `ConnectionStrings__DefaultConnection` to match the created database.
+
 ## 3) Run the API locally
 FAQ Web API:
 
