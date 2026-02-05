@@ -13,6 +13,19 @@ services:
       - ConnectionStrings__TenantDb=Host=postgres;Port=5432;Database=bf_tenant_db;Username=postgres;Password=Pass123$;
     networks:
       - bf-network
+  basefaq.tenant.tenantweb.app:
+    image: basefaq.tenant.tenantweb.app
+    build:
+      context: ..
+      dockerfile: dotnet/BaseFaq.Tenant.TenantWeb.App/Dockerfile
+    ports:
+      - "5000:5000"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:5000
+      - ConnectionStrings__TenantDb=Host=postgres;Port=5432;Database=bf_tenant_db;Username=postgres;Password=Pass123$;
+    networks:
+      - bf-network
 
 networks:
   bf-network:

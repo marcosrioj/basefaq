@@ -4,6 +4,7 @@ Setup guide for a clean machine.
 
 ## What’s in this repo
 - FAQ Web API
+- Tenant Web API
 - Shared infrastructure libraries (Swagger/OpenAPI, Sentry, MediatR logging, API error handling)
 - Base services via Docker (PostgreSQL, RabbitMQ, Redis, SMTP4Dev)
 
@@ -65,8 +66,19 @@ Swagger / OpenAPI (FAQ app, Development only):
 - Swagger JSON: `/swagger/v1/swagger.json`
 - OpenAPI JSON (minimal API): `/openapi/v1.json`
 
+Tenant Web API:
+
+```bash
+dotnet run --project dotnet/BaseFaq.Tenant.TenantWeb.App
+```
+
+Endpoints:
+- HTTP: `http://localhost:5000`
+
+Note: both apps default to port 5000 in Development, so change one if you run both locally.
+
 ## 4) (Optional) Run API in Docker
-FAQ API (Docker):
+APIs (Docker):
 
 ```bash
 docker compose -p bf_services -f docker/docker-compose.yml up -d --build
@@ -75,6 +87,7 @@ docker compose -p bf_services -f docker/docker-compose.yml up -d --build
 This compose file:
 - Runs these services:
   - `basefaq.faq.faqweb.app`
+  - `basefaq.tenant.tenantweb.app`
 - Wires the service to the `bf-network` network created by the base services.
 - Uses the repo root as the build context, so run the command from the repo root.
 
@@ -92,6 +105,7 @@ You can also use the helper script:
 - RabbitMQ UI: `http://localhost:15672` (AMQP on `5672`, auth disabled)
 - Redis: `localhost:6379`
 - FAQ Web API (Docker): `http://localhost:5010`
+- Tenant Web API (Docker): `http://localhost:5000`
 
 ## Entra (Azure AD) setup (step-by-step)
 You must use an external identity provider. This project expects Microsoft Entra to issue JWTs.
@@ -118,8 +132,8 @@ In **API permissions**:
 - Add `api://<API_APP_CLIENT_ID>/BaseFaq.App`
 - Add `openid`, `profile`
 
-### 4) Configure BaseFaq.Faq.FaqWeb.App
-Edit `dotnet/BaseFaq.Faq.FaqWeb.App/appsettings.json`:
+### 4) Configure BaseFaq apps
+Edit `dotnet/BaseFaq.Faq.FaqWeb.App/appsettings.json` and `dotnet/BaseFaq.Tenant.TenantWeb.App/appsettings.json`:
 - `JwtAuthentication:Authority` = `https://login.microsoftonline.com/<TENANT_ID_OR_COMMON>/v2.0`
 - `JwtAuthentication:Audience` = `api://<API_APP_CLIENT_ID>`
 - `SwaggerOptions:swaggerAuth:AuthorizeEndpoint` = `https://login.microsoftonline.com/<TENANT_ID_OR_COMMON>/oauth2/v2.0/authorize`

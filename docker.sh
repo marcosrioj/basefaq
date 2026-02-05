@@ -23,6 +23,9 @@ echo ""
   docker compose -p bf_services -f ./docker/docker-compose.yml up -d --build
 
 echo ""
+printf "\e[32m%s\e[0m\n" "Started services: basefaq.faq.faqweb.app, basefaq.tenant.tenantweb.app"
+
+echo ""
 printf "\e[32m%s\e[0m\n" "======================================================================="
 printf "\e[32m%s\e[0m\n" "Cleaning Docker..."
 printf "\e[32m%s\e[0m\n" "======================================================================="
