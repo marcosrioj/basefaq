@@ -92,8 +92,6 @@ public class Program
 
         app.UseCustomCors(builder.Configuration);
 
-        app.UseHttpsRedirection();
-
         app.UseConfiguredSentry();
 
         app.UseAuthentication();

@@ -55,7 +55,15 @@ public static class JwtAuthenticationServiceCollection
             //Set proper claimtypes for JWT
             o.TokenValidationParameters.RoleClaimType = "role";
             o.TokenValidationParameters.NameClaimType = JwtRegisteredClaimNames.GivenName;
-
+            if (jwtAuthenticationOptions.Audience.StartsWith("api://", StringComparison.OrdinalIgnoreCase))
+            {
+                var audienceId = jwtAuthenticationOptions.Audience.Substring("api://".Length);
+                o.TokenValidationParameters.ValidAudiences = new[]
+                {
+                    jwtAuthenticationOptions.Audience,
+                    audienceId
+                };
+            }
 
             o.Events = new JwtBearerEvents
             {

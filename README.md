@@ -105,6 +105,8 @@ Create two app registrations:
 In **Expose an API**:
 - Set **Application ID URI** to `api://<API_APP_CLIENT_ID>`
 - Add scope: `BaseFaq.App`
+In **Manifest**:
+- `accessTokenAcceptedVersion` = `2`
 
 ### 3) Client app configuration (Swagger UI = SPA)
 In **Authentication**:
@@ -122,7 +124,7 @@ Edit `dotnet/BaseFaq.Faq.FaqWeb.App/appsettings.json`:
 - `JwtAuthentication:Audience` = `api://<API_APP_CLIENT_ID>`
 - `SwaggerOptions:swaggerAuth:AuthorizeEndpoint` = `https://login.microsoftonline.com/<TENANT_ID_OR_COMMON>/oauth2/v2.0/authorize`
 - `SwaggerOptions:swaggerAuth:TokenEndpoint` = `https://login.microsoftonline.com/<TENANT_ID_OR_COMMON>/oauth2/v2.0/token`
-- `SwaggerOptions:swaggerAuth:ScopeList` = `[ "api://<API_APP_CLIENT_ID>/BaseFaq.App", "openid", "profile" ]`
+- `SwaggerOptions:swaggerAuth:Scopes` = `[ "api://<API_APP_CLIENT_ID>/BaseFaq.App", "openid", "profile" ]`
 - `SwaggerOptions:swaggerAuth:ClientId` = `<CLIENT_APP_CLIENT_ID>`
 
 Use `<TENANT_ID_OR_COMMON>`:
