@@ -1,9 +1,9 @@
+using BaseFaq.Common.EntityFramework.Tenant.Extensions;
 using BaseFaq.Common.Infrastructure.Core.Extensions;
 using BaseFaq.Common.Infrastructure.MediatR.Extensions;
 using BaseFaq.Common.Infrastructure.Mvc.Filters;
 using BaseFaq.Common.Infrastructure.Sentry.Extensions;
 using BaseFaq.Common.Infrastructure.Swagger.Extensions;
-using BaseFaq.Common.EntityFramework.Tenant.Extensions;
 using BaseFaq.Faq.FaqWeb.App.Extensions;
 using BaseFaq.Faq.Infrastructure.ApiErrorHandling.Extensions;
 
@@ -29,11 +29,10 @@ public class Program
 
         builder.Services.AddSwaggerWithAuth(builder.Configuration);
 
-        builder.Services.AddClaimService(builder.Configuration);
-
         builder.Services.AddDefaultAuthentication(builder.Configuration);
 
         builder.Services.AddTenantDb(builder.Configuration.GetConnectionString("TenantDb"));
+
         builder.Services.AddSessionService(builder.Configuration);
 
         builder.Services.AddLogging(c =>

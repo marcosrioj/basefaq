@@ -36,7 +36,10 @@ public static class SessionServiceCollectionExtension
             options.InstanceName = "basefaq:";
         });
 
+        services.AddClaimService(configuration);
+
         services.AddSingleton<ITenantSessionStore, RedisTenantSessionStore>();
+
         services.AddScoped<ISessionService, SessionService>();
 
         return services;

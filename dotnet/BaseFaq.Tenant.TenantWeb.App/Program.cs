@@ -29,11 +29,10 @@ public class Program
 
         builder.Services.AddSwaggerWithAuth(builder.Configuration);
 
-        builder.Services.AddClaimService(builder.Configuration);
-
         builder.Services.AddDefaultAuthentication(builder.Configuration);
 
         builder.Services.AddTenantDb(builder.Configuration.GetConnectionString("TenantDb"));
+
         builder.Services.AddSessionService(builder.Configuration);
 
         builder.Services.AddLogging(c =>

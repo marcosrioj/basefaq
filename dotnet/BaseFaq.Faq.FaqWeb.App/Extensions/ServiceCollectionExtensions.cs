@@ -1,5 +1,3 @@
-using BaseFaq.Common.Infrastructure.Core.Abstractions;
-using BaseFaq.Common.Infrastructure.Core.Services;
 using BaseFaq.Faq.FaqWeb.Business.Faq.Extensions;
 using BaseFaq.Faq.FaqWeb.Persistence.FaqDb.Extensions;
 
@@ -12,11 +10,5 @@ public static class ServiceCollectionExtensions
         services.AddFaqDb(configuration.GetConnectionString("FaqDb"));
         services.AddFaqBusiness();
         //services.AddEventsFeature();
-    }
-
-    public static void AddClaimService(this IServiceCollection services, ConfigurationManager configuration)
-    {
-        services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
-        services.AddTransient<IClaimService, ClaimService>();
     }
 }
