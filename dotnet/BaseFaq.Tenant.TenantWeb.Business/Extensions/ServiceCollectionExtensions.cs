@@ -9,6 +9,7 @@ public static class ServiceCollectionExtensions
 {
     public static IServiceCollection AddTenantBusiness(this IServiceCollection services)
     {
+        services.AddScoped<ITenantConnectionService, TenantConnectionService>();
         services.AddScoped<ITenantService, TenantService>();
         services.AddScoped<IUserService, UserService>();
         services.AddMediatR(config =>

@@ -23,6 +23,7 @@ public class TenantDbContext(
         tenantConnectionStringProvider)
 {
     public DbSet<Entities.Tenant> Tenants { get; set; } = null!;
+    public DbSet<Entities.TenantConnection> TenantConnections { get; set; } = null!;
     public DbSet<Entities.User> Users { get; set; } = null!;
 
     protected override string ConfigurationNamespace =>
@@ -40,6 +41,10 @@ public class TenantDbContext(
 
         modelBuilder.Entity<Entities.Tenant>()
             .Property(tenant => tenant.ConnectionString)
+            .HasConversion(converter);
+
+        modelBuilder.Entity<Entities.TenantConnection>()
+            .Property(connection => connection.ConnectionString)
             .HasConversion(converter);
     }
 
