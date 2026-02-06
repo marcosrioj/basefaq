@@ -30,12 +30,7 @@ public abstract class BaseDbContext<TContext> : DbContext where TContext : DbCon
         _tenantConnectionStringProvider = tenantConnectionStringProvider;
     }
 
-    protected abstract string ConfigurationNamespace { get; }
-
-    protected virtual IEnumerable<string> ConfigurationNamespaces =>
-    [
-        ConfigurationNamespace
-    ];
+    protected virtual IEnumerable<string> ConfigurationNamespaces => [];
 
     protected virtual bool UseTenantConnectionString => true;
     protected virtual TimeSpan ConnectionStringCacheDuration => TimeSpan.FromMinutes(10);

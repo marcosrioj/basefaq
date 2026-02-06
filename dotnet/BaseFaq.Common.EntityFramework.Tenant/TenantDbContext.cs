@@ -27,8 +27,10 @@ public class TenantDbContext(
     public DbSet<TenantConnection> TenantConnections { get; set; } = null!;
     public DbSet<User> Users { get; set; } = null!;
 
-    protected override string ConfigurationNamespace =>
-        "BaseFaq.Common.EntityFramework.Tenant.Configurations";
+    protected override IEnumerable<string> ConfigurationNamespaces =>
+    [
+        "BaseFaq.Common.EntityFramework.Tenant.Configurations"
+    ];
 
     protected override bool UseTenantConnectionString => false;
 

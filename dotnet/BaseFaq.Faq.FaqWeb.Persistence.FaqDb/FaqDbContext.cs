@@ -21,16 +21,12 @@ public class FaqDbContext(
         memoryCache,
         tenantConnectionStringProvider)
 {
-    public DbSet<FaqWeb.Persistence.FaqDb.Entities.Faq> Faqs { get; set; }
+    public DbSet<Entities.Faq> Faqs { get; set; }
 
     public DbSet<FaqItem> FaqItems { get; set; }
 
-    protected override string ConfigurationNamespace =>
-        "BaseFaq.Faq.FaqWeb.Persistence.FaqDb.Configurations";
-
     protected override IEnumerable<string> ConfigurationNamespaces =>
     [
-        ConfigurationNamespace,
-        "BaseFaq.Common.EntityFramework.Tenant.Configurations"
+        "BaseFaq.Faq.FaqWeb.Persistence.FaqDb.Configurations"
     ];
 }
