@@ -1,5 +1,5 @@
 using BaseFaq.Common.EntityFramework.Core.Abstractions;
-using BaseFaq.Common.EntityFramework.Core.Security;
+using BaseFaq.Common.EntityFramework.Tenant.Security;
 using Npgsql;
 
 namespace BaseFaq.Common.EntityFramework.Tenant.Providers;

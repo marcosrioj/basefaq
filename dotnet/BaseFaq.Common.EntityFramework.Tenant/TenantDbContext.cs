@@ -1,6 +1,6 @@
 using BaseFaq.Common.EntityFramework.Core;
 using BaseFaq.Common.EntityFramework.Core.Abstractions;
-using BaseFaq.Common.EntityFramework.Core.Security;
+using BaseFaq.Common.EntityFramework.Tenant.Security;
 using BaseFaq.Common.Infrastructure.Core.Abstractions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
