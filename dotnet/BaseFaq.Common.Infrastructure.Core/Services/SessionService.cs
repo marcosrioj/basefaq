@@ -1,21 +1,18 @@
 using BaseFaq.Common.Infrastructure.Core.Abstractions;
-using BaseFaq.Common.Infrastructure.Core.Options;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Options;
 
 namespace BaseFaq.Common.Infrastructure.Core.Services;
 
 public sealed class SessionService : ISessionService
 {
-    private readonly IHttpContextAccessor _httpContextAccessor;
-    private readonly IOptions<SessionOptions> _options;
+    private const string TenantIdHeaderName = "X-Tenant-Id";
+    private const string UserIdClaimType = "sub";
 
-    public SessionService(
-        IHttpContextAccessor httpContextAccessor,
-        IOptions<SessionOptions> options)
+    private readonly IHttpContextAccessor _httpContextAccessor;
+
+    public SessionService(IHttpContextAccessor httpContextAccessor)
     {
         _httpContextAccessor = httpContextAccessor;
-        _options = options;
         EnsureSessionFromHttpContext();
     }
 
@@ -51,17 +48,14 @@ public sealed class SessionService : ISessionService
             return null;
         }
 
-        var tenantClaimType = _options.Value.TenantIdClaimType;
-        var tenantHeaderName = _options.Value.TenantIdHeaderName;
-        var tenantValue = httpContext.Request.Headers.TryGetValue(tenantHeaderName, out var tenantHeader)
+        var tenantValue = httpContext.Request.Headers.TryGetValue(TenantIdHeaderName, out var tenantHeader)
             ? tenantHeader.FirstOrDefault()
-            : httpContext.User?.FindFirst(tenantClaimType)?.Value;
+            : null;
         var tenantId = Guid.TryParse(tenantValue, out var parsedTenantId)
             ? parsedTenantId
             : (Guid?)null;
 
-        var userClaimType = _options.Value.UserIdClaimType;
-        var userId = httpContext.User?.FindFirst(userClaimType)?.Value;
+        var userId = httpContext.User?.FindFirst(UserIdClaimType)?.Value;
 
         SessionContext.Set(tenantId, userId);
 

@@ -43,8 +43,6 @@ public class Program
         builder.Services.LoadCustomCorsOptions(builder.Configuration);
 
         builder.Services.LoadJwtAuthenticationOptions(builder.Configuration);
-        builder.Services.LoadSessionOptions(builder.Configuration);
-
         builder.Services.AddCustomForwardedHeaders();
 
         builder.Services.AddCustomCors(builder.Configuration);
