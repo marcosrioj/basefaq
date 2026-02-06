@@ -63,7 +63,7 @@ public class TenantDbContext(
         if (connection is null)
         {
             throw new InvalidOperationException(
-                $"Default tenant connection for tenant '{SessionTenantId}' was not found.");
+                $"Current tenant connection was not found.");
         }
 
         return connection;

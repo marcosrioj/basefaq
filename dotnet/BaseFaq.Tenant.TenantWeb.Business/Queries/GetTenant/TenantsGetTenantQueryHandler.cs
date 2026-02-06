@@ -25,7 +25,7 @@ public class TenantsGetTenantQueryHandler(TenantDbContext dbContext)
             Slug = tenant.Slug,
             Name = tenant.Name,
             Edition = tenant.Edition,
-            ConnectionString = tenant.ConnectionString,
+            ConnectionString = string.Empty,
             IsActive = tenant.IsActive
         };
     }

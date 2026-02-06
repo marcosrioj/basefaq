@@ -2,5 +2,5 @@ namespace BaseFaq.Common.EntityFramework.Core.Abstractions;
 
 public interface ITenantConnectionStringProvider
 {
-    string GetConnectionString(Guid tenantId, string defaultConnectionString);
+    string GetConnectionString(Guid tenantId);
 }

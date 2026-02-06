@@ -27,7 +27,7 @@ public class TenantConnectionsGetTenantConnectionListQueryHandler(TenantDbContex
             {
                 Id = connection.Id,
                 TenantId = connection.TenantId,
-                ConnectionString = connection.ConnectionString,
+                ConnectionString = string.Empty,
                 IsCurrent = connection.IsCurrent
             })
             .ToListAsync(cancellationToken);

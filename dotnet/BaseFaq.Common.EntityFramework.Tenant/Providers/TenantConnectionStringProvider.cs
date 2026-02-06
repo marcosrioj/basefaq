@@ -1,15 +1,17 @@
 using BaseFaq.Common.EntityFramework.Core.Abstractions;
-using BaseFaq.Common.EntityFramework.Tenant.Security;
-using Npgsql;
+using BaseFaq.Common.EntityFramework.Tenant;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace BaseFaq.Common.EntityFramework.Tenant.Providers;
 
-public sealed class TenantConnectionStringProvider : ITenantConnectionStringProvider
+public sealed class TenantConnectionStringProvider(IServiceProvider serviceProvider)
+    : ITenantConnectionStringProvider
 {
-    public string GetConnectionString(Guid tenantId, string defaultConnectionString)
+    public string GetConnectionString(Guid tenantId)
     {
-        var encryptedConnectionString = GetEncryptedConnectionString(defaultConnectionString, tenantId);
-        var decryptedConnectionString = StringCipher.Instance.Decrypt(encryptedConnectionString);
+        var tenantDbContext = serviceProvider.GetRequiredService<TenantDbContext>();
+        var connection = tenantDbContext.GetTenantConnection(tenantId).GetAwaiter().GetResult();
+        var decryptedConnectionString = connection.ConnectionString;
 
         if (string.IsNullOrWhiteSpace(decryptedConnectionString))
         {
@@ -18,25 +20,5 @@ public sealed class TenantConnectionStringProvider : ITenantConnectionStringProv
         }
 
         return decryptedConnectionString;
-    }
-
-    private static string GetEncryptedConnectionString(string defaultConnectionString, Guid tenantId)
-    {
-        using var connection = new NpgsqlConnection(defaultConnectionString);
-        using var command = connection.CreateCommand();
-
-        command.CommandText = "SELECT \"ConnectionString\" FROM \"Tenants\" WHERE \"Id\" = @TenantId";
-        command.Parameters.Add(new NpgsqlParameter("@TenantId", tenantId));
-
-        connection.Open();
-        var result = command.ExecuteScalar();
-
-        if (result is not string connectionString || string.IsNullOrWhiteSpace(connectionString))
-        {
-            throw new InvalidOperationException(
-                $"Tenant '{tenantId}' was not found or has an empty connection string.");
-        }
-
-        return connectionString;
     }
 }

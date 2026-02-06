@@ -7,7 +7,7 @@ public static class ServiceCollectionExtensions
 {
     public static void AddFeatures(this IServiceCollection services, IConfiguration configuration)
     {
-        services.AddFaqDb(configuration.GetConnectionString("FaqDb"));
+        services.AddFaqDb();
         services.AddFaqBusiness();
         //services.AddEventsFeature();
     }

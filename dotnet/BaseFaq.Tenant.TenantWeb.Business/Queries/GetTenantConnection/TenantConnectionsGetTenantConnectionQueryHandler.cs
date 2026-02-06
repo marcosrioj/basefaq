@@ -24,7 +24,7 @@ public class TenantConnectionsGetTenantConnectionQueryHandler(TenantDbContext db
         {
             Id = connection.Id,
             TenantId = connection.TenantId,
-            ConnectionString = connection.ConnectionString,
+            ConnectionString = string.Empty,
             IsCurrent = connection.IsCurrent
         };
     }

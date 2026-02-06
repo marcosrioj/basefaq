@@ -2,6 +2,7 @@ using BaseFaq.Models.Common.Dtos;
 using BaseFaq.Models.Tenant.Dtos.Tenant;
 using BaseFaq.Tenant.TenantWeb.Business.Abstractions;
 using BaseFaq.Tenant.TenantWeb.Business.Commands.CreateTenant;
+using BaseFaq.Tenant.TenantWeb.Business.Commands.SetDefaultTenant;
 using BaseFaq.Tenant.TenantWeb.Business.Commands.UpdateTenant;
 using BaseFaq.Tenant.TenantWeb.Business.Queries.GetTenant;
 using BaseFaq.Tenant.TenantWeb.Business.Queries.GetTenantList;
@@ -51,6 +52,11 @@ public class TenantService(IMediator mediator) : ITenantService
         }
 
         return result;
+    }
+
+    public Task<TenantDto> SetDefault(Guid? tenantId, CancellationToken token)
+    {
+        return mediator.Send(new TenantsSetDefaultTenantCommand { TenantId = tenantId }, token);
     }
 
     public async Task<TenantDto> Update(Guid id, TenantUpdateRequestDto requestDto, CancellationToken token)

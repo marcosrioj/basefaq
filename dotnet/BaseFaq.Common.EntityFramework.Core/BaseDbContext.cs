@@ -99,18 +99,16 @@ public abstract class BaseDbContext<TContext> : DbContext where TContext : DbCon
 
     protected virtual string ResolveConnectionString()
     {
-        var defaultConnectionString = GetDefaultConnectionString();
-
         if (!UseTenantConnectionString)
         {
-            return defaultConnectionString;
+            return GetDefaultConnectionString();
         }
 
         var tenantId = _sessionService.TenantId;
 
         if (tenantId is null)
         {
-            return defaultConnectionString;
+            throw new InvalidOperationException("Tenant ID is required to resolve the connection string.");
         }
 
         var cacheKey = $"TenantConnectionString:{tenantId}";
@@ -119,7 +117,7 @@ public abstract class BaseDbContext<TContext> : DbContext where TContext : DbCon
             entry =>
             {
                 entry.AbsoluteExpirationRelativeToNow = ConnectionStringCacheDuration;
-                return _tenantConnectionStringProvider.GetConnectionString(tenantId.Value, defaultConnectionString);
+                return _tenantConnectionStringProvider.GetConnectionString(tenantId.Value);
             });
 
         if (string.IsNullOrWhiteSpace(tenantConnectionString))
