@@ -12,11 +12,13 @@ Setup guide for a clean machine.
 - Docker Engine + Docker Compose v2
 - .NET SDK `10.0.100` (see `global.json`)
 - Optional: `dotnet-ef` tool if you want to apply migrations manually
+- Set `REDIS_PASSWORD` in your shell (must match `Redis:Password` in `appsettings.json`)
 
 ## 1) Start base services (PostgreSQL, RabbitMQ, Redis, SMTP)
 From the repo root:
 
 ```bash
+export REDIS_PASSWORD=RedisTempPassword
 ./docker-base.sh
 ```
 
@@ -49,7 +51,7 @@ dotnet ef database update \
 Connection strings live in:
 - `dotnet/BaseFaq.Faq.FaqWeb.App/appsettings.json`
 
-Note: the FAQ app defaults to `bf_faq_db` in `appsettings.json`. Update it or override with `ConnectionStrings__FaqDb` to match the created database.
+Note: the FAQ app resolves its database connection from the tenant database. Ensure `bf_tenant_db` has a tenant connection for the FAQ app (see Tenant API), or override with env vars when running via Docker Compose.
 
 Tenant DB:
 
@@ -111,6 +113,8 @@ You can also use the helper script:
 ```bash
 ./docker.sh
 ```
+
+Note: `./docker.sh` removes the BaseFaq Docker images and prunes Docker images after it brings the stack up.
 
 ## Service Ports
 - PostgreSQL: `localhost:5432` (databases `bf_tenant_db`, `bf_faq_db`)
