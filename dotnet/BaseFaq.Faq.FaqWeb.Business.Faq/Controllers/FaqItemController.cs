@@ -1,5 +1,4 @@
 using BaseFaq.Faq.FaqWeb.Business.Faq.Abstractions;
-using BaseFaq.Faq.FaqWeb.Business.Faq.Authorization;
 using BaseFaq.Models.Common.Dtos;
 using BaseFaq.Models.Faq.Dtos.FaqItem;
 using Microsoft.AspNetCore.Authorization;
@@ -13,7 +12,6 @@ namespace BaseFaq.Faq.FaqWeb.Business.Faq.Controllers;
 [Route("api/faqs/faq-item")]
 public class FaqItemController(IFaqItemService faqItemService) : ControllerBase
 {
-    [Authorize(Policy = FaqItemAuthorizationPolicies.Get)]
     [HttpGet("{id:guid}")]
     [ProducesResponseType(typeof(FaqItemDto), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetById(Guid id, CancellationToken token)
@@ -22,7 +20,6 @@ public class FaqItemController(IFaqItemService faqItemService) : ControllerBase
         return Ok(result);
     }
 
-    [Authorize(Policy = FaqItemAuthorizationPolicies.GetList)]
     [HttpGet]
     [ProducesResponseType(typeof(PagedResultDto<FaqItemDto>), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetAll([FromQuery] FaqItemGetAllRequestDto requestDto, CancellationToken token)
@@ -31,7 +28,6 @@ public class FaqItemController(IFaqItemService faqItemService) : ControllerBase
         return Ok(result);
     }
 
-    [Authorize(Policy = FaqItemAuthorizationPolicies.Create)]
     [HttpPost]
     [ProducesResponseType(typeof(FaqItemDto), StatusCodes.Status201Created)]
     public async Task<IActionResult> Create([FromBody] FaqItemCreateRequestDto dto, CancellationToken token)
@@ -41,7 +37,6 @@ public class FaqItemController(IFaqItemService faqItemService) : ControllerBase
         return CreatedAtAction(nameof(GetById), new { id = result.Id }, result);
     }
 
-    [Authorize(Policy = FaqItemAuthorizationPolicies.Update)]
     [HttpPut("{id:guid}")]
     [ProducesResponseType(typeof(FaqItemDto), StatusCodes.Status200OK)]
     public async Task<IActionResult> Update(Guid id, [FromBody] FaqItemUpdateRequestDto dto, CancellationToken token)

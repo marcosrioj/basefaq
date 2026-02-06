@@ -6,8 +6,6 @@ using BaseFaq.Common.Infrastructure.Swagger.Extensions;
 using BaseFaq.Common.EntityFramework.Tenant.Extensions;
 using BaseFaq.Faq.FaqWeb.App.Extensions;
 using BaseFaq.Faq.Infrastructure.ApiErrorHandling.Extensions;
-using BaseFaq.Faq.FaqWeb.Business.Faq.Authorization;
-using BaseFaq.Models.Tenant.Enums;
 
 namespace BaseFaq.Faq.FaqWeb.App;
 
@@ -24,19 +22,6 @@ public class Program
         });
 
         // Add services to the container.
-        builder.Services.AddTenantRoleAuthorization(options =>
-        {
-            options.AddTenantRolePolicy(FaqAuthorizationPolicies.Get, UserRoleType.Member, UserRoleType.Admin);
-            options.AddTenantRolePolicy(FaqAuthorizationPolicies.GetList, UserRoleType.Member, UserRoleType.Admin);
-            options.AddTenantRolePolicy(FaqAuthorizationPolicies.Create, UserRoleType.Admin);
-            options.AddTenantRolePolicy(FaqAuthorizationPolicies.Update, UserRoleType.Admin);
-
-            options.AddTenantRolePolicy(FaqItemAuthorizationPolicies.Get, UserRoleType.Member, UserRoleType.Admin);
-            options.AddTenantRolePolicy(FaqItemAuthorizationPolicies.GetList, UserRoleType.Member, UserRoleType.Admin);
-            options.AddTenantRolePolicy(FaqItemAuthorizationPolicies.Create, UserRoleType.Admin);
-            options.AddTenantRolePolicy(FaqItemAuthorizationPolicies.Update, UserRoleType.Admin);
-        });
-
         // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
         builder.Services.AddOpenApi();
 
