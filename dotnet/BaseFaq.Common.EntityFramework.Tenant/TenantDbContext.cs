@@ -55,13 +55,31 @@ public class TenantDbContext(
         var connection = await TenantConnections
             .AsNoTracking()
             .FirstOrDefaultAsync(
-                connection => connection.IsCurrent,
+                item => item.IsCurrent,
                 cancellationToken);
 
         if (connection is null)
         {
             throw new InvalidOperationException(
                 $"Default tenant connection for tenant '{SessionTenantId}' was not found.");
+        }
+
+        return connection;
+    }
+
+    public async Task<TenantConnection> GetTenantConnection(Guid tenantId,
+        CancellationToken cancellationToken = default)
+    {
+        var connection = await TenantConnections
+            .AsNoTracking()
+            .FirstOrDefaultAsync(
+                item => item.TenantId == tenantId,
+                cancellationToken);
+
+        if (connection is null)
+        {
+            throw new InvalidOperationException(
+                $"Tenant connection for tenant '{tenantId}' was not found.");
         }
 
         return connection;
