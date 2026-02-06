@@ -62,7 +62,7 @@ dotnet ef database update \
 Connection strings live in:
 - `dotnet/BaseFaq.Tenant.TenantWeb.App/appsettings.json`
 
-Note: the Tenant app defaults to `bf_tenant_db` in `appsettings.json`. Update it or override with `ConnectionStrings__DefaultConnection` to match the created database.
+Note: the Tenant app defaults to `bf_tenant_db` in `appsettings.json`. Update it or override with `ConnectionStrings__TenantDb` to match the created database.
 
 ## 3) Run the API locally
 FAQ Web API:
@@ -120,43 +120,49 @@ You can also use the helper script:
 - FAQ Web API (Docker): `http://localhost:5010`
 - Tenant Web API (Docker): `http://localhost:5000`
 
-## Entra (Azure AD) setup (step-by-step)
-You must use an external identity provider. This project expects Microsoft Entra to issue JWTs.
+## Auth0 setup (step-by-step)
+You must use an external identity provider. This project expects Auth0 to issue JWTs.
 
-### 1) Create Entra app registrations
-Create two app registrations:
-- API app (represents `BaseFaq.Faq.FaqWeb.App`)
-- Client app (Swagger UI or your frontend)
+### 1) Create an Auth0 API
+Create a new API:
+- Name: `BaseFaq API`
+- Identifier (Audience): `https://<API_IDENTIFIER>`
 
-### 2) API app configuration
-In **Expose an API**:
-- Set **Application ID URI** to `api://<API_APP_CLIENT_ID>`
-- Add scope: `BaseFaq.App`
-In **Manifest**:
-- `accessTokenAcceptedVersion` = `2`
+### 2) Create an Auth0 application (SPA for Swagger UI)
+Create a Single Page Application:
+- Allowed Callback URLs: `http://localhost:5010/swagger/oauth2-redirect.html`, `http://localhost:5000/swagger/oauth2-redirect.html`
+- Allowed Web Origins: `http://localhost:5010`, `http://localhost:5000`
+- Ensure the app is public (no client secret required)
+- In the app's **APIs** tab, authorize access to your API identifier (Audience)
 
-### 3) Client app configuration (Swagger UI = SPA)
-In **Authentication**:
-- Add **Single-page application (SPA)** platform
-- Redirect URI: `http://localhost:5010/swagger/oauth2-redirect.html`
-- Ensure PKCE/public client flow is enabled (no client secret)
-
-In **API permissions**:
-- Add `api://<API_APP_CLIENT_ID>/BaseFaq.App`
-- Add `openid`, `profile`
-
-### 4) Configure BaseFaq apps
+### 3) Configure BaseFaq apps
 Edit `dotnet/BaseFaq.Faq.FaqWeb.App/appsettings.json` and `dotnet/BaseFaq.Tenant.TenantWeb.App/appsettings.json`:
-- `JwtAuthentication:Authority` = `https://login.microsoftonline.com/<TENANT_ID_OR_COMMON>/v2.0`
-- `JwtAuthentication:Audience` = `api://<API_APP_CLIENT_ID>`
-- `SwaggerOptions:swaggerAuth:AuthorizeEndpoint` = `https://login.microsoftonline.com/<TENANT_ID_OR_COMMON>/oauth2/v2.0/authorize`
-- `SwaggerOptions:swaggerAuth:TokenEndpoint` = `https://login.microsoftonline.com/<TENANT_ID_OR_COMMON>/oauth2/v2.0/token`
-- `SwaggerOptions:swaggerAuth:Scopes` = `[ "api://<API_APP_CLIENT_ID>/BaseFaq.App", "openid", "profile" ]`
-- `SwaggerOptions:swaggerAuth:ClientId` = `<CLIENT_APP_CLIENT_ID>`
+- `JwtAuthentication:Authority` = `https://<AUTH0_DOMAIN>/`
+- `JwtAuthentication:Audience` = `https://<API_IDENTIFIER>`
+- `Session:UserIdClaimType` = `sub`
+- `SwaggerOptions:swaggerAuth:AuthorizeEndpoint` = `https://<AUTH0_DOMAIN>/authorize`
+- `SwaggerOptions:swaggerAuth:TokenEndpoint` = `https://<AUTH0_DOMAIN>/oauth/token`
+- `SwaggerOptions:swaggerAuth:Audience` = `https://<API_IDENTIFIER>`
+- `SwaggerOptions:swaggerAuth:ClientId` = `<AUTH0_CLIENT_ID>`
 
-Use `<TENANT_ID_OR_COMMON>`:
-- Single-tenant: your tenant ID
-- Multi-tenant: `common`
+Use `<AUTH0_DOMAIN>` from your Auth0 tenant (for example, `your-tenant.us.auth0.com`).
+
+### 4) Include name/email in access tokens (optional)
+Auth0 does not add `name`/`email` to access tokens by default. If you need them in API calls,
+add an Action that injects namespaced claims:
+
+```js
+// Auth0 Action (Post Login)
+exports.onExecutePostLogin = async (event, api) => {
+  const ns = 'https://basefaq.com/';
+  if (event.user.name) {
+    api.accessToken.setCustomClaim(`${ns}name`, event.user.name);
+  }
+  if (event.user.email) {
+    api.accessToken.setCustomClaim(`${ns}email`, event.user.email);
+  }
+};
+```
 
 ### 5) Call the API
 All requests must include:

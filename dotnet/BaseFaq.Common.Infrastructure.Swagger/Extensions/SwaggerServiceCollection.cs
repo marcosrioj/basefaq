@@ -48,11 +48,6 @@ public static class SwaggerServiceCollection
         services.LoadSwaggerOptions(configuration);
 
         var options = configuration.GetSection("SwaggerOptions").Get<SwaggerOptions>();
-        var scopeList = options?.swaggerAuth?.Scopes?
-            .Where(value => !string.IsNullOrWhiteSpace(value))
-            .Select(value => value!)
-            .ToArray() ?? Array.Empty<string>();
-        var effectiveScopes = scopeList.ToDictionary(scope => scope, _ => "API access");
 
         services.AddSwaggerGen(c =>
         {
@@ -78,8 +73,7 @@ public static class SwaggerServiceCollection
                     AuthorizationCode = new OpenApiOAuthFlow
                     {
                         AuthorizationUrl = new Uri(options!.swaggerAuth!.AuthorizeEndpoint),
-                        TokenUrl = new Uri(options.swaggerAuth.TokenEndpoint),
-                        Scopes = effectiveScopes
+                        TokenUrl = new Uri(options.swaggerAuth.TokenEndpoint)
                     }
                 },
                 Description = "Server OpenId Security Scheme"
@@ -91,8 +85,7 @@ public static class SwaggerServiceCollection
                 scheme.Flows.ClientCredentials = new OpenApiOAuthFlow
                 {
                     AuthorizationUrl = new Uri(options.swaggerAuth.AuthorizeEndpoint),
-                    TokenUrl = new Uri(options.swaggerAuth.TokenEndpoint),
-                    Scopes = effectiveScopes
+                    TokenUrl = new Uri(options.swaggerAuth.TokenEndpoint)
                 };
             }
 
@@ -124,17 +117,14 @@ public static class SwaggerServiceCollection
                 options.OAuthClientSecret(swaggerAuth.ClientSecret);
             }
 
-            var scopeKeys = swaggerAuth?.Scopes?
-                .Where(value => !string.IsNullOrWhiteSpace(value))
-                .ToArray();
-
-            if (scopeKeys is { Length: > 0 })
+            if (!string.IsNullOrWhiteSpace(swaggerAuth?.Audience))
             {
-                options.OAuthScopes(scopeKeys);
+                options.OAuthAdditionalQueryStringParams(new Dictionary<string, string>
+                {
+                    ["audience"] = swaggerAuth.Audience
+                });
             }
 
-            options.OAuthUsePkce();
-            options.OAuthScopeSeparator(" ");
             options.EnablePersistAuthorization();
         });
 

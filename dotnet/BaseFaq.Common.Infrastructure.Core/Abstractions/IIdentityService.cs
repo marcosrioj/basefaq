@@ -10,5 +10,7 @@ public interface IIdentityService
 
     string? GetClientId();
 
-    IList<string> GetScopes();
+    string? GetName();
+
+    string? GetEmail();
 }

@@ -16,7 +16,7 @@ public class SwaggerAuthOptions
 
     public string? ClientId { get; set; }
     public string? ClientSecret { get; set; }
-    public List<string>? Scopes { get; set; }
+    public string? Audience { get; set; }
 
     [Required] public string AuthorizeEndpoint { get; set; } = string.Empty;
     [Required] public string TokenEndpoint { get; set; } = string.Empty;
