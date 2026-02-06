@@ -1,6 +1,5 @@
 using BaseFaq.Common.EntityFramework.Core.Abstractions;
 using BaseFaq.Common.EntityFramework.Tenant.Providers;
-using BaseFaq.Common.Infrastructure.Core.Extensions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -17,7 +16,6 @@ public static class ServiceCollectionExtensions
                 b => b.EnableRetryOnFailure().MigrationsAssembly(migrationsAssembly)));
 
         services.AddMemoryCache();
-        services.AddSessionService();
 
         services.AddScoped<ITenantConnectionStringProvider, TenantConnectionStringProvider>();
 

@@ -5,8 +5,10 @@ using Microsoft.AspNetCore.Http;
 
 namespace BaseFaq.Common.Infrastructure.Core.Services;
 
-public class IdentityService(IHttpContextAccessor httpContextAccessor) : IIdentityService
+public class ClaimService(IHttpContextAccessor httpContextAccessor) : IClaimService
 {
+    private const string ExternalUserIdClaimType = ClaimTypes.NameIdentifier;
+
     public string? GetName()
     {
         var user = httpContextAccessor.HttpContext?.User;
@@ -21,6 +23,12 @@ public class IdentityService(IHttpContextAccessor httpContextAccessor) : IIdenti
         return FindClaimBySuffix(user, "/email") ??
                user?.FindFirstValue("email") ??
                user?.FindFirstValue(ClaimTypes.Email);
+    }
+
+    public string? GetExternalUserId()
+    {
+        var user = httpContextAccessor.HttpContext?.User;
+        return user?.FindFirstValue(ExternalUserIdClaimType);
     }
 
     private static string? FindClaimBySuffix(ClaimsPrincipal? user, string suffix)

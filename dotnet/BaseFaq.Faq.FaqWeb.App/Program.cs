@@ -25,16 +25,11 @@ public class Program
         // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
         builder.Services.AddOpenApi();
 
-        builder.Services.LoadCustomCorsOptions(builder.Configuration);
-
-        builder.Services.LoadJwtAuthenticationOptions(builder.Configuration);
-        builder.Services.AddCustomForwardedHeaders();
-
         builder.Services.AddCustomCors(builder.Configuration);
 
         builder.Services.AddSwaggerWithAuth(builder.Configuration);
 
-        builder.Services.AddIdentityService(builder.Configuration);
+        builder.Services.AddClaimService(builder.Configuration);
 
         builder.Services.AddDefaultAuthentication(builder.Configuration);
 
@@ -59,8 +54,6 @@ public class Program
             .AddJsonOptions(options => { });
 
         var app = builder.Build();
-
-        app.UseCustomForwardedHeaders();
 
         app.UseApiErrorHandlingMiddleware();
 

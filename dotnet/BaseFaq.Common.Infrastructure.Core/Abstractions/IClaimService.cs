@@ -1,10 +1,10 @@
-using System.Security.Claims;
-
 namespace BaseFaq.Common.Infrastructure.Core.Abstractions;
 
-public interface IIdentityService
+public interface IClaimService
 {
     string? GetName();
 
     string? GetEmail();
+
+    string? GetExternalUserId();
 }

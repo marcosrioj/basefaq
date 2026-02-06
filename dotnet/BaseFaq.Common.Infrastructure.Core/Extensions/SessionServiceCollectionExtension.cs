@@ -28,11 +28,6 @@ public static class SessionServiceCollectionExtension
             throw new InvalidOperationException("Redis port is missing. Set Redis:Port.");
         }
 
-        if (string.IsNullOrWhiteSpace(password))
-        {
-            throw new InvalidOperationException("Redis password is missing. Set Redis:Password.");
-        }
-
         var connectionString = $"{host}:{port},password={password},ssl={useSsl},abortConnect=false";
 
         services.AddStackExchangeRedisCache(options =>

@@ -10,17 +10,6 @@ public static class CorsServiceCollectionExtension
 {
     private static WebSocketOptions? _webSocketOptions;
 
-    public static void LoadCustomCorsOptions(this IServiceCollection services,
-        ConfigurationManager configuration)
-    {
-        services.AddOptions<CorsOptions>()
-            .Bind(configuration.GetSection(CorsOptions.Name))
-            .ValidateDataAnnotations()
-            .ValidateOnStart();
-
-        services.AddSingleton<IValidateOptions<CorsOptions>, CorsOptionsValidation>();
-    }
-
     public static void AddCustomCors(this IServiceCollection services,
         ConfigurationManager configuration)
     {

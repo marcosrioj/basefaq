@@ -12,9 +12,9 @@ public static class ServiceCollectionExtensions
         //services.AddEventsFeature();
     }
 
-    public static void AddIdentityService(this IServiceCollection services, ConfigurationManager configuration)
+    public static void AddClaimService(this IServiceCollection services, ConfigurationManager configuration)
     {
         services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
-        services.AddTransient<IIdentityService, IdentityService>();
+        services.AddTransient<IClaimService, ClaimService>();
     }
 }

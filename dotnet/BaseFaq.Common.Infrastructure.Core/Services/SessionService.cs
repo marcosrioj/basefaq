@@ -1,19 +1,15 @@
 using BaseFaq.Common.Infrastructure.Core.Abstractions;
-using Microsoft.AspNetCore.Http;
-using System.Security.Claims;
 
 namespace BaseFaq.Common.Infrastructure.Core.Services;
 
 public sealed class SessionService : ISessionService
 {
-    private const string ExternalUserIdClaimType = ClaimTypes.NameIdentifier;
-
-    private readonly IHttpContextAccessor _httpContextAccessor;
+    private readonly IClaimService _claimService;
     private readonly ITenantSessionStore _tenantSessionStore;
 
-    public SessionService(IHttpContextAccessor httpContextAccessor, ITenantSessionStore tenantSessionStore)
+    public SessionService(IClaimService claimService, ITenantSessionStore tenantSessionStore)
     {
-        _httpContextAccessor = httpContextAccessor;
+        _claimService = claimService;
         _tenantSessionStore = tenantSessionStore;
     }
 
@@ -21,19 +17,10 @@ public sealed class SessionService : ISessionService
     {
         get
         {
-            var externalUserId = ExternalUserId;
+            var externalUserId = _claimService.GetExternalUserId();
             return string.IsNullOrWhiteSpace(externalUserId)
                 ? null
                 : _tenantSessionStore.GetTenantId(externalUserId);
-        }
-    }
-
-    public string? ExternalUserId
-    {
-        get
-        {
-            var httpContext = _httpContextAccessor.HttpContext;
-            return httpContext?.User?.FindFirst(ExternalUserIdClaimType)?.Value;
         }
     }
 
@@ -47,9 +34,11 @@ public sealed class SessionService : ISessionService
 
     public void Clear()
     {
-        if (!string.IsNullOrWhiteSpace(ExternalUserId))
+        var externalUserId = _claimService.GetExternalUserId();
+
+        if (!string.IsNullOrWhiteSpace(externalUserId))
         {
-            _tenantSessionStore.RemoveTenantId(ExternalUserId);
+            _tenantSessionStore.RemoveTenantId(externalUserId);
         }
     }
 }

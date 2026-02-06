@@ -9,17 +9,6 @@ namespace BaseFaq.Common.Infrastructure.Core.Extensions;
 
 public static class JwtAuthenticationServiceCollection
 {
-    public static IServiceCollection LoadJwtAuthenticationOptions(this IServiceCollection services,
-        ConfigurationManager configuration)
-    {
-        services.AddOptions<JwtAuthenticationOptions>()
-            .Bind(configuration.GetSection(JwtAuthenticationOptions.Name))
-            .ValidateDataAnnotations()
-            .ValidateOnStart();
-
-        return services;
-    }
-
     public static IServiceCollection AddDefaultAuthentication(this IServiceCollection services,
         ConfigurationManager configuration,
         string signalRHubUrl = "")
