@@ -16,6 +16,7 @@
     </ItemGroup>
 
     <ItemGroup>
+        <ProjectReference Include="..\BaseFaq.Common.Infrastructure.ApiErrorHandling\BaseFaq.Common.Infrastructure.ApiErrorHandling.csproj"/>
         <ProjectReference Include="..\\BaseFaq.Models.Tenant\\BaseFaq.Models.Tenant.csproj"/>
     </ItemGroup>
 

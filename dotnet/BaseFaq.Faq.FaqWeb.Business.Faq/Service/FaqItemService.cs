@@ -3,9 +3,11 @@ using BaseFaq.Faq.FaqWeb.Business.Faq.Commands.CreateFaqItem;
 using BaseFaq.Faq.FaqWeb.Business.Faq.Commands.UpdateFaqItem;
 using BaseFaq.Faq.FaqWeb.Business.Faq.Queries.GetFaqItem;
 using BaseFaq.Faq.FaqWeb.Business.Faq.Queries.GetFaqItemList;
+using BaseFaq.Common.Infrastructure.ApiErrorHandling.Exception;
 using BaseFaq.Models.Common.Dtos;
 using BaseFaq.Models.Faq.Dtos.FaqItem;
 using MediatR;
+using System.Net;
 
 namespace BaseFaq.Faq.FaqWeb.Business.Faq.Service;
 
@@ -32,7 +34,9 @@ public class FaqItemService(IMediator mediator) : IFaqItemService
         var result = await mediator.Send(new FaqItemsGetFaqItemQuery { Id = id }, token);
         if (result is null)
         {
-            throw new InvalidOperationException($"Created FAQ item '{id}' was not found.");
+            throw new ApiErrorException(
+                $"Created FAQ item '{id}' was not found.",
+                errorCode: (int)HttpStatusCode.InternalServerError);
         }
 
         return result;
@@ -50,7 +54,9 @@ public class FaqItemService(IMediator mediator) : IFaqItemService
         var result = await mediator.Send(new FaqItemsGetFaqItemQuery { Id = id }, token);
         if (result is null)
         {
-            throw new KeyNotFoundException($"FAQ item '{id}' was not found.");
+            throw new ApiErrorException(
+                $"FAQ item '{id}' was not found.",
+                errorCode: (int)HttpStatusCode.NotFound);
         }
 
         return result;

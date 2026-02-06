@@ -1,11 +1,13 @@
 using BaseFaq.Common.EntityFramework.Tenant;
 using BaseFaq.Common.EntityFramework.Tenant.Entities;
 using BaseFaq.Common.EntityFramework.Tenant.Helpers;
+using BaseFaq.Common.Infrastructure.ApiErrorHandling.Exception;
 using BaseFaq.Common.Infrastructure.Core.Abstractions;
 using BaseFaq.Models.Common.Enums;
 using BaseFaq.Models.Tenant.Enums;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using System.Net;
 
 namespace BaseFaq.Tenant.TenantWeb.Business.Commands.SetDefaultTenant;
 
@@ -35,7 +37,9 @@ public class TenantsSetDefaultTenantCommandHandler(
 
             if (string.IsNullOrWhiteSpace(user.ExternalId))
             {
-                throw new InvalidOperationException("External user ID is missing from the current session.");
+                throw new ApiErrorException(
+                    "External user ID is missing from the current session.",
+                    errorCode: (int)HttpStatusCode.Unauthorized);
             }
 
             sessionService.Set(tenant.Id, app, user.ExternalId);
@@ -63,7 +67,9 @@ public class TenantsSetDefaultTenantCommandHandler(
 
         if (userName is null || email is null || externalUserId is null)
         {
-            throw new KeyNotFoundException($"User: '{externalUserId}' was not found.");
+            throw new ApiErrorException(
+                $"User: '{externalUserId}' was not found.",
+                errorCode: (int)HttpStatusCode.NotFound);
         }
 
         var user = await dbContext.Users

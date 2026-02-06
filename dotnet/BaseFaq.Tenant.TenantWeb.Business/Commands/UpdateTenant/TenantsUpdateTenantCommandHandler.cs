@@ -1,6 +1,8 @@
 using BaseFaq.Common.EntityFramework.Tenant;
+using BaseFaq.Common.Infrastructure.ApiErrorHandling.Exception;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using System.Net;
 
 namespace BaseFaq.Tenant.TenantWeb.Business.Commands.UpdateTenant;
 
@@ -12,7 +14,9 @@ public class TenantsUpdateTenantCommandHandler(TenantDbContext dbContext)
         var tenant = await dbContext.Tenants.FirstOrDefaultAsync(entity => entity.Id == request.Id, cancellationToken);
         if (tenant is null)
         {
-            throw new KeyNotFoundException($"Tenant '{request.Id}' was not found.");
+            throw new ApiErrorException(
+                $"Tenant '{request.Id}' was not found.",
+                errorCode: (int)HttpStatusCode.NotFound);
         }
 
         tenant.Slug = request.Slug;

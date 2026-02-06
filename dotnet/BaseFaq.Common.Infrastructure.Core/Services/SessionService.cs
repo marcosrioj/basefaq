@@ -1,5 +1,7 @@
 using BaseFaq.Common.Infrastructure.Core.Abstractions;
+using BaseFaq.Common.Infrastructure.ApiErrorHandling.Exception;
 using BaseFaq.Models.Common.Enums;
+using System.Net;
 
 namespace BaseFaq.Common.Infrastructure.Core.Services;
 
@@ -19,13 +21,17 @@ public sealed class SessionService : ISessionService
         var externalUserId = _claimService.GetExternalUserId();
         if (string.IsNullOrWhiteSpace(externalUserId))
         {
-            throw new InvalidOperationException("External user ID is missing from the current session.");
+            throw new ApiErrorException(
+                "External user ID is missing from the current session.",
+                errorCode: (int)HttpStatusCode.Unauthorized);
         }
 
         var tenantId = _tenantSessionStore.GetTenantId(externalUserId, app);
         if (!tenantId.HasValue)
         {
-            throw new InvalidOperationException("TenantId is missing from the current session.");
+            throw new ApiErrorException(
+                "TenantId is missing from the current session.",
+                errorCode: (int)HttpStatusCode.UnprocessableEntity);
         }
 
         return tenantId.Value;

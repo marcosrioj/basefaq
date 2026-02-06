@@ -2,12 +2,14 @@ using BaseFaq.Common.EntityFramework.Core;
 using BaseFaq.Common.EntityFramework.Core.Abstractions;
 using BaseFaq.Common.EntityFramework.Tenant.Entities;
 using BaseFaq.Common.EntityFramework.Tenant.Security;
+using BaseFaq.Common.Infrastructure.ApiErrorHandling.Exception;
 using BaseFaq.Common.Infrastructure.Core.Abstractions;
 using BaseFaq.Models.Common.Enums;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
+using System.Net;
 
 namespace BaseFaq.Common.EntityFramework.Tenant;
 
@@ -64,8 +66,9 @@ public class TenantDbContext(
 
         if (connection is null)
         {
-            throw new InvalidOperationException(
-                $"Current tenant connection for {app} was not found.");
+            throw new ApiErrorException(
+                $"Current tenant connection for {app} was not found.",
+                errorCode: (int)HttpStatusCode.NotFound);
         }
 
         return connection;
@@ -82,13 +85,16 @@ public class TenantDbContext(
 
         if (tenant is null)
         {
-            throw new KeyNotFoundException($"Tenant '{tenantId}' was not found.");
+            throw new ApiErrorException(
+                $"Tenant '{tenantId}' was not found.",
+                errorCode: (int)HttpStatusCode.NotFound);
         }
 
         if (string.IsNullOrWhiteSpace(tenant.ConnectionString))
         {
-            throw new InvalidOperationException(
-                $"Tenant '{tenantId}' has an invalid connection string.");
+            throw new ApiErrorException(
+                $"Tenant '{tenantId}' has an invalid connection string.",
+                errorCode: (int)HttpStatusCode.InternalServerError);
         }
 
         return tenant.ConnectionString;

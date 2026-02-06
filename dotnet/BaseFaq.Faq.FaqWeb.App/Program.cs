@@ -1,11 +1,11 @@
 using BaseFaq.Common.EntityFramework.Tenant.Extensions;
+using BaseFaq.Common.Infrastructure.ApiErrorHandling.Extensions;
 using BaseFaq.Common.Infrastructure.Core.Extensions;
 using BaseFaq.Common.Infrastructure.MediatR.Extensions;
 using BaseFaq.Common.Infrastructure.Mvc.Filters;
 using BaseFaq.Common.Infrastructure.Sentry.Extensions;
 using BaseFaq.Common.Infrastructure.Swagger.Extensions;
 using BaseFaq.Faq.FaqWeb.App.Extensions;
-using BaseFaq.Faq.Infrastructure.ApiErrorHandling.Extensions;
 
 namespace BaseFaq.Faq.FaqWeb.App;
 

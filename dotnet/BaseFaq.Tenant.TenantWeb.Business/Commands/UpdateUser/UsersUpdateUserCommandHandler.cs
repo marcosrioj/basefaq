@@ -1,6 +1,8 @@
 using BaseFaq.Common.EntityFramework.Tenant;
+using BaseFaq.Common.Infrastructure.ApiErrorHandling.Exception;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using System.Net;
 
 namespace BaseFaq.Tenant.TenantWeb.Business.Commands.UpdateUser;
 
@@ -12,7 +14,9 @@ public class UsersUpdateUserCommandHandler(TenantDbContext dbContext)
         var user = await dbContext.Users.FirstOrDefaultAsync(entity => entity.Id == request.Id, cancellationToken);
         if (user is null)
         {
-            throw new KeyNotFoundException($"User '{request.Id}' was not found.");
+            throw new ApiErrorException(
+                $"User '{request.Id}' was not found.",
+                errorCode: (int)HttpStatusCode.NotFound);
         }
 
         user.GivenName = request.GivenName;

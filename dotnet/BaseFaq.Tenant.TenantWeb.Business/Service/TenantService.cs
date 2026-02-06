@@ -1,5 +1,6 @@
 using BaseFaq.Models.Common.Dtos;
 using BaseFaq.Models.Tenant.Dtos.Tenant;
+using BaseFaq.Common.Infrastructure.ApiErrorHandling.Exception;
 using BaseFaq.Tenant.TenantWeb.Business.Abstractions;
 using BaseFaq.Tenant.TenantWeb.Business.Commands.CreateTenant;
 using BaseFaq.Tenant.TenantWeb.Business.Commands.SetDefaultTenant;
@@ -7,6 +8,7 @@ using BaseFaq.Tenant.TenantWeb.Business.Commands.UpdateTenant;
 using BaseFaq.Tenant.TenantWeb.Business.Queries.GetTenant;
 using BaseFaq.Tenant.TenantWeb.Business.Queries.GetTenantList;
 using MediatR;
+using System.Net;
 
 namespace BaseFaq.Tenant.TenantWeb.Business.Service;
 
@@ -31,7 +33,9 @@ public class TenantService(IMediator mediator) : ITenantService
         var result = await mediator.Send(new TenantsGetTenantQuery { Id = id }, token);
         if (result is null)
         {
-            throw new InvalidOperationException($"Created tenant '{id}' was not found.");
+            throw new ApiErrorException(
+                $"Created tenant '{id}' was not found.",
+                errorCode: (int)HttpStatusCode.InternalServerError);
         }
 
         return result;
@@ -49,7 +53,9 @@ public class TenantService(IMediator mediator) : ITenantService
         var result = await mediator.Send(new TenantsGetTenantQuery { Id = id }, token);
         if (result is null)
         {
-            throw new KeyNotFoundException($"Tenant '{id}' was not found.");
+            throw new ApiErrorException(
+                $"Tenant '{id}' was not found.",
+                errorCode: (int)HttpStatusCode.NotFound);
         }
 
         return result;

@@ -1,6 +1,8 @@
+using BaseFaq.Common.Infrastructure.ApiErrorHandling.Exception;
 using BaseFaq.Faq.FaqWeb.Persistence.FaqDb;
-using Microsoft.EntityFrameworkCore;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
+using System.Net;
 
 namespace BaseFaq.Faq.FaqWeb.Business.Faq.Commands.UpdateFaqItem;
 
@@ -14,7 +16,9 @@ public class FaqItemsUpdateFaqItemCommandHandler(FaqDbContext dbContext)
             cancellationToken);
         if (faqItem is null)
         {
-            throw new KeyNotFoundException($"FAQ item '{request.Id}' was not found.");
+            throw new ApiErrorException(
+                $"FAQ item '{request.Id}' was not found.",
+                errorCode: (int)HttpStatusCode.NotFound);
         }
 
         faqItem.Question = request.Question;

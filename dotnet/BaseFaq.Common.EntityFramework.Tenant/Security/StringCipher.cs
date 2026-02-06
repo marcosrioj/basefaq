@@ -1,5 +1,7 @@
 using System.Security.Cryptography;
 using System.Text;
+using BaseFaq.Common.Infrastructure.ApiErrorHandling.Exception;
+using System.Net;
 
 namespace BaseFaq.Common.EntityFramework.Tenant.Security;
 
@@ -60,7 +62,9 @@ public sealed class StringCipher
         options ??= CipherOptions.Default;
 
         if (!cipherText.StartsWith("v1:", StringComparison.Ordinal))
-            throw new FormatException("Unsupported cipher format.");
+            throw new ApiErrorException(
+                "Unsupported cipher format.",
+                errorCode: (int)HttpStatusCode.BadRequest);
 
         var payload = Convert.FromBase64String(cipherText["v1:".Length..]);
 

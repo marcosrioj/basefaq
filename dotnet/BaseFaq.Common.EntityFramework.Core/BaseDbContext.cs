@@ -2,11 +2,13 @@ using System.Linq.Expressions;
 using BaseFaq.Common.EntityFramework.Core.Abstractions;
 using BaseFaq.Common.EntityFramework.Core.Entities;
 using BaseFaq.Common.EntityFramework.Core.Helpers;
+using BaseFaq.Common.Infrastructure.ApiErrorHandling.Exception;
 using BaseFaq.Common.Infrastructure.Core.Abstractions;
 using BaseFaq.Models.Common.Enums;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
+using System.Net;
 
 namespace BaseFaq.Common.EntityFramework.Core;
 
@@ -105,8 +107,9 @@ public abstract class BaseDbContext<TContext> : DbContext where TContext : DbCon
 
         if (string.IsNullOrWhiteSpace(defaultConnectionString))
         {
-            throw new InvalidOperationException(
-                $"Missing connection string '{defaultConnectionStringName}'.");
+            throw new ApiErrorException(
+                $"Missing connection string '{defaultConnectionStringName}'.",
+                errorCode: (int)HttpStatusCode.InternalServerError);
         }
 
         return defaultConnectionString;
@@ -274,8 +277,9 @@ public abstract class BaseDbContext<TContext> : DbContext where TContext : DbCon
 
         if (string.IsNullOrWhiteSpace(tenantConnectionString))
         {
-            throw new InvalidOperationException(
-                $"Tenant '{tenantId}' has an invalid connection string.");
+            throw new ApiErrorException(
+                $"Tenant '{tenantId}' has an invalid connection string.",
+                errorCode: (int)HttpStatusCode.InternalServerError);
         }
 
         return tenantConnectionString;

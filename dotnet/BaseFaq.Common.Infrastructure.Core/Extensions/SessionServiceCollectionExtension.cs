@@ -1,7 +1,9 @@
 using BaseFaq.Common.Infrastructure.Core.Abstractions;
 using BaseFaq.Common.Infrastructure.Core.Services;
+using BaseFaq.Common.Infrastructure.ApiErrorHandling.Exception;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using System.Net;
 
 namespace BaseFaq.Common.Infrastructure.Core.Extensions;
 
@@ -20,12 +22,16 @@ public static class SessionServiceCollectionExtension
 
         if (string.IsNullOrWhiteSpace(host))
         {
-            throw new InvalidOperationException("Redis host is missing. Set Redis:Host.");
+            throw new ApiErrorException(
+                "Redis host is missing. Set Redis:Host.",
+                errorCode: (int)HttpStatusCode.InternalServerError);
         }
 
         if (string.IsNullOrWhiteSpace(port))
         {
-            throw new InvalidOperationException("Redis port is missing. Set Redis:Port.");
+            throw new ApiErrorException(
+                "Redis port is missing. Set Redis:Port.",
+                errorCode: (int)HttpStatusCode.InternalServerError);
         }
 
         var connectionString = $"{host}:{port},password={password},ssl={useSsl},abortConnect=false";

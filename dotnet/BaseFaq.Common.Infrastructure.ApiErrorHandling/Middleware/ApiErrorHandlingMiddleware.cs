@@ -1,8 +1,8 @@
 using System.Text.Json;
-using BaseFaq.Faq.Infrastructure.ApiErrorHandling.Exception;
+using BaseFaq.Common.Infrastructure.ApiErrorHandling.Exception;
 using Microsoft.AspNetCore.Http;
 
-namespace BaseFaq.Faq.Infrastructure.ApiErrorHandling.Middleware;
+namespace BaseFaq.Common.Infrastructure.ApiErrorHandling.Middleware;
 
 public class ApiErrorHandlingMiddleware(RequestDelegate next)
 {
@@ -16,22 +16,13 @@ public class ApiErrorHandlingMiddleware(RequestDelegate next)
         {
             context.Response.ContentType = "application/json";
             context.Response.StatusCode = apiError.ErrorCode;
-            context.Response.Headers.Append("Translation-Code", apiError.TranslationCode.ToString());
 
-            if (apiError.DataObject != null)
-            {
-                await context.Response.WriteAsync(JsonSerializer.Serialize(apiError.DataObject));
-            }
-            else
-            {
-                await context.Response.WriteAsync(apiError.Message);
-            }
+            await context.Response.WriteAsync(JsonSerializer.Serialize(apiError.GetError()));
         }
         catch (ApiErrorConfirmationException apiError)
         {
             context.Response.ContentType = "application/json";
             context.Response.StatusCode = apiError.ErrorCode;
-            context.Response.Headers.Append("Translation-Code", apiError.TranslationCode.ToString());
 
             await context.Response.WriteAsync(apiError.Message);
         }

@@ -2,12 +2,14 @@ using BaseFaq.Common.Infrastructure.Core.Abstractions;
 using BaseFaq.Models.Common.Enums;
 using BaseFaq.Models.Common.Dtos;
 using BaseFaq.Models.Tenant.Dtos.User;
+using BaseFaq.Common.Infrastructure.ApiErrorHandling.Exception;
 using BaseFaq.Tenant.TenantWeb.Business.Abstractions;
 using BaseFaq.Tenant.TenantWeb.Business.Commands.CreateUser;
 using BaseFaq.Tenant.TenantWeb.Business.Commands.UpdateUser;
 using BaseFaq.Tenant.TenantWeb.Business.Queries.GetUser;
 using BaseFaq.Tenant.TenantWeb.Business.Queries.GetUserList;
 using MediatR;
+using System.Net;
 
 namespace BaseFaq.Tenant.TenantWeb.Business.Service;
 
@@ -32,7 +34,9 @@ public class UserService(IMediator mediator) : IUserService
         var result = await mediator.Send(new UsersGetUserQuery { Id = id }, token);
         if (result is null)
         {
-            throw new InvalidOperationException($"Created user '{id}' was not found.");
+            throw new ApiErrorException(
+                $"Created user '{id}' was not found.",
+                errorCode: (int)HttpStatusCode.InternalServerError);
         }
 
         return result;
@@ -50,7 +54,9 @@ public class UserService(IMediator mediator) : IUserService
         var result = await mediator.Send(new UsersGetUserQuery { Id = id }, token);
         if (result is null)
         {
-            throw new KeyNotFoundException($"User '{id}' was not found.");
+            throw new ApiErrorException(
+                $"User '{id}' was not found.",
+                errorCode: (int)HttpStatusCode.NotFound);
         }
 
         return result;

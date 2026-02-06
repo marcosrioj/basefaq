@@ -1,6 +1,8 @@
+using BaseFaq.Common.Infrastructure.ApiErrorHandling.Exception;
 using BaseFaq.Faq.FaqWeb.Persistence.FaqDb;
-using Microsoft.EntityFrameworkCore;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
+using System.Net;
 
 namespace BaseFaq.Faq.FaqWeb.Business.Faq.Commands.UpdateFaq;
 
@@ -12,7 +14,9 @@ public class FaqsUpdateFaqCommandHandler(FaqDbContext dbContext)
         var faq = await dbContext.Faqs.FirstOrDefaultAsync(entity => entity.Id == request.Id, cancellationToken);
         if (faq is null)
         {
-            throw new KeyNotFoundException($"FAQ '{request.Id}' was not found.");
+            throw new ApiErrorException(
+                $"FAQ '{request.Id}' was not found.",
+                errorCode: (int)HttpStatusCode.NotFound);
         }
 
         faq.Name = request.Name;

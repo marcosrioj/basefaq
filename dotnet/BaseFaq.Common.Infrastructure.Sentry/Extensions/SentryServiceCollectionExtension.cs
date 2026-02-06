@@ -1,5 +1,5 @@
 using System.Text.Json;
-using BaseFaq.Faq.Infrastructure.ApiErrorHandling.Exception;
+using BaseFaq.Common.Infrastructure.ApiErrorHandling.Exception;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;

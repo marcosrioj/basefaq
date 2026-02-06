@@ -1,4 +1,5 @@
 using BaseFaq.Common.Infrastructure.Core.Abstractions;
+using BaseFaq.Common.Infrastructure.ApiErrorHandling.Exception;
 using BaseFaq.Faq.FaqWeb.Business.Faq.Abstractions;
 using BaseFaq.Faq.FaqWeb.Business.Faq.Commands.CreateFaq;
 using BaseFaq.Faq.FaqWeb.Business.Faq.Commands.UpdateFaq;
@@ -8,6 +9,7 @@ using BaseFaq.Models.Common.Enums;
 using BaseFaq.Models.Common.Dtos;
 using BaseFaq.Models.Faq.Dtos.Faq;
 using MediatR;
+using System.Net;
 
 namespace BaseFaq.Faq.FaqWeb.Business.Faq.Service;
 
@@ -33,7 +35,9 @@ public class FaqService(IMediator mediator, ISessionService sessionService) : IF
         var result = await mediator.Send(new FaqsGetFaqQuery { Id = id }, token);
         if (result is null)
         {
-            throw new InvalidOperationException($"Created FAQ '{id}' was not found.");
+            throw new ApiErrorException(
+                $"Created FAQ '{id}' was not found.",
+                errorCode: (int)HttpStatusCode.InternalServerError);
         }
 
         return result;
@@ -51,7 +55,9 @@ public class FaqService(IMediator mediator, ISessionService sessionService) : IF
         var result = await mediator.Send(new FaqsGetFaqQuery { Id = id }, token);
         if (result is null)
         {
-            throw new KeyNotFoundException($"FAQ '{id}' was not found.");
+            throw new ApiErrorException(
+                $"FAQ '{id}' was not found.",
+                errorCode: (int)HttpStatusCode.NotFound);
         }
 
         return result;

@@ -1,7 +1,7 @@
-using BaseFaq.Faq.Infrastructure.ApiErrorHandling.Middleware;
+using BaseFaq.Common.Infrastructure.ApiErrorHandling.Middleware;
 using Microsoft.AspNetCore.Builder;
 
-namespace BaseFaq.Faq.Infrastructure.ApiErrorHandling.Extensions;
+namespace BaseFaq.Common.Infrastructure.ApiErrorHandling.Extensions;
 
 public static class ApiErrorHandlingServiceCollectionExtension
 {

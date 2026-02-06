@@ -1,8 +1,9 @@
+using System.Net;
+using BaseFaq.Common.Infrastructure.ApiErrorHandling.Exception;
 using BaseFaq.Common.Infrastructure.Core.Options;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
 
 namespace BaseFaq.Common.Infrastructure.Core.Extensions;
 
@@ -17,7 +18,9 @@ public static class CorsServiceCollectionExtension
 
         if (corsOptions == null)
         {
-            throw new Exception("Cors Options Not Found");
+            throw new ApiErrorException(
+                "Cors Options Not Found",
+                errorCode: (int)HttpStatusCode.InternalServerError);
         }
 
         var extraAllowedCors = corsOptions.AllowedOrigins.Split(';');
@@ -72,7 +75,9 @@ public static class CorsServiceCollectionExtension
 
         if (corsOptions == null)
         {
-            throw new Exception("Cors Options Not Found");
+            throw new ApiErrorException(
+                "Cors Options Not Found",
+                errorCode: (int)HttpStatusCode.InternalServerError);
         }
 
         if (corsOptions.EnableWebSocketCors && _webSocketOptions != null)

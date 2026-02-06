@@ -1,6 +1,8 @@
 using BaseFaq.Common.EntityFramework.Tenant;
+using BaseFaq.Common.Infrastructure.ApiErrorHandling.Exception;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using System.Net;
 
 namespace BaseFaq.Tenant.TenantWeb.Business.Commands.UpdateTenantConnection;
 
@@ -15,7 +17,9 @@ public class TenantConnectionsUpdateTenantConnectionCommandHandler(TenantDbConte
 
         if (connection is null)
         {
-            throw new KeyNotFoundException($"Tenant connection '{request.Id}' was not found.");
+            throw new ApiErrorException(
+                $"Tenant connection '{request.Id}' was not found.",
+                errorCode: (int)HttpStatusCode.NotFound);
         }
 
         connection.App = request.App;
