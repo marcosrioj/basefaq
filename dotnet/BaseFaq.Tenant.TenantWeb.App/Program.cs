@@ -39,6 +39,7 @@ public class Program
         builder.Services.AddDefaultAuthentication(builder.Configuration);
 
         builder.Services.AddTenantDb(builder.Configuration.GetConnectionString("TenantDb"));
+        builder.Services.AddSessionService(builder.Configuration);
 
         builder.Services.AddLogging(c =>
         {

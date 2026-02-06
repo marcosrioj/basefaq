@@ -3,9 +3,8 @@ namespace BaseFaq.Common.Infrastructure.Core.Abstractions;
 public interface ISessionService
 {
     Guid? TenantId { get; }
-    string? UserId { get; }
+    string? ExternalUserId { get; }
 
-    void Set(Guid? tenantId, string? userId);
+    void Set(Guid? tenantId, string? externalUserId);
     void Clear();
-    IDisposable Push(Guid? tenantId, string? userId);
 }

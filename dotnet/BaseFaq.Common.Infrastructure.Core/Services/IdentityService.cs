@@ -7,22 +7,6 @@ namespace BaseFaq.Common.Infrastructure.Core.Services;
 
 public class IdentityService(IHttpContextAccessor httpContextAccessor) : IIdentityService
 {
-    public string? GetUserIdentity()
-    {
-        var user = httpContextAccessor.HttpContext?.User;
-        return user?.FindFirstValue("oid") ?? user?.FindFirstValue("sub");
-    }
-
-    public ClaimsPrincipal? GetUser()
-    {
-        return httpContextAccessor.HttpContext?.User;
-    }
-
-    public string? GetClientId()
-    {
-        return httpContextAccessor.HttpContext?.User.FindFirst("client_id")?.Value;
-    }
-
     public string? GetName()
     {
         var user = httpContextAccessor.HttpContext?.User;
