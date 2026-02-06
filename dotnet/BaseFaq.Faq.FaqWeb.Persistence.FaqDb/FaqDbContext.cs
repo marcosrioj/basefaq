@@ -2,6 +2,7 @@ using BaseFaq.Common.EntityFramework.Core;
 using BaseFaq.Common.EntityFramework.Core.Abstractions;
 using BaseFaq.Common.Infrastructure.Core.Abstractions;
 using BaseFaq.Faq.FaqWeb.Persistence.FaqDb.Entities;
+using BaseFaq.Models.Common.Enums;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
@@ -29,4 +30,6 @@ public class FaqDbContext(
     [
         "BaseFaq.Faq.FaqWeb.Persistence.FaqDb.Configurations"
     ];
+
+    protected override AppEnum SessionApp => AppEnum.FaqWeb;
 }

@@ -1,4 +1,5 @@
 using BaseFaq.Common.Infrastructure.Core.Abstractions;
+using BaseFaq.Models.Common.Enums;
 using Microsoft.Extensions.Caching.Distributed;
 
 namespace BaseFaq.Common.Infrastructure.Core.Services;
@@ -8,20 +9,20 @@ public sealed class RedisTenantSessionStore(IDistributedCache cache) : ITenantSe
     private const string KeyPrefix = "tenant-session:";
     private static readonly TimeSpan Ttl = TimeSpan.FromMinutes(30);
 
-    public Guid? GetTenantId(string externalUserId)
+    public Guid? GetTenantId(string externalUserId, AppEnum app)
     {
         if (string.IsNullOrWhiteSpace(externalUserId))
         {
             return null;
         }
 
-        var value = cache.GetString(KeyPrefix + externalUserId);
+        var value = cache.GetString(BuildKey(externalUserId, app));
         return Guid.TryParse(value, out var tenantId)
             ? tenantId
             : null;
     }
 
-    public void SetTenantId(string externalUserId, Guid tenantId)
+    public void SetTenantId(string externalUserId, AppEnum app, Guid tenantId)
     {
         if (string.IsNullOrWhiteSpace(externalUserId))
         {
@@ -29,7 +30,7 @@ public sealed class RedisTenantSessionStore(IDistributedCache cache) : ITenantSe
         }
 
         cache.SetString(
-            KeyPrefix + externalUserId,
+            BuildKey(externalUserId, app),
             tenantId.ToString(),
             new DistributedCacheEntryOptions
             {
@@ -37,13 +38,18 @@ public sealed class RedisTenantSessionStore(IDistributedCache cache) : ITenantSe
             });
     }
 
-    public void RemoveTenantId(string externalUserId)
+    public void RemoveTenantId(string externalUserId, AppEnum app)
     {
         if (string.IsNullOrWhiteSpace(externalUserId))
         {
             return;
         }
 
-        cache.Remove(KeyPrefix + externalUserId);
+        cache.Remove(BuildKey(externalUserId, app));
+    }
+
+    private static string BuildKey(string externalUserId, AppEnum app)
+    {
+        return $"{KeyPrefix}{externalUserId}:{app}";
     }
 }

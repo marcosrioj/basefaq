@@ -3,6 +3,7 @@ using BaseFaq.Common.EntityFramework.Core.Abstractions;
 using BaseFaq.Common.EntityFramework.Core.Entities;
 using BaseFaq.Common.EntityFramework.Core.Helpers;
 using BaseFaq.Common.Infrastructure.Core.Abstractions;
+using BaseFaq.Models.Common.Enums;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
@@ -33,18 +34,12 @@ public abstract class BaseDbContext<TContext> : DbContext where TContext : DbCon
     protected virtual IEnumerable<string> ConfigurationNamespaces => [];
 
     protected virtual bool UseTenantConnectionString => true;
-    protected virtual TimeSpan ConnectionStringCacheDuration => TimeSpan.FromMinutes(10);
 
-    protected Guid? SessionTenantId => _sessionService.TenantId;
+    protected abstract AppEnum SessionApp { get; }
+
+    protected Guid? SessionTenantId => UseTenantConnectionString ? _sessionService.GetTenantId(SessionApp) : null;
 
     public bool GlobalFiltersEnabled { get; set; } = true;
-
-    public IDisposable DisableGlobalFilters()
-    {
-        var previousValue = GlobalFiltersEnabled;
-        GlobalFiltersEnabled = false;
-        return new ResetOnDispose(() => GlobalFiltersEnabled = previousValue);
-    }
 
     public override int SaveChanges(bool acceptAllChangesOnSuccess)
     {
@@ -95,38 +90,6 @@ public abstract class BaseDbContext<TContext> : DbContext where TContext : DbCon
         {
             optionsBuilder.UseNpgsql(connectionString);
         }
-    }
-
-    protected virtual string ResolveConnectionString()
-    {
-        if (!UseTenantConnectionString)
-        {
-            return GetDefaultConnectionString();
-        }
-
-        var tenantId = _sessionService.TenantId;
-
-        if (tenantId is null)
-        {
-            throw new InvalidOperationException("Tenant ID is required to resolve the connection string.");
-        }
-
-        var cacheKey = $"TenantConnectionString:{tenantId}";
-        var tenantConnectionString = _memoryCache.GetOrCreate(
-            cacheKey,
-            entry =>
-            {
-                entry.AbsoluteExpirationRelativeToNow = ConnectionStringCacheDuration;
-                return _tenantConnectionStringProvider.GetConnectionString(tenantId.Value);
-            });
-
-        if (string.IsNullOrWhiteSpace(tenantConnectionString))
-        {
-            throw new InvalidOperationException(
-                $"Tenant '{tenantId}' has an invalid connection string.");
-        }
-
-        return tenantConnectionString;
     }
 
     private string GetDefaultConnectionString()
@@ -287,5 +250,34 @@ public abstract class BaseDbContext<TContext> : DbContext where TContext : DbCon
             _reset();
             _disposed = true;
         }
+    }
+
+    private TimeSpan ConnectionStringCacheDuration => TimeSpan.FromMinutes(10);
+
+    private string ResolveConnectionString()
+    {
+        if (!UseTenantConnectionString)
+        {
+            return GetDefaultConnectionString();
+        }
+
+        var tenantId = _sessionService.GetTenantId(SessionApp);
+
+        var cacheKey = $"TenantConnectionString:{tenantId}";
+        var tenantConnectionString = _memoryCache.GetOrCreate(
+            cacheKey,
+            entry =>
+            {
+                entry.AbsoluteExpirationRelativeToNow = ConnectionStringCacheDuration;
+                return _tenantConnectionStringProvider.GetConnectionString(tenantId);
+            });
+
+        if (string.IsNullOrWhiteSpace(tenantConnectionString))
+        {
+            throw new InvalidOperationException(
+                $"Tenant '{tenantId}' has an invalid connection string.");
+        }
+
+        return tenantConnectionString;
     }
 }

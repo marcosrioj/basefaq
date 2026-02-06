@@ -7,7 +7,7 @@ namespace BaseFaq.Common.Infrastructure.Core.Services;
 
 public class ClaimService(IHttpContextAccessor httpContextAccessor) : IClaimService
 {
-    private const string ExternalUserIdClaimType = ClaimTypes.NameIdentifier;
+    private const string ExternalUserIdClaimType = "sub";
 
     public string? GetName()
     {

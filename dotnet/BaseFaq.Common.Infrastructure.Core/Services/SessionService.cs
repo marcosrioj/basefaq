@@ -1,4 +1,5 @@
 using BaseFaq.Common.Infrastructure.Core.Abstractions;
+using BaseFaq.Models.Common.Enums;
 
 namespace BaseFaq.Common.Infrastructure.Core.Services;
 
@@ -13,23 +14,31 @@ public sealed class SessionService : ISessionService
         _tenantSessionStore = tenantSessionStore;
     }
 
-    public Guid? TenantId
+    public Guid GetTenantId(AppEnum app)
     {
-        get
+        var externalUserId = _claimService.GetExternalUserId();
+        if (string.IsNullOrWhiteSpace(externalUserId))
         {
-            var externalUserId = _claimService.GetExternalUserId();
-            return string.IsNullOrWhiteSpace(externalUserId)
-                ? null
-                : _tenantSessionStore.GetTenantId(externalUserId);
+            throw new InvalidOperationException("External user ID is missing from the current session.");
         }
+
+        var tenantId = _tenantSessionStore.GetTenantId(externalUserId, app);
+        if (!tenantId.HasValue)
+        {
+            throw new InvalidOperationException("TenantId is missing from the current session.");
+        }
+
+        return tenantId.Value;
     }
 
-    public void Set(Guid? tenantId, string? externalUserId)
+    public void Set(Guid tenantId, AppEnum app, string externalUserId)
     {
-        if (tenantId.HasValue && !string.IsNullOrWhiteSpace(externalUserId))
+        if (string.IsNullOrWhiteSpace(externalUserId))
         {
-            _tenantSessionStore.SetTenantId(externalUserId, tenantId.Value);
+            return;
         }
+
+        _tenantSessionStore.SetTenantId(externalUserId, app, tenantId);
     }
 
     public void Clear()
@@ -38,7 +47,10 @@ public sealed class SessionService : ISessionService
 
         if (!string.IsNullOrWhiteSpace(externalUserId))
         {
-            _tenantSessionStore.RemoveTenantId(externalUserId);
+            foreach (AppEnum app in Enum.GetValues<AppEnum>())
+            {
+                _tenantSessionStore.RemoveTenantId(externalUserId, app);
+            }
         }
     }
 }

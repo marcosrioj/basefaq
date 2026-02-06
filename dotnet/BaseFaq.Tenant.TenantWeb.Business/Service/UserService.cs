@@ -1,4 +1,5 @@
 using BaseFaq.Common.Infrastructure.Core.Abstractions;
+using BaseFaq.Models.Common.Enums;
 using BaseFaq.Models.Common.Dtos;
 using BaseFaq.Models.Tenant.Dtos.User;
 using BaseFaq.Tenant.TenantWeb.Business.Abstractions;
@@ -10,14 +11,11 @@ using MediatR;
 
 namespace BaseFaq.Tenant.TenantWeb.Business.Service;
 
-public class UserService(IMediator mediator, ISessionService sessionService) : IUserService
+public class UserService(IMediator mediator) : IUserService
 {
     public async Task<UserDto> Create(UserCreateRequestDto requestDto, CancellationToken token)
     {
         ArgumentNullException.ThrowIfNull(requestDto);
-
-        var tenantId = sessionService.TenantId
-                       ?? throw new InvalidOperationException("TenantId is missing from the current session.");
 
         var command = new UsersCreateUserCommand
         {
@@ -26,8 +24,7 @@ public class UserService(IMediator mediator, ISessionService sessionService) : I
             Email = requestDto.Email,
             ExternalId = requestDto.ExternalId,
             PhoneNumber = requestDto.PhoneNumber,
-            Role = requestDto.Role,
-            TenantId = tenantId
+            Role = requestDto.Role
         };
 
         var id = await mediator.Send(command, token);

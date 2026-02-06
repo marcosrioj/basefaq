@@ -4,6 +4,7 @@ using BaseFaq.Faq.FaqWeb.Business.Faq.Commands.CreateFaq;
 using BaseFaq.Faq.FaqWeb.Business.Faq.Commands.UpdateFaq;
 using BaseFaq.Faq.FaqWeb.Business.Faq.Queries.GetFaq;
 using BaseFaq.Faq.FaqWeb.Business.Faq.Queries.GetFaqList;
+using BaseFaq.Models.Common.Enums;
 using BaseFaq.Models.Common.Dtos;
 using BaseFaq.Models.Faq.Dtos.Faq;
 using MediatR;
@@ -16,8 +17,7 @@ public class FaqService(IMediator mediator, ISessionService sessionService) : IF
     {
         ArgumentNullException.ThrowIfNull(requestDto);
 
-        var tenantId = sessionService.TenantId
-                       ?? throw new InvalidOperationException("TenantId is missing from the current session.");
+        var tenantId = sessionService.GetTenantId(AppEnum.FaqWeb);
 
         var command = new FaqsCreateFaqCommand
         {

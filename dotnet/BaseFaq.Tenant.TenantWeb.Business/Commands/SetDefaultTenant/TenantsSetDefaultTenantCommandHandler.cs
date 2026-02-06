@@ -3,7 +3,6 @@ using BaseFaq.Common.EntityFramework.Tenant.Entities;
 using BaseFaq.Common.EntityFramework.Tenant.Helpers;
 using BaseFaq.Common.Infrastructure.Core.Abstractions;
 using BaseFaq.Models.Common.Enums;
-using BaseFaq.Models.Tenant.Dtos.Tenant;
 using BaseFaq.Models.Tenant.Enums;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -24,13 +23,22 @@ public class TenantsSetDefaultTenantCommandHandler(
 
         foreach (AppEnum app in Enum.GetValues<AppEnum>())
         {
+            if (app == AppEnum.TenantWeb)
+                continue;
+
             var tenant = userTenants.FirstOrDefault(entity => entity.App == app);
+
             if (tenant is null)
             {
                 tenant = await EnsureDefaultTenantAsync(user, app, cancellationToken);
             }
 
-            //sessionService.Set(tenantFromUser.Id, claimService.GetExternalUserId());
+            if (string.IsNullOrWhiteSpace(user.ExternalId))
+            {
+                throw new InvalidOperationException("External user ID is missing from the current session.");
+            }
+
+            sessionService.Set(tenant.Id, app, user.ExternalId);
         }
 
         return true;

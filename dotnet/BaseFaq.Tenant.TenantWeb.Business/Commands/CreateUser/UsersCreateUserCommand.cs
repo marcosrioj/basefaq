@@ -11,5 +11,4 @@ public class UsersCreateUserCommand : IRequest<Guid>
     public required string ExternalId { get; set; }
     public string? PhoneNumber { get; set; }
     public required UserRoleType Role { get; set; }
-    public required Guid TenantId { get; set; }
 }
