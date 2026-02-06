@@ -12,13 +12,12 @@ Setup guide for a clean machine.
 - Docker Engine + Docker Compose v2
 - .NET SDK `10.0.100` (see `global.json`)
 - Optional: `dotnet-ef` tool if you want to apply migrations manually
-- Set `REDIS_PASSWORD` in your shell (must match `Redis:Password` in `appsettings.json`)
+- Set `REDIS_PASSWORD` in docker-base.sh (must match `Redis:Password` in `appsettings.json`)
 
 ## 1) Start base services (PostgreSQL, RabbitMQ, Redis, SMTP)
 From the repo root:
 
 ```bash
-export REDIS_PASSWORD=RedisTempPassword
 ./docker-base.sh
 ```
 

@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 set -e
 
+export REDIS_PASSWORD=RedisTempPassword
+
 # Step 1: Stop all running containers
 if [ -n "$(docker ps -q)" ]; then
   docker stop $(docker ps -q)
