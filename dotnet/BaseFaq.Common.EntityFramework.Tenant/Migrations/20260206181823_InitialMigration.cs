@@ -12,6 +12,27 @@ namespace BaseFaq.Common.EntityFramework.Tenant.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
+                name: "TenantConnections",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    ConnectionString = table.Column<string>(type: "character varying(1024)", maxLength: 1024, nullable: false),
+                    App = table.Column<int>(type: "integer", nullable: false),
+                    IsCurrent = table.Column<bool>(type: "boolean", nullable: false),
+                    CreatedDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    CreatedBy = table.Column<string>(type: "text", nullable: true),
+                    UpdatedDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    UpdatedBy = table.Column<string>(type: "text", nullable: true),
+                    DeletedDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    DeletedBy = table.Column<string>(type: "text", nullable: true),
+                    IsDeleted = table.Column<bool>(type: "boolean", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_TenantConnections", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Tenants",
                 columns: table => new
                 {
@@ -19,8 +40,10 @@ namespace BaseFaq.Common.EntityFramework.Tenant.Migrations
                     Slug = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: false),
                     Name = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: false),
                     Edition = table.Column<int>(type: "integer", nullable: false),
+                    App = table.Column<int>(type: "integer", nullable: false),
                     ConnectionString = table.Column<string>(type: "character varying(1024)", maxLength: 1024, nullable: false),
                     IsActive = table.Column<bool>(type: "boolean", nullable: false),
+                    UserId = table.Column<Guid>(type: "uuid", nullable: true),
                     CreatedDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     CreatedBy = table.Column<string>(type: "text", nullable: true),
                     UpdatedDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
@@ -45,7 +68,6 @@ namespace BaseFaq.Common.EntityFramework.Tenant.Migrations
                     ExternalId = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
                     PhoneNumber = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
                     Role = table.Column<int>(type: "integer", nullable: false),
-                    TenantId = table.Column<Guid>(type: "uuid", nullable: false),
                     CreatedDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     CreatedBy = table.Column<string>(type: "text", nullable: true),
                     UpdatedDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
@@ -60,6 +82,16 @@ namespace BaseFaq.Common.EntityFramework.Tenant.Migrations
                 });
 
             migrationBuilder.CreateIndex(
+                name: "IX_TenantConnection_App_IsCurrent",
+                table: "TenantConnections",
+                columns: new[] { "App", "IsCurrent" });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_TenantConnection_IsDeleted",
+                table: "TenantConnections",
+                column: "IsDeleted");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Tenant_IsDeleted",
                 table: "Tenants",
                 column: "IsDeleted");
@@ -71,30 +103,34 @@ namespace BaseFaq.Common.EntityFramework.Tenant.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
+                name: "IX_Tenant_UserId",
+                table: "Tenants",
+                column: "UserId",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
                 name: "IX_User_Email",
                 table: "Users",
                 column: "Email");
 
             migrationBuilder.CreateIndex(
-                name: "IX_User_IsDeleted",
+                name: "IX_User_ExternalId",
                 table: "Users",
-                column: "IsDeleted");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_User_Tenant_ExternalId",
-                table: "Users",
-                columns: new[] { "TenantId", "ExternalId" },
+                column: "ExternalId",
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_User_TenantId",
+                name: "IX_User_IsDeleted",
                 table: "Users",
-                column: "TenantId");
+                column: "IsDeleted");
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropTable(
+                name: "TenantConnections");
+
             migrationBuilder.DropTable(
                 name: "Tenants");
 

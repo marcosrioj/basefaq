@@ -34,14 +34,11 @@ public class UserConfiguration : BaseConfiguration<User>
         builder.Property(p => p.Role)
             .IsRequired();
 
-        builder.Property(p => p.TenantId)
-            .IsRequired();
-
         builder.HasIndex(p => p.Email)
             .HasDatabaseName("IX_User_Email");
 
-        builder.HasIndex(p => new { p.TenantId, p.ExternalId })
+        builder.HasIndex(p => new { p.ExternalId })
             .IsUnique()
-            .HasDatabaseName("IX_User_Tenant_ExternalId");
+            .HasDatabaseName("IX_User_ExternalId");
     }
 }

@@ -1,5 +1,6 @@
 using BaseFaq.Common.EntityFramework.Core.Configurations;
 using BaseFaq.Common.EntityFramework.Tenant.Entities;
+using BaseFaq.Models.Common.Enums;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -13,17 +14,17 @@ public class TenantConnectionConfiguration : BaseConfiguration<TenantConnection>
 
         builder.ToTable("TenantConnections");
 
-        builder.Property(p => p.TenantId)
-            .IsRequired();
-
         builder.Property(p => p.ConnectionString)
             .IsRequired()
             .HasMaxLength(TenantConnection.MaxConnectionStringLength);
 
+        builder.Property(p => p.App)
+            .IsRequired();
+
         builder.Property(p => p.IsCurrent)
             .IsRequired();
 
-        builder.HasIndex(p => p.TenantId)
-            .HasDatabaseName("IX_TenantConnection_TenantId");
+        builder.HasIndex(p => new { p.App, p.IsCurrent })
+            .HasDatabaseName("IX_TenantConnection_App_IsCurrent");
     }
 }

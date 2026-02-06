@@ -3,7 +3,6 @@ using MediatR;
 
 namespace BaseFaq.Tenant.TenantWeb.Business.Commands.SetDefaultTenant;
 
-public class TenantsSetDefaultTenantCommand : IRequest<TenantDto>
+public class TenantsSetDefaultTenantCommand : IRequest<bool>
 {
-    public Guid? TenantId { get; set; }
 }

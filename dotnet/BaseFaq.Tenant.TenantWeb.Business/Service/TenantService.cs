@@ -21,6 +21,7 @@ public class TenantService(IMediator mediator) : ITenantService
             Slug = requestDto.Slug,
             Name = requestDto.Name,
             Edition = requestDto.Edition,
+            App = requestDto.App,
             ConnectionString = requestDto.ConnectionString,
             IsActive = requestDto.IsActive
         };
@@ -54,9 +55,9 @@ public class TenantService(IMediator mediator) : ITenantService
         return result;
     }
 
-    public Task<TenantDto> SetDefault(Guid? tenantId, CancellationToken token)
+    public Task<bool> SetDefault(CancellationToken token)
     {
-        return mediator.Send(new TenantsSetDefaultTenantCommand { TenantId = tenantId }, token);
+        return mediator.Send(new TenantsSetDefaultTenantCommand(), token);
     }
 
     public async Task<TenantDto> Update(Guid id, TenantUpdateRequestDto requestDto, CancellationToken token)

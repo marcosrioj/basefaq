@@ -29,6 +29,9 @@ namespace BaseFaq.Common.EntityFramework.Tenant.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<int>("App")
+                        .HasColumnType("integer");
+
                     b.Property<string>("ConnectionString")
                         .IsRequired()
                         .HasMaxLength(1024)
@@ -71,6 +74,9 @@ namespace BaseFaq.Common.EntityFramework.Tenant.Migrations
                     b.Property<DateTime?>("UpdatedDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<Guid?>("UserId")
+                        .HasColumnType("uuid");
+
                     b.HasKey("Id");
 
                     b.HasIndex("IsDeleted")
@@ -80,6 +86,10 @@ namespace BaseFaq.Common.EntityFramework.Tenant.Migrations
                         .IsUnique()
                         .HasDatabaseName("IX_Tenant_Slug");
 
+                    b.HasIndex("UserId")
+                        .IsUnique()
+                        .HasDatabaseName("IX_Tenant_UserId");
+
                     b.ToTable("Tenants", (string)null);
                 });
 
@@ -88,6 +98,9 @@ namespace BaseFaq.Common.EntityFramework.Tenant.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
+
+                    b.Property<int>("App")
+                        .HasColumnType("integer");
 
                     b.Property<string>("ConnectionString")
                         .IsRequired()
@@ -112,9 +125,6 @@ namespace BaseFaq.Common.EntityFramework.Tenant.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
 
-                    b.Property<Guid>("TenantId")
-                        .HasColumnType("uuid");
-
                     b.Property<string>("UpdatedBy")
                         .HasColumnType("text");
 
@@ -126,8 +136,8 @@ namespace BaseFaq.Common.EntityFramework.Tenant.Migrations
                     b.HasIndex("IsDeleted")
                         .HasDatabaseName("IX_TenantConnection_IsDeleted");
 
-                    b.HasIndex("TenantId")
-                        .HasDatabaseName("IX_TenantConnection_TenantId");
+                    b.HasIndex("App", "IsCurrent")
+                        .HasDatabaseName("IX_TenantConnection_App_IsCurrent");
 
                     b.ToTable("TenantConnections", (string)null);
                 });
@@ -180,9 +190,6 @@ namespace BaseFaq.Common.EntityFramework.Tenant.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
 
-                    b.Property<Guid>("TenantId")
-                        .HasColumnType("uuid");
-
                     b.Property<string>("UpdatedBy")
                         .HasColumnType("text");
 
@@ -194,15 +201,12 @@ namespace BaseFaq.Common.EntityFramework.Tenant.Migrations
                     b.HasIndex("Email")
                         .HasDatabaseName("IX_User_Email");
 
+                    b.HasIndex("ExternalId")
+                        .IsUnique()
+                        .HasDatabaseName("IX_User_ExternalId");
+
                     b.HasIndex("IsDeleted")
                         .HasDatabaseName("IX_User_IsDeleted");
-
-                    b.HasIndex("TenantId")
-                        .HasDatabaseName("IX_User_TenantId");
-
-                    b.HasIndex("TenantId", "ExternalId")
-                        .IsUnique()
-                        .HasDatabaseName("IX_User_Tenant_ExternalId");
 
                     b.ToTable("Users", (string)null);
                 });

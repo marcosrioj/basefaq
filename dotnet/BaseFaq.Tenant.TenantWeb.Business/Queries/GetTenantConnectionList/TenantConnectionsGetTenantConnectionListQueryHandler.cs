@@ -26,7 +26,7 @@ public class TenantConnectionsGetTenantConnectionListQueryHandler(TenantDbContex
             .Select(connection => new TenantConnectionDto
             {
                 Id = connection.Id,
-                TenantId = connection.TenantId,
+                App = connection.App,
                 ConnectionString = string.Empty,
                 IsCurrent = connection.IsCurrent
             })
@@ -40,7 +40,7 @@ public class TenantConnectionsGetTenantConnectionListQueryHandler(TenantDbContex
     {
         if (string.IsNullOrWhiteSpace(sorting))
         {
-            return query.OrderBy(connection => connection.TenantId);
+            return query.OrderBy(connection => connection.App);
         }
 
         IOrderedQueryable<BaseFaq.Common.EntityFramework.Tenant.Entities.TenantConnection>? orderedQuery = null;
@@ -60,7 +60,7 @@ public class TenantConnectionsGetTenantConnectionListQueryHandler(TenantDbContex
             orderedQuery = ApplyOrder(orderedQuery ?? query, fieldName, desc, orderedQuery is null);
         }
 
-        return orderedQuery ?? query.OrderBy(connection => connection.TenantId);
+        return orderedQuery ?? query.OrderBy(connection => connection.App);
     }
 
     private static IOrderedQueryable<BaseFaq.Common.EntityFramework.Tenant.Entities.TenantConnection> ApplyOrder(
@@ -71,15 +71,15 @@ public class TenantConnectionsGetTenantConnectionListQueryHandler(TenantDbContex
     {
         return fieldName.ToLowerInvariant() switch
         {
-            "tenantid" => isFirst
+            "app" => isFirst
                 ? (desc
-                    ? query.OrderByDescending(connection => connection.TenantId)
-                    : query.OrderBy(connection => connection.TenantId))
+                    ? query.OrderByDescending(connection => connection.App)
+                    : query.OrderBy(connection => connection.App))
                 : (desc
                     ? ((IOrderedQueryable<BaseFaq.Common.EntityFramework.Tenant.Entities.TenantConnection>)query)
-                    .ThenByDescending(connection => connection.TenantId)
+                    .ThenByDescending(connection => connection.App)
                     : ((IOrderedQueryable<BaseFaq.Common.EntityFramework.Tenant.Entities.TenantConnection>)query)
-                    .ThenBy(connection => connection.TenantId)),
+                    .ThenBy(connection => connection.App)),
             "iscurrent" => isFirst
                 ? (desc
                     ? query.OrderByDescending(connection => connection.IsCurrent)
@@ -117,9 +117,9 @@ public class TenantConnectionsGetTenantConnectionListQueryHandler(TenantDbContex
                     : ((IOrderedQueryable<BaseFaq.Common.EntityFramework.Tenant.Entities.TenantConnection>)query)
                     .ThenBy(connection => connection.Id)),
             _ => isFirst
-                ? query.OrderBy(connection => connection.TenantId)
+                ? query.OrderBy(connection => connection.App)
                 : ((IOrderedQueryable<BaseFaq.Common.EntityFramework.Tenant.Entities.TenantConnection>)query)
-                .ThenBy(connection => connection.TenantId)
+                .ThenBy(connection => connection.App)
         };
     }
 }

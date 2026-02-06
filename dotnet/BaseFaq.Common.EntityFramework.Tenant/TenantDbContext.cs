@@ -3,6 +3,7 @@ using BaseFaq.Common.EntityFramework.Core.Abstractions;
 using BaseFaq.Common.EntityFramework.Tenant.Entities;
 using BaseFaq.Common.EntityFramework.Tenant.Security;
 using BaseFaq.Common.Infrastructure.Core.Abstractions;
+using BaseFaq.Models.Common.Enums;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.Extensions.Caching.Memory;
@@ -51,40 +52,45 @@ public class TenantDbContext(
             .HasConversion(converter);
     }
 
-    public async Task<TenantConnection> GetCurrentTenantConnection(
+    public async Task<TenantConnection> GetCurrentTenantConnection(AppEnum app,
         CancellationToken cancellationToken = default)
     {
         var connection = await TenantConnections
             .AsNoTracking()
             .FirstOrDefaultAsync(
-                item => item.IsCurrent,
+                item => item.App == app && item.IsCurrent,
                 cancellationToken);
 
         if (connection is null)
         {
             throw new InvalidOperationException(
-                $"Current tenant connection was not found.");
+                $"Current tenant connection for {app} was not found.");
         }
 
         return connection;
     }
 
-    public async Task<TenantConnection> GetTenantConnection(Guid tenantId,
+    public async Task<string> GetTenantConnectionString(Guid tenantId,
         CancellationToken cancellationToken = default)
     {
-        var connection = await TenantConnections
+        var tenant = await Tenants
             .AsNoTracking()
             .FirstOrDefaultAsync(
-                item => item.TenantId == tenantId,
+                item => item.Id == tenantId && item.IsActive,
                 cancellationToken);
 
-        if (connection is null)
+        if (tenant is null)
         {
-            throw new InvalidOperationException(
-                $"Tenant connection for tenant '{tenantId}' was not found.");
+            throw new KeyNotFoundException($"Tenant '{tenantId}' was not found.");
         }
 
-        return connection;
+        if (string.IsNullOrWhiteSpace(tenant.ConnectionString))
+        {
+            throw new InvalidOperationException(
+                $"Tenant '{tenantId}' has an invalid connection string.");
+        }
+
+        return tenant.ConnectionString;
     }
 
     private static string EncryptConnectionString(string value)

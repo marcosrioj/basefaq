@@ -129,7 +129,7 @@ public abstract class BaseDbContext<TContext> : DbContext where TContext : DbCon
         return tenantConnectionString;
     }
 
-    protected virtual string GetDefaultConnectionString()
+    private string GetDefaultConnectionString()
     {
         const string defaultConnectionStringName = "DefaultConnection";
         var defaultConnectionString = _memoryCache.GetOrCreate(

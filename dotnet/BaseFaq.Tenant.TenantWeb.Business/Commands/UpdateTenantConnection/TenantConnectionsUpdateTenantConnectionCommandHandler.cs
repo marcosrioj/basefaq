@@ -18,7 +18,7 @@ public class TenantConnectionsUpdateTenantConnectionCommandHandler(TenantDbConte
             throw new KeyNotFoundException($"Tenant connection '{request.Id}' was not found.");
         }
 
-        connection.TenantId = request.TenantId;
+        connection.App = request.App;
         connection.ConnectionString = request.ConnectionString;
         connection.IsCurrent = request.IsCurrent;
 

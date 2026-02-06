@@ -1,5 +1,6 @@
 using BaseFaq.Common.EntityFramework.Core.Entities;
 using BaseFaq.Common.EntityFramework.Tenant.Helpers;
+using BaseFaq.Models.Common.Enums;
 using BaseFaq.Models.Tenant.Enums;
 
 namespace BaseFaq.Common.EntityFramework.Tenant.Entities;
@@ -14,6 +15,9 @@ public class Tenant : BaseEntity
     public required string Slug { get; set; } = TenantHelper.GenerateSlug(DefaultTenantName);
     public required string Name { get; set; } = DefaultTenantName;
     public required TenantEdition Edition { get; set; }
+    public required AppEnum App { get; set; }
     public required string ConnectionString { get; set; }
     public bool IsActive { get; set; } = true;
+
+    public Guid? UserId { get; set; }
 }

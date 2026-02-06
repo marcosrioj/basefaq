@@ -13,4 +13,8 @@
         <ProjectReference Include="..\BaseFaq.Models.Faq\BaseFaq.Models.Faq.csproj"/>
     </ItemGroup>
 
+    <ItemGroup>
+        <Folder Include="Migrations\"/>
+    </ItemGroup>
+
 </Project>

@@ -16,8 +16,7 @@ public class UsersCreateUserCommandHandler(TenantDbContext dbContext)
             Email = request.Email,
             ExternalId = request.ExternalId,
             PhoneNumber = request.PhoneNumber ?? string.Empty,
-            Role = request.Role,
-            TenantId = request.TenantId
+            Role = request.Role
         };
 
         await dbContext.Users.AddAsync(user, cancellationToken);

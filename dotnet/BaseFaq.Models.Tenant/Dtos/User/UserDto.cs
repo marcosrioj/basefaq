@@ -11,5 +11,4 @@ public class UserDto
     public required string ExternalId { get; set; }
     public required string PhoneNumber { get; set; }
     public required UserRoleType Role { get; set; }
-    public required Guid TenantId { get; set; }
 }

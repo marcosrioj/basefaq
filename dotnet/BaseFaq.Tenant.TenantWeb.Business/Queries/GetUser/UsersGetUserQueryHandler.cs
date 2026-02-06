@@ -27,8 +27,7 @@ public class UsersGetUserQueryHandler(TenantDbContext dbContext)
             Email = user.Email,
             ExternalId = user.ExternalId,
             PhoneNumber = user.PhoneNumber,
-            Role = user.Role,
-            TenantId = user.TenantId
+            Role = user.Role
         };
     }
 }

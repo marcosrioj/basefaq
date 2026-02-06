@@ -45,11 +45,11 @@ public class TenantController(ITenantService tenantService) : ControllerBase
         return Ok(result);
     }
 
-    [HttpPost("default")]
-    [ProducesResponseType(typeof(TenantDto), StatusCodes.Status200OK)]
-    public async Task<IActionResult> SetDefault([FromQuery] Guid? tenantId, CancellationToken token)
+    [HttpPost("set-default")]
+    [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
+    public async Task<IActionResult> SetDefault(CancellationToken token)
     {
-        var result = await tenantService.SetDefault(tenantId, token);
+        var result = await tenantService.SetDefault(token);
         return Ok(result);
     }
 }

@@ -17,7 +17,7 @@ public class TenantConnectionService(IMediator mediator) : ITenantConnectionServ
 
         var command = new TenantConnectionsCreateTenantConnectionCommand
         {
-            TenantId = requestDto.TenantId,
+            App = requestDto.App,
             ConnectionString = requestDto.ConnectionString,
             IsCurrent = requestDto.IsCurrent
         };
@@ -60,7 +60,7 @@ public class TenantConnectionService(IMediator mediator) : ITenantConnectionServ
         var command = new TenantConnectionsUpdateTenantConnectionCommand
         {
             Id = id,
-            TenantId = requestDto.TenantId,
+            App = requestDto.App,
             ConnectionString = requestDto.ConnectionString,
             IsCurrent = requestDto.IsCurrent
         };
