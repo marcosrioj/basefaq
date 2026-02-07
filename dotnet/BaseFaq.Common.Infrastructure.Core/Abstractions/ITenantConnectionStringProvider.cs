@@ -1,4 +1,4 @@
-namespace BaseFaq.Common.EntityFramework.Core.Abstractions;
+namespace BaseFaq.Common.Infrastructure.Core.Abstractions;
 
 public interface ITenantConnectionStringProvider
 {

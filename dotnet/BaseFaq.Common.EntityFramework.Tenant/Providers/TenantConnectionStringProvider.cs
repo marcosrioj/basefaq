@@ -1,4 +1,4 @@
-using BaseFaq.Common.EntityFramework.Core.Abstractions;
+using BaseFaq.Common.Infrastructure.Core.Abstractions;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace BaseFaq.Common.EntityFramework.Tenant.Providers;

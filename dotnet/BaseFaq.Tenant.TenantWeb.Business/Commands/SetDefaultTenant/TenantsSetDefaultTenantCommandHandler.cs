@@ -35,14 +35,7 @@ public class TenantsSetDefaultTenantCommandHandler(
                 tenant = await EnsureDefaultTenantAsync(user, app, cancellationToken);
             }
 
-            if (string.IsNullOrWhiteSpace(user.ExternalId))
-            {
-                throw new ApiErrorException(
-                    "External user ID is missing from the current session.",
-                    errorCode: (int)HttpStatusCode.Unauthorized);
-            }
-
-            sessionService.Set(tenant.Id, app, user.ExternalId);
+            sessionService.Set(tenant.Id, app, user.Id);
         }
 
         return true;

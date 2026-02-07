@@ -100,6 +100,24 @@ public class TenantDbContext(
         return tenant.ConnectionString;
     }
 
+    public async Task<Guid> GetUserId(string externalUserId, CancellationToken cancellationToken = default)
+    {
+        var user = await Users
+            .AsNoTracking()
+            .FirstOrDefaultAsync(
+                item => item.ExternalId == externalUserId,
+                cancellationToken);
+
+        if (user is null)
+        {
+            throw new ApiErrorException(
+                $"User with external id '{externalUserId}' was not found.",
+                errorCode: (int)HttpStatusCode.NotFound);
+        }
+
+        return user.Id;
+    }
+
     private static string EncryptConnectionString(string value)
     {
         if (string.IsNullOrWhiteSpace(value) || IsEncrypted(value))

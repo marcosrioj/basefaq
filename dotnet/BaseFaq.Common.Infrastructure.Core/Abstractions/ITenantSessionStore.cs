@@ -4,7 +4,7 @@ namespace BaseFaq.Common.Infrastructure.Core.Abstractions;
 
 public interface ITenantSessionStore
 {
-    Guid? GetTenantId(string externalUserId, AppEnum app);
-    void SetTenantId(string externalUserId, AppEnum app, Guid tenantId);
-    void RemoveTenantId(string externalUserId, AppEnum app);
+    Guid? GetTenantId(Guid userId, AppEnum app);
+    void SetTenantId(Guid userId, AppEnum app, Guid tenantId);
+    void RemoveTenantId(Guid userId, AppEnum app);
 }

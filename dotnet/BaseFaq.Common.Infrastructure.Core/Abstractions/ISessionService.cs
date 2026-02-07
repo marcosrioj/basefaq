@@ -5,6 +5,7 @@ namespace BaseFaq.Common.Infrastructure.Core.Abstractions;
 public interface ISessionService
 {
     Guid GetTenantId(AppEnum app);
-    void Set(Guid tenantId, AppEnum app, string externalUserId);
+    Guid GetUserId();
+    void Set(Guid tenantId, AppEnum app, Guid userId);
     void Clear();
 }

@@ -1,5 +1,6 @@
 using BaseFaq.Common.EntityFramework.Core.Abstractions;
 using BaseFaq.Common.EntityFramework.Tenant.Providers;
+using BaseFaq.Common.Infrastructure.Core.Abstractions;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace BaseFaq.Faq.FaqWeb.Persistence.FaqDb.Extensions;
@@ -13,6 +14,7 @@ public static class ServiceCollectionExtensions
         services.AddMemoryCache();
 
         services.AddScoped<ITenantConnectionStringProvider, TenantConnectionStringProvider>();
+        services.AddScoped<IUserIdProvider, UserIdProvider>();
 
         return services;
     }

@@ -9,28 +9,28 @@ public sealed class RedisTenantSessionStore(IDistributedCache cache) : ITenantSe
     private const string KeyPrefix = "tenant-session:";
     private static readonly TimeSpan Ttl = TimeSpan.FromMinutes(30);
 
-    public Guid? GetTenantId(string externalUserId, AppEnum app)
+    public Guid? GetTenantId(Guid userId, AppEnum app)
     {
-        if (string.IsNullOrWhiteSpace(externalUserId))
+        if (userId == Guid.Empty)
         {
             return null;
         }
 
-        var value = cache.GetString(BuildKey(externalUserId, app));
+        var value = cache.GetString(BuildKey(userId, app));
         return Guid.TryParse(value, out var tenantId)
             ? tenantId
             : null;
     }
 
-    public void SetTenantId(string externalUserId, AppEnum app, Guid tenantId)
+    public void SetTenantId(Guid userId, AppEnum app, Guid tenantId)
     {
-        if (string.IsNullOrWhiteSpace(externalUserId))
+        if (userId == Guid.Empty)
         {
             return;
         }
 
         cache.SetString(
-            BuildKey(externalUserId, app),
+            BuildKey(userId, app),
             tenantId.ToString(),
             new DistributedCacheEntryOptions
             {
@@ -38,18 +38,18 @@ public sealed class RedisTenantSessionStore(IDistributedCache cache) : ITenantSe
             });
     }
 
-    public void RemoveTenantId(string externalUserId, AppEnum app)
+    public void RemoveTenantId(Guid userId, AppEnum app)
     {
-        if (string.IsNullOrWhiteSpace(externalUserId))
+        if (userId == Guid.Empty)
         {
             return;
         }
 
-        cache.Remove(BuildKey(externalUserId, app));
+        cache.Remove(BuildKey(userId, app));
     }
 
-    private static string BuildKey(string externalUserId, AppEnum app)
+    private static string BuildKey(Guid userId, AppEnum app)
     {
-        return $"{KeyPrefix}{externalUserId}:{app}";
+        return $"{KeyPrefix}{userId}:{app}";
     }
 }
