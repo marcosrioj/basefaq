@@ -18,6 +18,7 @@
         <ProjectReference Include="..\BaseFaq.Models.Tenant\BaseFaq.Models.Tenant.csproj"/>
         <ProjectReference Include="..\BaseFaq.Models.User\BaseFaq.Models.User.csproj"/>
         <ProjectReference Include="..\BaseFaq.Common.Infrastructure.Core\BaseFaq.Common.Infrastructure.Core.csproj"/>
+        <ProjectReference Include="..\BaseFaq.Tenant.TenantWeb.Business.User\BaseFaq.Tenant.TenantWeb.Business.User.csproj"/>
     </ItemGroup>
 
 </Project>
