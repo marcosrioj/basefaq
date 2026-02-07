@@ -65,6 +65,31 @@ dotnet ef database update \
   --connection "Host=localhost;Port=5432;Database=bf_faq_db;Username=postgres;Password=Pass123$;"
 ```
 
+## Hostname that works on host + Docker
+If you want a single hostname that works both in Rider (host machine) and inside Docker,
+use `host.docker.internal`.
+
+Linux needs two small steps:
+
+1) Add the host alias for Docker containers (already included in `docker/docker-compose.yml`):
+
+```yaml
+extra_hosts:
+  - "host.docker.internal:host-gateway"
+```
+
+2) Map the name on your host machine (Linux only):
+
+```bash
+echo "127.0.0.1 host.docker.internal" | sudo tee -a /etc/hosts
+```
+
+Then you can use this in tenant connection strings:
+
+```
+Host=host.docker.internal;Port=5432;Database=bf_faq_db;Username=postgres;Password=Pass123$;
+```
+
 ## 3) Run the API locally
 FAQ Web API:
 
@@ -105,7 +130,7 @@ This compose file:
 - Wires the service to the `bf-network` network created by the base services.
 - Uses the repo root as the build context, so run the command from the repo root.
 
-If you run APIs in Docker, ensure connection strings point to the base services container (use `Host=postgres`, not `localhost`).
+If you run APIs in Docker, this repo defaults to `host.docker.internal` in `appsettings.json` so the same values work for host + Docker.
 
 You can also use the helper script:
 
