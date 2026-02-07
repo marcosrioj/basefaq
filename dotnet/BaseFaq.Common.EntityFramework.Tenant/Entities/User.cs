@@ -1,6 +1,6 @@
 using BaseFaq.Common.EntityFramework.Core.Abstractions;
 using BaseFaq.Common.EntityFramework.Core.Entities;
-using BaseFaq.Models.Tenant.Enums;
+using BaseFaq.Models.User.Enums;
 
 namespace BaseFaq.Common.EntityFramework.Tenant.Entities;
 

@@ -26,7 +26,8 @@
         <ProjectReference Include="..\BaseFaq.Common.Infrastructure.Sentry\BaseFaq.Common.Infrastructure.Sentry.csproj"/>
         <ProjectReference Include="..\BaseFaq.Common.Infrastructure.Swagger\BaseFaq.Common.Infrastructure.Swagger.csproj"/>
         <ProjectReference Include="..\BaseFaq.Common.Infrastructure.ApiErrorHandling\BaseFaq.Common.Infrastructure.ApiErrorHandling.csproj"/>
-        <ProjectReference Include="..\BaseFaq.Tenant.TenantWeb.Business\BaseFaq.Tenant.TenantWeb.Business.csproj"/>
+        <ProjectReference Include="..\BaseFaq.Tenant.TenantWeb.Business.Tenant\BaseFaq.Tenant.TenantWeb.Business.Tenant.csproj"/>
+        <ProjectReference Include="..\BaseFaq.Tenant.TenantWeb.Business.User\BaseFaq.Tenant.TenantWeb.Business.User.csproj"/>
     </ItemGroup>
 
 </Project>
