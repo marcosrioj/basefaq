@@ -39,20 +39,7 @@ If the tables are not created yet, install EF tooling:
 dotnet tool install --global dotnet-ef
 ```
 
-FAQ DB:
-
-```bash
-dotnet ef database update \
-  --project dotnet/BaseFaq.Faq.FaqWeb.Persistence.FaqDb \
-  --startup-project dotnet/BaseFaq.Faq.FaqWeb.App
-```
-
-Connection strings live in:
-- `dotnet/BaseFaq.Faq.FaqWeb.App/appsettings.json`
-
-Note: the FAQ app resolves its database connection from the tenant database. Ensure `bf_tenant_db` has a tenant connection for the FAQ app (see Tenant API), or override with env vars when running via Docker Compose.
-
-Tenant DB:
+Tenant DB (stores tenant records and each tenant's connection string):
 
 ```bash
 dotnet ef database update \
@@ -63,7 +50,20 @@ dotnet ef database update \
 Connection strings live in:
 - `dotnet/BaseFaq.Tenant.TenantWeb.App/appsettings.json`
 
-Note: the Tenant app defaults to `bf_tenant_db` in `appsettings.json`. Update it or override with `ConnectionStrings__TenantDb` to match the created database.
+DBs (run per tenant):
+
+The app resolves its database connection from the tenant database, using `Tenant.ConnectionString`. You must run the migrations for every tenant connection string.
+
+The `FaqDb` project below is the migrations assembly used for all tenant FaqWeb app databases; the database name is per-tenant.
+
+Example for one tenant connection of FaqWeb:
+
+```bash
+dotnet ef database update \
+  --project dotnet/BaseFaq.Faq.FaqWeb.Persistence.FaqDb \
+  --startup-project dotnet/BaseFaq.Faq.FaqWeb.App \
+  --connection "Host=localhost;Port=5432;Database=bf_faq_db;Username=postgres;Password=Pass123$;"
+```
 
 ## 3) Run the API locally
 FAQ Web API:
