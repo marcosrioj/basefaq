@@ -7,7 +7,6 @@ using BaseFaq.Common.Infrastructure.Core.Abstractions;
 using BaseFaq.Models.Common.Enums;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 using System.Net;
 
@@ -17,13 +16,11 @@ public class TenantDbContext(
     DbContextOptions<TenantDbContext> options,
     ISessionService sessionService,
     IConfiguration configuration,
-    IMemoryCache memoryCache,
     ITenantConnectionStringProvider tenantConnectionStringProvider)
     : BaseDbContext<TenantDbContext>(
         options,
         sessionService,
         configuration,
-        memoryCache,
         tenantConnectionStringProvider)
 {
     public DbSet<Entities.Tenant> Tenants { get; set; } = null!;

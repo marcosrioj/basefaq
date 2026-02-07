@@ -11,11 +11,6 @@ public static class ServiceCollectionExtensions
     {
         services.AddDbContext<FaqDbContext>();
 
-        services.AddMemoryCache();
-
-        services.AddScoped<ITenantConnectionStringProvider, TenantConnectionStringProvider>();
-        services.AddScoped<IUserIdProvider, UserIdProvider>();
-
         return services;
     }
 }

@@ -6,7 +6,6 @@ using BaseFaq.Common.Infrastructure.ApiErrorHandling.Exception;
 using BaseFaq.Common.Infrastructure.Core.Abstractions;
 using BaseFaq.Models.Common.Enums;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 using System.Net;
 
@@ -15,7 +14,6 @@ namespace BaseFaq.Common.EntityFramework.Core;
 public abstract class BaseDbContext<TContext> : DbContext where TContext : DbContext
 {
     private readonly IConfiguration _configuration;
-    private readonly IMemoryCache _memoryCache;
     private readonly ISessionService _sessionService;
     private readonly ITenantConnectionStringProvider _tenantConnectionStringProvider;
 
@@ -23,13 +21,11 @@ public abstract class BaseDbContext<TContext> : DbContext where TContext : DbCon
         DbContextOptions<TContext> options,
         ISessionService sessionService,
         IConfiguration configuration,
-        IMemoryCache memoryCache,
         ITenantConnectionStringProvider tenantConnectionStringProvider)
         : base(options)
     {
         _sessionService = sessionService;
         _configuration = configuration;
-        _memoryCache = memoryCache;
         _tenantConnectionStringProvider = tenantConnectionStringProvider;
     }
 
@@ -97,13 +93,7 @@ public abstract class BaseDbContext<TContext> : DbContext where TContext : DbCon
     private string GetDefaultConnectionString()
     {
         const string defaultConnectionStringName = "DefaultConnection";
-        var defaultConnectionString = _memoryCache.GetOrCreate(
-            "ConnectionString:Default",
-            entry =>
-            {
-                entry.AbsoluteExpirationRelativeToNow = ConnectionStringCacheDuration;
-                return _configuration.GetConnectionString(defaultConnectionStringName);
-            });
+        var defaultConnectionString = _configuration.GetConnectionString(defaultConnectionStringName);
 
         if (string.IsNullOrWhiteSpace(defaultConnectionString))
         {
@@ -255,8 +245,6 @@ public abstract class BaseDbContext<TContext> : DbContext where TContext : DbCon
         }
     }
 
-    private TimeSpan ConnectionStringCacheDuration => TimeSpan.FromMinutes(10);
-
     private string ResolveConnectionString()
     {
         if (!UseTenantConnectionString)
@@ -266,14 +254,7 @@ public abstract class BaseDbContext<TContext> : DbContext where TContext : DbCon
 
         var tenantId = _sessionService.GetTenantId(SessionApp);
 
-        var cacheKey = $"TenantConnectionString:{tenantId}";
-        var tenantConnectionString = _memoryCache.GetOrCreate(
-            cacheKey,
-            entry =>
-            {
-                entry.AbsoluteExpirationRelativeToNow = ConnectionStringCacheDuration;
-                return _tenantConnectionStringProvider.GetConnectionString(tenantId);
-            });
+        var tenantConnectionString = _tenantConnectionStringProvider.GetConnectionString(tenantId);
 
         if (string.IsNullOrWhiteSpace(tenantConnectionString))
         {
