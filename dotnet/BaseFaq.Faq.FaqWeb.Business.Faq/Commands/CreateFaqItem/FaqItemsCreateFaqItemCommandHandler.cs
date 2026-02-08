@@ -14,6 +14,8 @@ public class FaqItemsCreateFaqItemCommandHandler(FaqDbContext dbContext)
             Question = request.Question,
             Answer = request.Answer,
             Origin = request.Origin,
+            CtaText = request.CtaText,
+            CtaUrl = request.CtaUrl,
             Sort = request.Sort,
             VoteScore = request.VoteScore,
             AiConfidenceScore = request.AiConfidenceScore,

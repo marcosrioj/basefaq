@@ -24,6 +24,8 @@ public class FaqItemsGetFaqItemQueryHandler(FaqDbContext dbContext)
             Question = faqItem.Question,
             Answer = faqItem.Answer,
             Origin = faqItem.Origin,
+            CtaText = faqItem.CtaText,
+            CtaUrl = faqItem.CtaUrl,
             Sort = faqItem.Sort,
             VoteScore = faqItem.VoteScore,
             AiConfidenceScore = faqItem.AiConfidenceScore,

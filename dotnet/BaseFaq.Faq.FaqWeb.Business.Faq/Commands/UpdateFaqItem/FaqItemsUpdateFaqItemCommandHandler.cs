@@ -24,6 +24,8 @@ public class FaqItemsUpdateFaqItemCommandHandler(FaqDbContext dbContext)
         faqItem.Question = request.Question;
         faqItem.Answer = request.Answer;
         faqItem.Origin = request.Origin;
+        faqItem.CtaText = request.CtaText;
+        faqItem.CtaUrl = request.CtaUrl;
         faqItem.Sort = request.Sort;
         faqItem.VoteScore = request.VoteScore;
         faqItem.AiConfidenceScore = request.AiConfidenceScore;

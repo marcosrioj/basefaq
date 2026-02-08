@@ -31,6 +31,8 @@ public class FaqItemsGetFaqItemListQueryHandler(FaqDbContext dbContext)
                 Question = item.Question,
                 Answer = item.Answer,
                 Origin = item.Origin,
+                CtaText = item.CtaText,
+                CtaUrl = item.CtaUrl,
                 Sort = item.Sort,
                 VoteScore = item.VoteScore,
                 AiConfidenceScore = item.AiConfidenceScore,
@@ -96,6 +98,18 @@ public class FaqItemsGetFaqItemListQueryHandler(FaqDbContext dbContext)
                     ? ((IOrderedQueryable<FaqItem>)query)
                     .ThenByDescending(item => item.Origin)
                     : ((IOrderedQueryable<FaqItem>)query).ThenBy(item => item.Origin)),
+            "ctatext" => isFirst
+                ? (desc ? query.OrderByDescending(item => item.CtaText) : query.OrderBy(item => item.CtaText))
+                : (desc
+                    ? ((IOrderedQueryable<FaqItem>)query)
+                    .ThenByDescending(item => item.CtaText)
+                    : ((IOrderedQueryable<FaqItem>)query).ThenBy(item => item.CtaText)),
+            "ctaurl" => isFirst
+                ? (desc ? query.OrderByDescending(item => item.CtaUrl) : query.OrderBy(item => item.CtaUrl))
+                : (desc
+                    ? ((IOrderedQueryable<FaqItem>)query)
+                    .ThenByDescending(item => item.CtaUrl)
+                    : ((IOrderedQueryable<FaqItem>)query).ThenBy(item => item.CtaUrl)),
             "sort" => isFirst
                 ? (desc ? query.OrderByDescending(item => item.Sort) : query.OrderBy(item => item.Sort))
                 : (desc
