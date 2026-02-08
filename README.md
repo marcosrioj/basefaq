@@ -50,20 +50,19 @@ dotnet ef database update \
 Connection strings live in:
 - `dotnet/BaseFaq.Tenant.TenantWeb.App/appsettings.json`
 
-DBs (run per tenant):
+App DBs (run per tenant):
 
-The app resolves its database connection from the tenant database, using `Tenant.ConnectionString`. You must run the migrations for every tenant connection string.
-
-The `FaqDb` project below is the migrations assembly used for all tenant FaqWeb app databases; the database name is per-tenant.
-
-Example for one tenant connection of FaqWeb:
+Use the migrations console app and follow the prompts:
 
 ```bash
-dotnet ef database update \
-  --project dotnet/BaseFaq.Faq.FaqWeb.Persistence.FaqDb \
-  --startup-project dotnet/BaseFaq.Faq.FaqWeb.App \
-  --connection "Host=localhost;Port=5432;Database=bf_faq_db;Username=postgres;Password=Pass123$;"
+dotnet run --project dotnet/BaseFaq.Common.EntityFramework.Migrations
 ```
+
+Notes:
+- The console app asks for the target `AppEnum` and whether to run `Migrations add` or `Database update`.
+- `Database update` applies migrations for **all** tenant connection strings in `Tenant.ConnectionString` filtered by the chosen app.
+- It reads the tenant DB connection string from `dotnet/BaseFaq.Tenant.TenantWeb.App/appsettings.json`
+  (`ConnectionStrings:TenantDb`).
 
 ## Hostname that works on host + Docker
 If you want a single hostname that works both in Rider (host machine) and inside Docker,
