@@ -1,7 +1,7 @@
-using BaseFaq.Common.EntityFramework.Migrations.App.Configuration;
-using BaseFaq.Common.EntityFramework.Migrations.App.Prompts;
-using BaseFaq.Common.EntityFramework.Migrations.App.Runners;
-using BaseFaq.Common.EntityFramework.Migrations.App.Utilities;
+using BaseFaq.Common.EntityFramework.Migrations.Configuration;
+using BaseFaq.Common.EntityFramework.Migrations.Prompts;
+using BaseFaq.Common.EntityFramework.Migrations.Runners;
+using BaseFaq.Common.EntityFramework.Migrations.Utilities;
 
 namespace BaseFaq.Common.EntityFramework.Migrations;
 

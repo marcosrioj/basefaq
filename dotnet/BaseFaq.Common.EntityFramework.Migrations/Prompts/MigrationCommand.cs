@@ -1,4 +1,4 @@
-namespace BaseFaq.Common.EntityFramework.Migrations.App.Prompts;
+namespace BaseFaq.Common.EntityFramework.Migrations.Prompts;
 
 internal enum MigrationCommand
 {

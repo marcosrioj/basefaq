@@ -1,6 +1,6 @@
 using Microsoft.Extensions.Configuration;
 
-namespace BaseFaq.Common.EntityFramework.Migrations.App.Configuration;
+namespace BaseFaq.Common.EntityFramework.Migrations.Configuration;
 
 internal static class MigrationsConfiguration
 {

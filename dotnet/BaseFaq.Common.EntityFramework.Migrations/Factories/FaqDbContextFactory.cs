@@ -1,13 +1,13 @@
-using BaseFaq.Common.EntityFramework.Migrations.App.Configuration;
-using BaseFaq.Common.EntityFramework.Migrations.App.Services;
-using BaseFaq.Common.EntityFramework.Migrations.App.Utilities;
+using BaseFaq.Common.EntityFramework.Migrations.Configuration;
+using BaseFaq.Common.EntityFramework.Migrations.Services;
+using BaseFaq.Common.EntityFramework.Migrations.Utilities;
 using BaseFaq.Common.EntityFramework.Tenant;
 using BaseFaq.Faq.FaqWeb.Persistence.FaqDb;
 using BaseFaq.Models.Common.Enums;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 
-namespace BaseFaq.Common.EntityFramework.Migrations.App.Factories;
+namespace BaseFaq.Common.EntityFramework.Migrations.Factories;
 
 public sealed class FaqDbContextFactory : IDesignTimeDbContextFactory<FaqDbContext>
 {

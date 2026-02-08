@@ -1,4 +1,4 @@
-namespace BaseFaq.Common.EntityFramework.Migrations.App.Utilities;
+namespace BaseFaq.Common.EntityFramework.Migrations.Utilities;
 
 internal static class SolutionRootLocator
 {

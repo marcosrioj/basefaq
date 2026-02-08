@@ -1,11 +1,11 @@
-using BaseFaq.Common.EntityFramework.Migrations.App.Services;
+using BaseFaq.Common.EntityFramework.Migrations.Services;
 using BaseFaq.Common.EntityFramework.Tenant;
 using BaseFaq.Faq.FaqWeb.Persistence.FaqDb;
 using BaseFaq.Models.Common.Enums;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 
-namespace BaseFaq.Common.EntityFramework.Migrations.App.Runners;
+namespace BaseFaq.Common.EntityFramework.Migrations.Runners;
 
 internal static class FaqTenantMigrationUpdater
 {

@@ -1,6 +1,6 @@
 using BaseFaq.Models.Common.Enums;
 
-namespace BaseFaq.Common.EntityFramework.Migrations.App.Prompts;
+namespace BaseFaq.Common.EntityFramework.Migrations.Prompts;
 
 internal static class MigrationPrompt
 {

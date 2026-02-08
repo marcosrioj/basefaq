@@ -1,7 +1,7 @@
 using System.Diagnostics;
 using BaseFaq.Models.Common.Enums;
 
-namespace BaseFaq.Common.EntityFramework.Migrations.App.Runners;
+namespace BaseFaq.Common.EntityFramework.Migrations.Runners;
 
 internal static class EfMigrationsRunner
 {

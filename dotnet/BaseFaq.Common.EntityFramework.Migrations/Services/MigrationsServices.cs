@@ -1,7 +1,7 @@
 using BaseFaq.Common.Infrastructure.Core.Abstractions;
 using BaseFaq.Models.Common.Enums;
 
-namespace BaseFaq.Common.EntityFramework.Migrations.App.Services;
+namespace BaseFaq.Common.EntityFramework.Migrations.Services;
 
 internal sealed class MigrationsSessionService : ISessionService
 {
