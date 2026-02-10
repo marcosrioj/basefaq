@@ -1,14 +1,18 @@
+using BaseFaq.Common.Infrastructure.Core.Abstractions;
 using BaseFaq.Faq.FaqWeb.Persistence.FaqDb;
+using BaseFaq.Models.Common.Enums;
 using MediatR;
 
 namespace BaseFaq.Faq.FaqWeb.Business.Faq.Commands.CreateFaq;
 
-public class FaqsCreateFaqCommandHandler(FaqDbContext dbContext)
+public class FaqsCreateFaqCommandHandler(FaqDbContext dbContext, ISessionService sessionService)
     : IRequestHandler<FaqsCreateFaqCommand, Guid>
 {
     public async Task<Guid> Handle(FaqsCreateFaqCommand request, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(request);
+
+        var tenantId = sessionService.GetTenantId(AppEnum.FaqWeb);
 
         var faq = new FaqWeb.Persistence.FaqDb.Entities.Faq
         {
@@ -18,7 +22,7 @@ public class FaqsCreateFaqCommandHandler(FaqDbContext dbContext)
             SortStrategy = request.SortStrategy,
             CtaEnabled = request.CtaEnabled,
             CtaTarget = request.CtaTarget,
-            TenantId = request.TenantId
+            TenantId = tenantId
         };
 
         await dbContext.Faqs.AddAsync(faq, cancellationToken);

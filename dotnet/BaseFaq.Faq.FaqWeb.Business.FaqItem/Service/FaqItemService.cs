@@ -1,25 +1,21 @@
 using BaseFaq.Common.Infrastructure.ApiErrorHandling.Exception;
-using BaseFaq.Common.Infrastructure.Core.Abstractions;
 using BaseFaq.Faq.FaqWeb.Business.FaqItem.Abstractions;
 using BaseFaq.Faq.FaqWeb.Business.FaqItem.Commands.CreateFaqItem;
 using BaseFaq.Faq.FaqWeb.Business.FaqItem.Commands.UpdateFaqItem;
 using BaseFaq.Faq.FaqWeb.Business.FaqItem.Queries.GetFaqItem;
 using BaseFaq.Faq.FaqWeb.Business.FaqItem.Queries.GetFaqItemList;
 using BaseFaq.Models.Common.Dtos;
-using BaseFaq.Models.Common.Enums;
 using BaseFaq.Models.Faq.Dtos.FaqItem;
 using MediatR;
 using System.Net;
 
 namespace BaseFaq.Faq.FaqWeb.Business.FaqItem.Service;
 
-public class FaqItemService(IMediator mediator, ISessionService sessionService) : IFaqItemService
+public class FaqItemService(IMediator mediator) : IFaqItemService
 {
     public async Task<FaqItemDto> Create(FaqItemCreateRequestDto requestDto, CancellationToken token)
     {
         ArgumentNullException.ThrowIfNull(requestDto);
-
-        var tenantId = sessionService.GetTenantId(AppEnum.FaqWeb);
 
         var command = new FaqItemsCreateFaqItemCommand
         {
@@ -34,8 +30,7 @@ public class FaqItemService(IMediator mediator, ISessionService sessionService) 
             AiConfidenceScore = requestDto.AiConfidenceScore,
             IsActive = requestDto.IsActive,
             FaqId = requestDto.FaqId,
-            ContentRefId = requestDto.ContentRefId,
-            TenantId = tenantId
+            ContentRefId = requestDto.ContentRefId
         };
 
         var id = await mediator.Send(command, token);

@@ -1,25 +1,21 @@
 using BaseFaq.Common.Infrastructure.ApiErrorHandling.Exception;
-using BaseFaq.Common.Infrastructure.Core.Abstractions;
 using BaseFaq.Faq.FaqWeb.Business.Vote.Abstractions;
 using BaseFaq.Faq.FaqWeb.Business.Vote.Commands.CreateVote;
 using BaseFaq.Faq.FaqWeb.Business.Vote.Commands.UpdateVote;
 using BaseFaq.Faq.FaqWeb.Business.Vote.Queries.GetVote;
 using BaseFaq.Faq.FaqWeb.Business.Vote.Queries.GetVoteList;
 using BaseFaq.Models.Common.Dtos;
-using BaseFaq.Models.Common.Enums;
 using BaseFaq.Models.Faq.Dtos.Vote;
 using MediatR;
 using System.Net;
 
 namespace BaseFaq.Faq.FaqWeb.Business.Vote.Service;
 
-public class VoteService(IMediator mediator, ISessionService sessionService) : IVoteService
+public class VoteService(IMediator mediator) : IVoteService
 {
     public async Task<VoteDto> Create(VoteCreateRequestDto requestDto, CancellationToken token)
     {
         ArgumentNullException.ThrowIfNull(requestDto);
-
-        var tenantId = sessionService.GetTenantId(AppEnum.FaqWeb);
 
         var command = new VotesCreateVoteCommand
         {
@@ -28,8 +24,7 @@ public class VoteService(IMediator mediator, ISessionService sessionService) : I
             Ip = requestDto.Ip,
             UserAgent = requestDto.UserAgent,
             UnLikeReason = requestDto.UnLikeReason,
-            FaqItemId = requestDto.FaqItemId,
-            TenantId = tenantId
+            FaqItemId = requestDto.FaqItemId
         };
 
         var id = await mediator.Send(command, token);

@@ -16,5 +16,4 @@ public class FaqItemsCreateFaqItemCommand : IRequest<Guid>
     public required bool IsActive { get; set; }
     public required Guid FaqId { get; set; }
     public Guid? ContentRefId { get; set; }
-    public required Guid TenantId { get; set; }
 }

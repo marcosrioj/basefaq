@@ -1,18 +1,22 @@
 using BaseFaq.Common.Infrastructure.ApiErrorHandling.Exception;
+using BaseFaq.Common.Infrastructure.Core.Abstractions;
 using BaseFaq.Faq.FaqWeb.Persistence.FaqDb;
 using BaseFaq.Faq.FaqWeb.Persistence.FaqDb.Entities;
+using BaseFaq.Models.Common.Enums;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using System.Net;
 
 namespace BaseFaq.Faq.FaqWeb.Business.Faq.Commands.CreateFaqTag;
 
-public class FaqTagsCreateFaqTagCommandHandler(FaqDbContext dbContext)
+public class FaqTagsCreateFaqTagCommandHandler(FaqDbContext dbContext, ISessionService sessionService)
     : IRequestHandler<FaqTagsCreateFaqTagCommand, Guid>
 {
     public async Task<Guid> Handle(FaqTagsCreateFaqTagCommand request, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(request);
+
+        var tenantId = sessionService.GetTenantId(AppEnum.FaqWeb);
 
         var faqExists = await dbContext.Faqs.AnyAsync(entity => entity.Id == request.FaqId, cancellationToken);
         if (!faqExists)
@@ -34,7 +38,7 @@ public class FaqTagsCreateFaqTagCommandHandler(FaqDbContext dbContext)
         {
             FaqId = request.FaqId,
             TagId = request.TagId,
-            TenantId = request.TenantId
+            TenantId = tenantId
         };
 
         await dbContext.FaqTags.AddAsync(faqTag, cancellationToken);
