@@ -6,6 +6,7 @@ using BaseFaq.Common.Infrastructure.ApiErrorHandling.Exception;
 using BaseFaq.Common.Infrastructure.Core.Abstractions;
 using BaseFaq.Models.Common.Enums;
 using BaseFaq.Models.User.Enums;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.Extensions.Configuration;
@@ -17,12 +18,14 @@ public class TenantDbContext(
     DbContextOptions<TenantDbContext> options,
     ISessionService sessionService,
     IConfiguration configuration,
-    ITenantConnectionStringProvider tenantConnectionStringProvider)
+    ITenantConnectionStringProvider tenantConnectionStringProvider,
+    IHttpContextAccessor httpContextAccessor)
     : BaseDbContext<TenantDbContext>(
         options,
         sessionService,
         configuration,
-        tenantConnectionStringProvider)
+        tenantConnectionStringProvider,
+        httpContextAccessor)
 {
     public DbSet<Entities.Tenant> Tenants { get; set; } = null!;
     public DbSet<TenantConnection> TenantConnections { get; set; } = null!;

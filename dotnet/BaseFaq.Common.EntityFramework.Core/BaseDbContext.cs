@@ -4,7 +4,9 @@ using BaseFaq.Common.EntityFramework.Core.Entities;
 using BaseFaq.Common.EntityFramework.Core.Helpers;
 using BaseFaq.Common.Infrastructure.ApiErrorHandling.Exception;
 using BaseFaq.Common.Infrastructure.Core.Abstractions;
+using BaseFaq.Common.Infrastructure.Core.Attributes;
 using BaseFaq.Models.Common.Enums;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using System.Net;
@@ -16,17 +18,21 @@ public abstract class BaseDbContext<TContext> : DbContext where TContext : DbCon
     private readonly IConfiguration _configuration;
     private readonly ISessionService _sessionService;
     private readonly ITenantConnectionStringProvider _tenantConnectionStringProvider;
+    private readonly IHttpContextAccessor _httpContextAccessor;
 
     protected BaseDbContext(
         DbContextOptions<TContext> options,
         ISessionService sessionService,
         IConfiguration configuration,
-        ITenantConnectionStringProvider tenantConnectionStringProvider)
+        ITenantConnectionStringProvider tenantConnectionStringProvider,
+        IHttpContextAccessor httpContextAccessor)
         : base(options)
     {
         _sessionService = sessionService;
         _configuration = configuration;
         _tenantConnectionStringProvider = tenantConnectionStringProvider;
+        _httpContextAccessor = httpContextAccessor;
+        TenantFiltersEnabled = ResolveTenantFiltersEnabled();
     }
 
     protected virtual IEnumerable<string> ConfigurationNamespaces => [];
@@ -37,7 +43,8 @@ public abstract class BaseDbContext<TContext> : DbContext where TContext : DbCon
 
     protected Guid? SessionTenantId => UseTenantConnectionString ? _sessionService.GetTenantId(SessionApp) : null;
 
-    public bool GlobalFiltersEnabled { get; set; } = true;
+    public bool TenantFiltersEnabled { get; set; } = true;
+    public bool SoftDeleteFiltersEnabled { get; set; } = true;
 
     public override int SaveChanges(bool acceptAllChangesOnSuccess)
     {
@@ -74,7 +81,8 @@ public abstract class BaseDbContext<TContext> : DbContext where TContext : DbCon
             configurationLoader.LoadFromNameSpace(modelBuilder, configurationNamespace);
         }
 
-        ApplyGlobalFilters(modelBuilder);
+        ApplySoftDeleteFilters(modelBuilder);
+        ApplyTenantFilters(modelBuilder);
         ApplyTenantIndexes(modelBuilder);
     }
 
@@ -108,11 +116,11 @@ public abstract class BaseDbContext<TContext> : DbContext where TContext : DbCon
         return defaultConnectionString;
     }
 
-    private void ApplyGlobalFilters(ModelBuilder modelBuilder)
+    private void ApplySoftDeleteFilters(ModelBuilder modelBuilder)
     {
         foreach (var entityType in modelBuilder.Model.GetEntityTypes())
         {
-            var filter = BuildFilterExpression(entityType.ClrType);
+            var filter = BuildSoftDeleteFilterExpression(entityType.ClrType);
             if (filter is null)
             {
                 continue;
@@ -122,26 +130,45 @@ public abstract class BaseDbContext<TContext> : DbContext where TContext : DbCon
         }
     }
 
-    private LambdaExpression? BuildFilterExpression(Type entityType)
+    private void ApplyTenantFilters(ModelBuilder modelBuilder)
     {
-        var parameter = Expression.Parameter(entityType, "e");
-        Expression? filterBody = null;
-
-        if (typeof(ISoftDelete).IsAssignableFrom(entityType))
+        foreach (var entityType in modelBuilder.Model.GetEntityTypes())
         {
-            var isDeletedProperty = Expression.Property(
-                Expression.Convert(parameter, typeof(ISoftDelete)),
-                nameof(ISoftDelete.IsDeleted));
+            var filter = BuildTenantFilterExpression(entityType.ClrType);
+            if (filter is null)
+            {
+                continue;
+            }
 
-            var notDeleted = Expression.Not(isDeletedProperty);
-            filterBody = filterBody is null ? notDeleted : Expression.AndAlso(filterBody, notDeleted);
+            modelBuilder.Entity(entityType.ClrType).HasQueryFilter(filter);
+        }
+    }
+
+    private LambdaExpression? BuildSoftDeleteFilterExpression(Type entityType)
+    {
+        if (!typeof(ISoftDelete).IsAssignableFrom(entityType))
+        {
+            return null;
         }
 
+        var parameter = Expression.Parameter(entityType, "e");
+        var isDeletedProperty = Expression.Property(
+            Expression.Convert(parameter, typeof(ISoftDelete)),
+            nameof(ISoftDelete.IsDeleted));
+
+        var notDeleted = Expression.Not(isDeletedProperty);
+
+        return ApplySoftDeleteFiltersToggle(Expression.Lambda(notDeleted, parameter));
+    }
+
+    private LambdaExpression? BuildTenantFilterExpression(Type entityType)
+    {
         var currentTenantId = Expression.Property(Expression.Constant(this), nameof(SessionTenantId));
         var tenantIsNull = Expression.Equal(currentTenantId, Expression.Constant(null, typeof(Guid?)));
 
         if (typeof(IMustHaveTenant).IsAssignableFrom(entityType))
         {
+            var parameter = Expression.Parameter(entityType, "e");
             var tenantProperty = Expression.Property(
                 Expression.Convert(parameter, typeof(IMustHaveTenant)),
                 nameof(IMustHaveTenant.TenantId));
@@ -151,10 +178,13 @@ public abstract class BaseDbContext<TContext> : DbContext where TContext : DbCon
                 currentTenantId);
 
             var tenantFilter = Expression.OrElse(tenantIsNull, tenantMatches);
-            filterBody = filterBody is null ? tenantFilter : Expression.AndAlso(filterBody, tenantFilter);
+
+            return ApplyTenantFiltersToggle(Expression.Lambda(tenantFilter, parameter));
         }
-        else if (typeof(IMayHaveTenant).IsAssignableFrom(entityType))
+
+        if (typeof(IMayHaveTenant).IsAssignableFrom(entityType))
         {
+            var parameter = Expression.Parameter(entityType, "e");
             var tenantProperty = Expression.Property(
                 Expression.Convert(parameter, typeof(IMayHaveTenant)),
                 nameof(IMayHaveTenant.TenantId));
@@ -168,22 +198,40 @@ public abstract class BaseDbContext<TContext> : DbContext where TContext : DbCon
                 tenantIsNull,
                 Expression.OrElse(tenantIsNullOnEntity, tenantMatches));
 
-            filterBody = filterBody is null ? tenantFilter : Expression.AndAlso(filterBody, tenantFilter);
+            return ApplyTenantFiltersToggle(Expression.Lambda(tenantFilter, parameter));
         }
 
-        if (filterBody is null)
-        {
-            return null;
-        }
+        return null;
+    }
 
-        var globalFiltersEnabled = Expression.Property(
+    private LambdaExpression ApplySoftDeleteFiltersToggle(LambdaExpression filter)
+    {
+        var softDeleteFiltersEnabled = Expression.Property(
             Expression.Constant(this),
-            nameof(GlobalFiltersEnabled));
+            nameof(SoftDeleteFiltersEnabled));
 
-        var ignoreFilters = Expression.Not(globalFiltersEnabled);
-        var finalFilter = Expression.OrElse(ignoreFilters, filterBody);
+        var ignoreFilters = Expression.Not(softDeleteFiltersEnabled);
+        var finalFilter = Expression.OrElse(ignoreFilters, filter.Body);
 
-        return Expression.Lambda(finalFilter, parameter);
+        return Expression.Lambda(finalFilter, filter.Parameters);
+    }
+
+    private LambdaExpression ApplyTenantFiltersToggle(LambdaExpression filter)
+    {
+        var tenantFiltersEnabled = Expression.Property(
+            Expression.Constant(this),
+            nameof(TenantFiltersEnabled));
+
+        var ignoreFilters = Expression.Not(tenantFiltersEnabled);
+        var finalFilter = Expression.OrElse(ignoreFilters, filter.Body);
+
+        return Expression.Lambda(finalFilter, filter.Parameters);
+    }
+
+    private bool ResolveTenantFiltersEnabled()
+    {
+        var endpoint = _httpContextAccessor.HttpContext?.GetEndpoint();
+        return endpoint?.Metadata.GetMetadata<SkipTenantAccessValidationAttribute>() is null;
     }
 
     private void ApplySoftDeleteRules()

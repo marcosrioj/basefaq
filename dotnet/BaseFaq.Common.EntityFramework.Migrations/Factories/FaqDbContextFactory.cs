@@ -5,6 +5,7 @@ using BaseFaq.Common.EntityFramework.Tenant;
 using BaseFaq.Common.EntityFramework.Tenant.Entities;
 using BaseFaq.Faq.FaqWeb.Persistence.FaqDb;
 using BaseFaq.Models.Common.Enums;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 
@@ -25,6 +26,7 @@ public sealed class FaqDbContextFactory : IDesignTimeDbContextFactory<FaqDbConte
         var tenantDbConnectionString = MigrationsConfiguration.GetTenantDbConnectionString(configuration);
         var sessionService = new MigrationsSessionService();
         var tenantConnectionProvider = new NoopTenantConnectionStringProvider();
+        var httpContextAccessor = new HttpContextAccessor();
 
         TenantConnection tenantConnection;
         try
@@ -35,7 +37,8 @@ public sealed class FaqDbContextFactory : IDesignTimeDbContextFactory<FaqDbConte
                     .Options,
                 sessionService,
                 configuration,
-                tenantConnectionProvider);
+                tenantConnectionProvider,
+                httpContextAccessor);
 
             tenantConnection = tenantDbContext
                 .GetCurrentTenantConnection(app)
@@ -54,7 +57,12 @@ public sealed class FaqDbContextFactory : IDesignTimeDbContextFactory<FaqDbConte
             .UseNpgsql(tenantConnection.ConnectionString)
             .Options;
 
-        return new FaqDbContext(options, sessionService, configuration, tenantConnectionProvider);
+        return new FaqDbContext(
+            options,
+            sessionService,
+            configuration,
+            tenantConnectionProvider,
+            httpContextAccessor);
     }
 
     private static AppEnum ResolveAppEnum(string[] args)

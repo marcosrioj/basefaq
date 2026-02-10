@@ -3,6 +3,7 @@ using BaseFaq.Common.EntityFramework.Core.Abstractions;
 using BaseFaq.Common.Infrastructure.Core.Abstractions;
 using BaseFaq.Faq.FaqWeb.Persistence.FaqDb.Entities;
 using BaseFaq.Models.Common.Enums;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 
@@ -12,12 +13,14 @@ public class FaqDbContext(
     DbContextOptions<FaqDbContext> options,
     ISessionService sessionService,
     IConfiguration configuration,
-    ITenantConnectionStringProvider tenantConnectionStringProvider)
+    ITenantConnectionStringProvider tenantConnectionStringProvider,
+    IHttpContextAccessor httpContextAccessor)
     : BaseDbContext<FaqDbContext>(
         options,
         sessionService,
         configuration,
-        tenantConnectionStringProvider)
+        tenantConnectionStringProvider,
+        httpContextAccessor)
 {
     public DbSet<Entities.Faq> Faqs { get; set; }
 

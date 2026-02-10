@@ -2,6 +2,7 @@ using BaseFaq.Common.EntityFramework.Migrations.Services;
 using BaseFaq.Common.EntityFramework.Tenant;
 using BaseFaq.Faq.FaqWeb.Persistence.FaqDb;
 using BaseFaq.Models.Common.Enums;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 
@@ -19,6 +20,7 @@ internal static class FaqTenantMigrationUpdater
 
         var sessionService = new MigrationsSessionService();
         var tenantConnectionProvider = new NoopTenantConnectionStringProvider();
+        var httpContextAccessor = new HttpContextAccessor();
 
         using var tenantDbContext = new TenantDbContext(
             new DbContextOptionsBuilder<TenantDbContext>()
@@ -26,7 +28,8 @@ internal static class FaqTenantMigrationUpdater
                 .Options,
             sessionService,
             configuration,
-            tenantConnectionProvider);
+            tenantConnectionProvider,
+            httpContextAccessor);
 
         var tenantConnectionStrings = tenantDbContext.Tenants
             .AsNoTracking()
@@ -65,7 +68,8 @@ internal static class FaqTenantMigrationUpdater
                 options,
                 sessionService,
                 configuration,
-                tenantConnectionProvider);
+                tenantConnectionProvider,
+                httpContextAccessor);
 
             Console.WriteLine($"[{index}/{uniqueConnections.Count}] Updating tenant database...");
             faqDbContext.Database.Migrate();
