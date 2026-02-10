@@ -1,9 +1,10 @@
+using BaseFaq.Common.EntityFramework.Core.Abstractions;
 using BaseFaq.Common.EntityFramework.Core.Entities;
 using BaseFaq.Models.Faq.Enums;
 
 namespace BaseFaq.Faq.FaqWeb.Persistence.FaqDb.Entities;
 
-public class Vote : BaseEntity
+public class Vote : BaseEntity, IMustHaveTenant
 {
     public const int MaxUserPrintLength = 250;
     public const int MaxIpLength = 100;
@@ -35,6 +36,8 @@ public class Vote : BaseEntity
     /// Optional reason provided when the vote is negative.
     /// </summary>
     public UnLikeReason? UnLikeReason { get; set; }
+
+    public required Guid TenantId { get; set; }
 
     public required Guid FaqItemId { get; set; }
     public FaqItem FaqItem { get; set; } = null!;

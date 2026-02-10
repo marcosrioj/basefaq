@@ -2,6 +2,7 @@ using BaseFaq.Common.Infrastructure.ApiErrorHandling.Exception;
 using BaseFaq.Common.Infrastructure.Core.Abstractions;
 using BaseFaq.Faq.FaqWeb.Persistence.FaqDb;
 using BaseFaq.Faq.FaqWeb.Business.Vote.Helpers;
+using BaseFaq.Models.Common.Enums;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using System.Net;
@@ -24,6 +25,7 @@ public class VotesCreateVoteCommandHandler(
         }
 
         var identity = VoteRequestContext.GetIdentity(sessionService, httpContextAccessor);
+        var tenantId = sessionService.GetTenantId(AppEnum.FaqWeb);
 
         var vote = new Persistence.FaqDb.Entities.Vote
         {
@@ -32,6 +34,7 @@ public class VotesCreateVoteCommandHandler(
             Ip = identity.Ip,
             UserAgent = identity.UserAgent,
             UnLikeReason = request.UnLikeReason,
+            TenantId = tenantId,
             FaqItemId = request.FaqItemId
         };
 

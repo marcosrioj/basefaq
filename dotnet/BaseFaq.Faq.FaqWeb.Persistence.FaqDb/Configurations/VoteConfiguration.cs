@@ -30,6 +30,9 @@ public class VoteConfiguration : BaseConfiguration<Vote>
 
         builder.Property(p => p.UnLikeReason);
 
+        builder.Property(p => p.TenantId)
+            .IsRequired();
+
         builder.Property(p => p.FaqItemId)
             .IsRequired();
 

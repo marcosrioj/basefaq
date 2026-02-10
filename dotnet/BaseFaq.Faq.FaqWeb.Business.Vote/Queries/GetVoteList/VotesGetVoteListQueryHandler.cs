@@ -32,6 +32,7 @@ public class VotesGetVoteListQueryHandler(FaqDbContext dbContext)
                 Ip = vote.Ip,
                 UserAgent = vote.UserAgent,
                 UnLikeReason = vote.UnLikeReason,
+                TenantId = vote.TenantId,
                 FaqItemId = vote.FaqItemId
             })
             .ToListAsync(cancellationToken);
