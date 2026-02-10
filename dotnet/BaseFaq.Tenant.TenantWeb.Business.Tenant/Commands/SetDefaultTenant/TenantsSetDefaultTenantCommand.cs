@@ -1,4 +1,3 @@
-using BaseFaq.Models.Tenant.Dtos.Tenant;
 using MediatR;
 
 namespace BaseFaq.Tenant.TenantWeb.Business.Tenant.Commands.SetDefaultTenant;

@@ -11,9 +11,9 @@ namespace BaseFaq.Tenant.TenantWeb.Business.User.Commands.EnsureUser;
 public class UsersEnsureUserCommandHandler(
     TenantDbContext dbContext,
     IClaimService claimService)
-    : IRequestHandler<UsersEnsureUserCommand, Common.EntityFramework.Tenant.Entities.User>
+    : IRequestHandler<UsersEnsureUserCommand, Guid>
 {
-    public async Task<Common.EntityFramework.Tenant.Entities.User> Handle(UsersEnsureUserCommand request,
+    public async Task<Guid> Handle(UsersEnsureUserCommand request,
         CancellationToken cancellationToken)
     {
         var externalUserId = claimService.GetExternalUserId();
@@ -33,7 +33,7 @@ public class UsersEnsureUserCommandHandler(
 
         if (user is not null)
         {
-            return user;
+            return user.Id;
         }
 
         user = new Common.EntityFramework.Tenant.Entities.User
@@ -48,6 +48,6 @@ public class UsersEnsureUserCommandHandler(
         await dbContext.Users.AddAsync(user, cancellationToken);
         await dbContext.SaveChangesAsync(cancellationToken);
 
-        return user;
+        return user.Id;
     }
 }

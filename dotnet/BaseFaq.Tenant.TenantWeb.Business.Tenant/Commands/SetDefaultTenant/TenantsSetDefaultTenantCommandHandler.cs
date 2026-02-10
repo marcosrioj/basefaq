@@ -1,11 +1,14 @@
 using BaseFaq.Common.EntityFramework.Tenant;
 using BaseFaq.Common.EntityFramework.Tenant.Helpers;
+using BaseFaq.Common.Infrastructure.ApiErrorHandling.Exception;
 using BaseFaq.Common.Infrastructure.Core.Abstractions;
 using BaseFaq.Models.Common.Enums;
 using BaseFaq.Models.Tenant.Enums;
 using BaseFaq.Tenant.TenantWeb.Business.User.Commands.EnsureUser;
+using BaseFaq.Tenant.TenantWeb.Business.User.Queries.GetUser;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using System.Net;
 
 namespace BaseFaq.Tenant.TenantWeb.Business.Tenant.Commands.SetDefaultTenant;
 
@@ -17,7 +20,16 @@ public class TenantsSetDefaultTenantCommandHandler(
 {
     public async Task<bool> Handle(TenantsSetDefaultTenantCommand request, CancellationToken cancellationToken)
     {
-        var user = await mediator.Send(new UsersEnsureUserCommand(), cancellationToken);
+        var userId = await mediator.Send(new UsersEnsureUserCommand(), cancellationToken);
+
+        var user = await mediator.Send(new UsersGetUserQuery { Id = userId }, cancellationToken);
+
+        if (user is null)
+        {
+            throw new ApiErrorException(
+                $"User '{userId}' was not found.",
+                errorCode: (int)HttpStatusCode.NotFound);
+        }
 
         var userTenants = await GetTenantByUserIdAsync(user.Id, cancellationToken);
 
@@ -30,7 +42,7 @@ public class TenantsSetDefaultTenantCommandHandler(
 
             if (tenant is null)
             {
-                tenant = await EnsureDefaultTenantAsync(user, app, cancellationToken);
+                tenant = await EnsureDefaultTenantAsync(user.Id, user.GivenName, app, cancellationToken);
             }
 
             sessionService.Set(tenant.Id, app, user.Id);
@@ -51,11 +63,11 @@ public class TenantsSetDefaultTenantCommandHandler(
     }
 
     private async Task<Common.EntityFramework.Tenant.Entities.Tenant> EnsureDefaultTenantAsync(
-        Common.EntityFramework.Tenant.Entities.User user, AppEnum app, CancellationToken cancellationToken)
+        Guid userId, string userGivenName, AppEnum app, CancellationToken cancellationToken)
     {
         var tenant = await dbContext.Tenants
             .AsNoTracking()
-            .FirstOrDefaultAsync(entity => entity.UserId == user.Id && entity.App == app && entity.IsActive,
+            .FirstOrDefaultAsync(entity => entity.UserId == userId && entity.App == app && entity.IsActive,
                 cancellationToken);
 
         if (tenant is not null)
@@ -65,7 +77,7 @@ public class TenantsSetDefaultTenantCommandHandler(
 
         var currentTenantConnection = await dbContext.GetCurrentTenantConnection(app, cancellationToken);
 
-        var tenantName = $"{user.GivenName} {Common.EntityFramework.Tenant.Entities.Tenant.DefaultTenantName}";
+        var tenantName = $"{userGivenName} {Common.EntityFramework.Tenant.Entities.Tenant.DefaultTenantName}";
 
         tenant = new Common.EntityFramework.Tenant.Entities.Tenant
         {
@@ -75,7 +87,7 @@ public class TenantsSetDefaultTenantCommandHandler(
             App = app,
             ConnectionString = currentTenantConnection.ConnectionString,
             IsActive = true,
-            UserId = user.Id
+            UserId = userId
         };
 
         await dbContext.Tenants.AddAsync(tenant, cancellationToken);
