@@ -5,6 +5,7 @@ using BaseFaq.Common.EntityFramework.Tenant.Security;
 using BaseFaq.Common.Infrastructure.ApiErrorHandling.Exception;
 using BaseFaq.Common.Infrastructure.Core.Abstractions;
 using BaseFaq.Models.Common.Enums;
+using BaseFaq.Models.User.Enums;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.Extensions.Configuration;
@@ -111,6 +112,43 @@ public class TenantDbContext(
                 $"User with external id '{externalUserId}' was not found.",
                 errorCode: (int)HttpStatusCode.NotFound);
         }
+
+        return user.Id;
+    }
+
+    public async Task<Guid> EnsureUser(string externalUserId, string? userName, string? email,
+        CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrWhiteSpace(externalUserId) || string.IsNullOrWhiteSpace(userName) ||
+            string.IsNullOrWhiteSpace(email))
+        {
+            throw new ApiErrorException(
+                $"User: '{externalUserId}' was not found.",
+                errorCode: (int)HttpStatusCode.NotFound);
+        }
+
+        var user = await Users
+            .AsNoTracking()
+            .FirstOrDefaultAsync(
+                item => item.ExternalId == externalUserId,
+                cancellationToken);
+
+        if (user is not null)
+        {
+            return user.Id;
+        }
+
+        user = new User
+        {
+            Id = Guid.NewGuid(),
+            GivenName = userName,
+            ExternalId = externalUserId,
+            Email = email,
+            Role = UserRoleType.Member
+        };
+
+        await Users.AddAsync(user, cancellationToken);
+        await SaveChangesAsync(cancellationToken);
 
         return user.Id;
     }

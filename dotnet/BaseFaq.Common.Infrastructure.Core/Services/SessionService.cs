@@ -1,67 +1,47 @@
 using System.Net;
 using BaseFaq.Common.Infrastructure.ApiErrorHandling.Exception;
 using BaseFaq.Common.Infrastructure.Core.Abstractions;
+using BaseFaq.Common.Infrastructure.Core.Constants;
 using BaseFaq.Models.Common.Enums;
+using Microsoft.AspNetCore.Http;
 
 namespace BaseFaq.Common.Infrastructure.Core.Services;
 
 public sealed class SessionService : ISessionService
 {
     private readonly IClaimService _claimService;
-    private readonly ITenantSessionStore _tenantSessionStore;
     private readonly IUserIdProvider _userIdProvider;
+    private readonly IHttpContextAccessor _httpContextAccessor;
 
     public SessionService(
         IClaimService claimService,
-        ITenantSessionStore tenantSessionStore,
-        IUserIdProvider userIdProvider)
+        IUserIdProvider userIdProvider,
+        IHttpContextAccessor httpContextAccessor)
     {
         _claimService = claimService;
-        _tenantSessionStore = tenantSessionStore;
         _userIdProvider = userIdProvider;
+        _httpContextAccessor = httpContextAccessor;
     }
 
     public Guid GetTenantId(AppEnum app)
     {
-        var userId = GetUserId();
-        var tenantId = _tenantSessionStore.GetTenantId(userId, app);
-        if (!tenantId.HasValue)
+        var httpContext = _httpContextAccessor.HttpContext;
+        if (httpContext is null ||
+            !httpContext.Items.TryGetValue(TenantContextKeys.TenantIdItemKey, out var tenantIdValue) ||
+            tenantIdValue is not Guid tenantId)
         {
             throw new ApiErrorException(
-                "TenantId is missing from the current session.",
-                errorCode: (int)HttpStatusCode.UnprocessableEntity);
+                "Tenant context is missing from the current request.",
+                errorCode: (int)HttpStatusCode.BadRequest);
         }
 
-        return tenantId.Value;
+        return tenantId;
     }
 
     public Guid GetUserId()
     {
-        var externalUserId = _claimService.GetExternalUserId();
-        if (string.IsNullOrWhiteSpace(externalUserId))
-        {
-            throw new ApiErrorException(
-                "External user ID is missing from the current session.",
-                errorCode: (int)HttpStatusCode.Unauthorized);
-        }
-
-        var userId = _userIdProvider.GetUserId(externalUserId);
+        var userId = _userIdProvider.GetUserId();
 
         return userId;
-    }
-
-    public void Set(Guid tenantId, AppEnum app, Guid userId)
-    {
-        _tenantSessionStore.SetTenantId(userId, app, tenantId);
-    }
-
-    public void Clear()
-    {
-        var userId = GetUserId();
-
-        foreach (AppEnum app in Enum.GetValues<AppEnum>())
-        {
-            _tenantSessionStore.RemoveTenantId(userId, app);
-        }
     }
 }

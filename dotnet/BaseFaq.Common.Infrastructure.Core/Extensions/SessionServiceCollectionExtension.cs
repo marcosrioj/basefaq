@@ -1,6 +1,6 @@
+using BaseFaq.Common.Infrastructure.ApiErrorHandling.Exception;
 using BaseFaq.Common.Infrastructure.Core.Abstractions;
 using BaseFaq.Common.Infrastructure.Core.Services;
-using BaseFaq.Common.Infrastructure.ApiErrorHandling.Exception;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System.Net;
@@ -44,7 +44,7 @@ public static class SessionServiceCollectionExtension
 
         services.AddClaimService(configuration);
 
-        services.AddSingleton<ITenantSessionStore, RedisTenantSessionStore>();
+        services.AddSingleton<IAllowedTenantStore, RedisAllowedTenantStore>();
 
         services.AddScoped<ISessionService, SessionService>();
 

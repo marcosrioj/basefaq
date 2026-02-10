@@ -11,14 +11,6 @@ internal sealed class MigrationsSessionService : ISessionService
     public Guid GetTenantId(AppEnum app) => MigrationTenantId;
 
     public Guid GetUserId() => MigrationUserId;
-
-    public void Set(Guid tenantId, AppEnum app, Guid userId)
-    {
-    }
-
-    public void Clear()
-    {
-    }
 }
 
 internal sealed class NoopTenantConnectionStringProvider : ITenantConnectionStringProvider

@@ -44,12 +44,4 @@ public class TenantController(ITenantService tenantService) : ControllerBase
         var result = await tenantService.Update(id, dto, token);
         return Ok(result);
     }
-
-    [HttpPost("set-default")]
-    [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
-    public async Task<IActionResult> SetDefault(CancellationToken token)
-    {
-        var result = await tenantService.SetDefault(token);
-        return Ok(result);
-    }
 }

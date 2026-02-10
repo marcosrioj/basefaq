@@ -1,8 +1,8 @@
-using System.Net;
 using BaseFaq.Common.Infrastructure.ApiErrorHandling.Exception;
 using BaseFaq.Common.Infrastructure.Core.Abstractions;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
+using System.Net;
 
 namespace BaseFaq.Common.EntityFramework.Tenant.Providers;
 
@@ -10,23 +10,28 @@ public sealed class UserIdProvider(IServiceProvider serviceProvider) : IUserIdPr
 {
     private static readonly TimeSpan UserIdCacheDuration = TimeSpan.FromMinutes(30);
 
-    public Guid GetUserId(string externalUserId)
+    public Guid GetUserId()
     {
+        var tenantDbContext = serviceProvider.GetRequiredService<TenantDbContext>();
+        var claimService = serviceProvider.GetRequiredService<IClaimService>();
+        var memoryCache = serviceProvider.GetRequiredService<IMemoryCache>();
+        var externalUserId = claimService.GetExternalUserId();
         if (string.IsNullOrWhiteSpace(externalUserId))
         {
-            throw new ApiErrorException($"User with external id '{externalUserId}' required.",
-                (int)HttpStatusCode.BadRequest);
+            throw new ApiErrorException(
+                "External user ID is missing from the current session.",
+                errorCode: (int)HttpStatusCode.Unauthorized);
         }
 
-        var tenantDbContext = serviceProvider.GetRequiredService<TenantDbContext>();
-        var memoryCache = serviceProvider.GetRequiredService<IMemoryCache>();
         var cacheKey = $"UserId:{externalUserId}";
         var userId = memoryCache.GetOrCreate(
             cacheKey,
             entry =>
             {
                 entry.AbsoluteExpirationRelativeToNow = UserIdCacheDuration;
-                return tenantDbContext.GetUserId(externalUserId).GetAwaiter().GetResult();
+                var userName = claimService.GetName();
+                var email = claimService.GetEmail();
+                return tenantDbContext.EnsureUser(externalUserId, userName, email).GetAwaiter().GetResult();
             });
 
         return userId;

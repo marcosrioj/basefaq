@@ -1,3 +1,4 @@
+using BaseFaq.Common.Infrastructure.Swagger.Filters;
 using BaseFaq.Common.Infrastructure.Swagger.Options;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
@@ -38,8 +39,11 @@ public static class SwaggerServiceCollection
             c.SwaggerDoc(version, new OpenApiInfo
             {
                 Title = title,
-                Version = version
+                Version = version,
+                Description = "Tenant context is provided via X-Tenant-Id headers and resolved by middleware."
             });
+
+            c.OperationFilter<TenantHeaderOperationFilter>();
         });
     }
 
@@ -61,7 +65,8 @@ public static class SwaggerServiceCollection
             c.SwaggerDoc(version, new OpenApiInfo
             {
                 Title = title,
-                Version = version
+                Version = version,
+                Description = "Tenant context is provided via X-Tenant-Id headers and resolved by middleware."
             });
 
             var scheme = new OpenApiSecurityScheme
@@ -95,6 +100,8 @@ public static class SwaggerServiceCollection
             {
                 [new OpenApiSecuritySchemeReference("OAuth2", document)] = []
             });
+
+            c.OperationFilter<TenantHeaderOperationFilter>();
         });
     }
 

@@ -6,6 +6,7 @@ using BaseFaq.Common.Infrastructure.Mvc.Filters;
 using BaseFaq.Common.Infrastructure.Sentry.Extensions;
 using BaseFaq.Common.Infrastructure.Swagger.Extensions;
 using BaseFaq.Faq.FaqWeb.App.Extensions;
+using BaseFaq.Models.Common.Enums;
 
 namespace BaseFaq.Faq.FaqWeb.App;
 
@@ -57,6 +58,7 @@ public class Program
         app.UseApiErrorHandlingMiddleware();
 
         app.UseRouting();
+        app.UseTenantResolution(AppEnum.FaqWeb);
 
         if (!app.Environment.IsProduction())
         {

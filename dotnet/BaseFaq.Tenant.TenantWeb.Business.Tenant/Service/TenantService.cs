@@ -3,7 +3,6 @@ using BaseFaq.Models.Tenant.Dtos.Tenant;
 using BaseFaq.Common.Infrastructure.ApiErrorHandling.Exception;
 using BaseFaq.Tenant.TenantWeb.Business.Tenant.Abstractions;
 using BaseFaq.Tenant.TenantWeb.Business.Tenant.Commands.CreateTenant;
-using BaseFaq.Tenant.TenantWeb.Business.Tenant.Commands.SetDefaultTenant;
 using BaseFaq.Tenant.TenantWeb.Business.Tenant.Commands.UpdateTenant;
 using BaseFaq.Tenant.TenantWeb.Business.Tenant.Queries.GetTenant;
 using BaseFaq.Tenant.TenantWeb.Business.Tenant.Queries.GetTenantList;
@@ -59,11 +58,6 @@ public class TenantService(IMediator mediator) : ITenantService
         }
 
         return result;
-    }
-
-    public Task<bool> SetDefault(CancellationToken token)
-    {
-        return mediator.Send(new TenantsSetDefaultTenantCommand(), token);
     }
 
     public async Task<TenantDto> Update(Guid id, TenantUpdateRequestDto requestDto, CancellationToken token)
