@@ -29,8 +29,6 @@ public class FaqService(IMediator mediator, ISessionService sessionService) : IF
             SortStrategy = requestDto.SortStrategy,
             CtaEnabled = requestDto.CtaEnabled,
             CtaTarget = requestDto.CtaTarget,
-            TagIds = requestDto.TagIds,
-            ContentRefIds = requestDto.ContentRefIds,
             TenantId = tenantId
         };
 
@@ -79,9 +77,7 @@ public class FaqService(IMediator mediator, ISessionService sessionService) : IF
             Status = requestDto.Status,
             SortStrategy = requestDto.SortStrategy,
             CtaEnabled = requestDto.CtaEnabled,
-            CtaTarget = requestDto.CtaTarget,
-            TagIds = requestDto.TagIds,
-            ContentRefIds = requestDto.ContentRefIds
+            CtaTarget = requestDto.CtaTarget
         };
 
         await mediator.Send(command, token);

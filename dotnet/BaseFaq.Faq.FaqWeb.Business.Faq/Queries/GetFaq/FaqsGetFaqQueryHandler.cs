@@ -21,8 +21,6 @@ public class FaqsGetFaqQueryHandler(FaqDbContext dbContext) : IRequestHandler<Fa
                 SortStrategy = faq.SortStrategy,
                 CtaEnabled = faq.CtaEnabled,
                 CtaTarget = faq.CtaTarget,
-                TagIds = faq.Tags.Select(tag => tag.TagId).ToList(),
-                ContentRefIds = faq.ContentRefs.Select(contentRef => contentRef.ContentRefId).ToList(),
                 TenantId = faq.TenantId
             })
             .FirstOrDefaultAsync(cancellationToken);

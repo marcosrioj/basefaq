@@ -11,8 +11,6 @@ public class FaqDto
     public required FaqSortStrategy SortStrategy { get; set; }
     public required bool CtaEnabled { get; set; }
     public required CtaTarget CtaTarget { get; set; }
-    public List<Guid> TagIds { get; set; } = [];
-    public List<Guid> ContentRefIds { get; set; } = [];
 
     public required Guid TenantId { get; set; }
 }

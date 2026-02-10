@@ -10,6 +10,8 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection AddFaqBusiness(this IServiceCollection services)
     {
         services.AddScoped<IFaqService, FaqService>();
+        services.AddScoped<IFaqTagService, FaqTagService>();
+        services.AddScoped<IFaqContentRefService, FaqContentRefService>();
         services.AddMediatR(config => config.RegisterServicesFromAssemblyContaining<FaqsCreateFaqCommandHandler>());
 
         return services;

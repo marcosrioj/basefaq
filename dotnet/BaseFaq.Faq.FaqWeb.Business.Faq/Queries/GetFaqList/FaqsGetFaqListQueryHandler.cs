@@ -31,8 +31,6 @@ public class FaqsGetFaqListQueryHandler(FaqDbContext dbContext)
                 SortStrategy = faq.SortStrategy,
                 CtaEnabled = faq.CtaEnabled,
                 CtaTarget = faq.CtaTarget,
-                TagIds = faq.Tags.Select(tag => tag.TagId).ToList(),
-                ContentRefIds = faq.ContentRefs.Select(contentRef => contentRef.ContentRefId).ToList(),
                 TenantId = faq.TenantId
             })
             .ToListAsync(cancellationToken);

@@ -11,8 +11,6 @@ public class FaqsCreateFaqCommand : IRequest<Guid>
     public required FaqSortStrategy SortStrategy { get; set; }
     public bool CtaEnabled { get; set; }
     public CtaTarget CtaTarget { get; set; } = CtaTarget.Self;
-    public List<Guid> TagIds { get; set; } = [];
-    public List<Guid> ContentRefIds { get; set; } = [];
 
     public required Guid TenantId { get; set; }
 }

@@ -12,6 +12,4 @@ public class FaqsUpdateFaqCommand : IRequest
     public required FaqSortStrategy SortStrategy { get; set; }
     public bool CtaEnabled { get; set; }
     public CtaTarget CtaTarget { get; set; } = CtaTarget.Self;
-    public List<Guid>? TagIds { get; set; }
-    public List<Guid>? ContentRefIds { get; set; }
 }
