@@ -10,14 +10,15 @@ namespace BaseFaq.Common.Infrastructure.Core.Middleware;
 
 public sealed class TenantResolutionMiddleware(
     RequestDelegate next,
-    ISessionService sessionService,
-    IAllowedTenantStore allowedTenantStore,
-    IAllowedTenantProvider allowedTenantProvider,
     TenantResolutionOptions options)
 {
     public const string TenantHeaderName = "X-Tenant-Id";
 
-    public async Task Invoke(HttpContext context)
+    public async Task Invoke(
+        HttpContext context,
+        ISessionService sessionService,
+        IAllowedTenantStore allowedTenantStore,
+        IAllowedTenantProvider allowedTenantProvider)
     {
         if (!context.Request.Headers.TryGetValue(TenantHeaderName, out var headerValues))
         {
