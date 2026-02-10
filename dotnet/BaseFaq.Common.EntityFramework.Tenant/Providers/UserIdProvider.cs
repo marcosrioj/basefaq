@@ -12,9 +12,7 @@ public sealed class UserIdProvider(IServiceProvider serviceProvider) : IUserIdPr
 
     public Guid GetUserId()
     {
-        var tenantDbContext = serviceProvider.GetRequiredService<TenantDbContext>();
         var claimService = serviceProvider.GetRequiredService<IClaimService>();
-        var memoryCache = serviceProvider.GetRequiredService<IMemoryCache>();
         var externalUserId = claimService.GetExternalUserId();
         if (string.IsNullOrWhiteSpace(externalUserId))
         {
@@ -22,6 +20,9 @@ public sealed class UserIdProvider(IServiceProvider serviceProvider) : IUserIdPr
                 "External user ID is missing from the current session.",
                 errorCode: (int)HttpStatusCode.Unauthorized);
         }
+
+        var tenantDbContext = serviceProvider.GetRequiredService<TenantDbContext>();
+        var memoryCache = serviceProvider.GetRequiredService<IMemoryCache>();
 
         var cacheKey = $"UserId:{externalUserId}";
         var userId = memoryCache.GetOrCreate(
