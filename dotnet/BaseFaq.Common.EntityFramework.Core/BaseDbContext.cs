@@ -42,6 +42,7 @@ public abstract class BaseDbContext<TContext> : DbContext where TContext : DbCon
     public override int SaveChanges(bool acceptAllChangesOnSuccess)
     {
         ApplySoftDeleteRules();
+        ApplyAuditRules();
         return base.SaveChanges(acceptAllChangesOnSuccess);
     }
 
@@ -50,12 +51,14 @@ public abstract class BaseDbContext<TContext> : DbContext where TContext : DbCon
         CancellationToken cancellationToken = default)
     {
         ApplySoftDeleteRules();
+        ApplyAuditRules();
         return base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
     }
 
     public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {
         ApplySoftDeleteRules();
+        ApplyAuditRules();
         return base.SaveChangesAsync(cancellationToken);
     }
 
@@ -185,6 +188,7 @@ public abstract class BaseDbContext<TContext> : DbContext where TContext : DbCon
 
     private void ApplySoftDeleteRules()
     {
+        var userId = ResolveUserId();
         foreach (var entry in ChangeTracker.Entries<ISoftDelete>())
         {
             if (entry.State != EntityState.Deleted)
@@ -198,8 +202,45 @@ public abstract class BaseDbContext<TContext> : DbContext where TContext : DbCon
             if (entry.Entity is AuditableEntity auditableEntity)
             {
                 auditableEntity.DeletedDate = DateTime.UtcNow;
+                auditableEntity.DeletedBy = userId;
             }
         }
+    }
+
+    private void ApplyAuditRules()
+    {
+        var now = DateTime.UtcNow;
+        var userId = ResolveUserId();
+
+        foreach (var entry in ChangeTracker.Entries<AuditableEntity>())
+        {
+            if (entry.State == EntityState.Added)
+            {
+                entry.Entity.CreatedDate ??= now;
+                entry.Entity.UpdatedDate = now;
+
+                if (string.IsNullOrWhiteSpace(entry.Entity.CreatedBy))
+                {
+                    entry.Entity.CreatedBy = userId;
+                }
+
+                entry.Entity.UpdatedBy = userId;
+            }
+            else if (entry.State == EntityState.Modified)
+            {
+                entry.Property(nameof(AuditableEntity.CreatedDate)).IsModified = false;
+                entry.Property(nameof(AuditableEntity.CreatedBy)).IsModified = false;
+
+                entry.Entity.UpdatedDate = now;
+                entry.Entity.UpdatedBy = userId;
+            }
+        }
+    }
+
+    private string? ResolveUserId()
+    {
+        var userId = _sessionService.GetUserId();
+        return userId == Guid.Empty ? null : userId.ToString();
     }
 
     private static void ApplyTenantIndexes(ModelBuilder modelBuilder)
