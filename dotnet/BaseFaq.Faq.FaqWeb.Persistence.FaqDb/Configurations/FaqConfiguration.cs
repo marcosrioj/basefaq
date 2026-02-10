@@ -36,8 +36,8 @@ public class FaqConfiguration : BaseConfiguration<Entities.Faq>
             .IsRequired();
 
         builder.HasMany(p => p.Items)
-            .WithOne()
-            .HasForeignKey(p => p.FaqId)
+            .WithOne(item => item.Faq)
+            .HasForeignKey(item => item.FaqId)
             .OnDelete(DeleteBehavior.Cascade);
 
         builder.HasMany(p => p.Tags)
