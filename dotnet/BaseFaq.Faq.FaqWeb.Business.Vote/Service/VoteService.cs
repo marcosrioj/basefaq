@@ -65,9 +65,6 @@ public class VoteService(IMediator mediator) : IVoteService
         {
             Id = id,
             Like = requestDto.Like,
-            UserPrint = requestDto.UserPrint,
-            Ip = requestDto.Ip,
-            UserAgent = requestDto.UserAgent,
             UnLikeReason = requestDto.UnLikeReason,
             FaqItemId = requestDto.FaqItemId
         };

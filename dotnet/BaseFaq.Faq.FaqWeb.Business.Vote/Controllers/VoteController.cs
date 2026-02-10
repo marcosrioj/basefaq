@@ -28,6 +28,7 @@ public class VoteController(IVoteService voteService) : ControllerBase
         return Ok(result);
     }
 
+    [AllowAnonymous]
     [HttpPost]
     [ProducesResponseType(typeof(VoteDto), StatusCodes.Status201Created)]
     public async Task<IActionResult> Create([FromBody] VoteCreateRequestDto dto, CancellationToken token)
@@ -37,6 +38,7 @@ public class VoteController(IVoteService voteService) : ControllerBase
         return CreatedAtAction(nameof(GetById), new { id = result.Id }, result);
     }
 
+    [AllowAnonymous]
     [HttpPut("{id:guid}")]
     [ProducesResponseType(typeof(VoteDto), StatusCodes.Status200OK)]
     public async Task<IActionResult> Update(Guid id, [FromBody] VoteUpdateRequestDto dto, CancellationToken token)

@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace BaseFaq.Faq.FaqWeb.Persistence.FaqDb.Migrations
 {
     [DbContext(typeof(FaqDbContext))]
-    [Migration("20260210043122_VotestenantIdRemoved")]
-    partial class VotestenantIdRemoved
+    [Migration("20260210164226_InitialMigration")]
+    partial class InitialMigration
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -245,9 +245,6 @@ namespace BaseFaq.Faq.FaqWeb.Persistence.FaqDb.Migrations
                     b.Property<Guid>("FaqId")
                         .HasColumnType("uuid");
 
-                    b.Property<Guid>("FaqId1")
-                        .HasColumnType("uuid");
-
                     b.Property<bool>("IsActive")
                         .HasColumnType("boolean");
 
@@ -285,8 +282,6 @@ namespace BaseFaq.Faq.FaqWeb.Persistence.FaqDb.Migrations
 
                     b.HasIndex("FaqId")
                         .HasDatabaseName("IX_FaqItem_FaqId");
-
-                    b.HasIndex("FaqId1");
 
                     b.HasIndex("IsDeleted")
                         .HasDatabaseName("IX_FaqItem_IsDeleted");
@@ -486,15 +481,9 @@ namespace BaseFaq.Faq.FaqWeb.Persistence.FaqDb.Migrations
                         .WithMany()
                         .HasForeignKey("ContentRefId");
 
-                    b.HasOne("BaseFaq.Faq.FaqWeb.Persistence.FaqDb.Entities.Faq", null)
+                    b.HasOne("BaseFaq.Faq.FaqWeb.Persistence.FaqDb.Entities.Faq", "Faq")
                         .WithMany("Items")
                         .HasForeignKey("FaqId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("BaseFaq.Faq.FaqWeb.Persistence.FaqDb.Entities.Faq", "Faq")
-                        .WithMany()
-                        .HasForeignKey("FaqId1")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
