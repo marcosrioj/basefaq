@@ -2,6 +2,7 @@ using BaseFaq.Common.EntityFramework.Migrations.Configuration;
 using BaseFaq.Common.EntityFramework.Migrations.Services;
 using BaseFaq.Common.EntityFramework.Migrations.Utilities;
 using BaseFaq.Common.EntityFramework.Tenant;
+using BaseFaq.Common.EntityFramework.Tenant.Entities;
 using BaseFaq.Faq.FaqWeb.Persistence.FaqDb;
 using BaseFaq.Models.Common.Enums;
 using Microsoft.EntityFrameworkCore;
@@ -25,18 +26,29 @@ public sealed class FaqDbContextFactory : IDesignTimeDbContextFactory<FaqDbConte
         var sessionService = new MigrationsSessionService();
         var tenantConnectionProvider = new NoopTenantConnectionStringProvider();
 
-        using var tenantDbContext = new TenantDbContext(
-            new DbContextOptionsBuilder<TenantDbContext>()
-                .UseNpgsql(tenantDbConnectionString)
-                .Options,
-            sessionService,
-            configuration,
-            tenantConnectionProvider);
+        TenantConnection tenantConnection;
+        try
+        {
+            using var tenantDbContext = new TenantDbContext(
+                new DbContextOptionsBuilder<TenantDbContext>()
+                    .UseNpgsql(tenantDbConnectionString)
+                    .Options,
+                sessionService,
+                configuration,
+                tenantConnectionProvider);
 
-        var tenantConnection = tenantDbContext
-            .GetCurrentTenantConnection(app)
-            .GetAwaiter()
-            .GetResult();
+            tenantConnection = tenantDbContext
+                .GetCurrentTenantConnection(app)
+                .GetAwaiter()
+                .GetResult();
+        }
+        catch (Exception ex)
+        {
+            throw new InvalidOperationException(
+                "Failed to connect to the tenant database while creating the FAQ DbContext. " +
+                "Make sure the database is running and ConnectionStrings:TenantDb is set correctly.",
+                ex);
+        }
 
         var options = new DbContextOptionsBuilder<FaqDbContext>()
             .UseNpgsql(tenantConnection.ConnectionString)
