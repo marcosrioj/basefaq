@@ -7,6 +7,7 @@ public class SwaggerOptions
     public const string Name = "SwaggerOptions";
     [Required] public string Title { get; set; } = string.Empty;
     [Required] public string Version { get; set; } = string.Empty;
+    public bool EnableTenantHeader { get; set; } = true;
     public SwaggerAuthOptions? swaggerAuth { get; set; }
 }
 

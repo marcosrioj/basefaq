@@ -43,7 +43,10 @@ public static class SwaggerServiceCollection
                 Description = "Tenant context is provided via X-Tenant-Id headers and resolved by middleware."
             });
 
-            c.OperationFilter<TenantHeaderOperationFilter>();
+            if (options?.EnableTenantHeader ?? true)
+            {
+                c.OperationFilter<TenantHeaderOperationFilter>();
+            }
         });
     }
 
@@ -101,7 +104,10 @@ public static class SwaggerServiceCollection
                 [new OpenApiSecuritySchemeReference("OAuth2", document)] = []
             });
 
-            c.OperationFilter<TenantHeaderOperationFilter>();
+            if (options?.EnableTenantHeader ?? true)
+            {
+                c.OperationFilter<TenantHeaderOperationFilter>();
+            }
         });
     }
 

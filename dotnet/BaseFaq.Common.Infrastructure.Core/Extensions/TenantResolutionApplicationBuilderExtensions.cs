@@ -9,10 +9,14 @@ public static class TenantResolutionApplicationBuilderExtensions
     public static IApplicationBuilder UseTenantResolution(this IApplicationBuilder app, AppEnum appEnum,
         bool enableTenantAccessValidation = true)
     {
-        return app.UseMiddleware<TenantResolutionMiddleware>(new TenantResolutionOptions
-        {
-            App = appEnum,
-            EnableTenantAccessValidation = enableTenantAccessValidation
-        });
+        return app.UseWhen(
+            context =>
+                !context.Request.Path.StartsWithSegments("/swagger", StringComparison.OrdinalIgnoreCase) &&
+                !context.Request.Path.StartsWithSegments("/openapi", StringComparison.OrdinalIgnoreCase),
+            branch => branch.UseMiddleware<TenantResolutionMiddleware>(new TenantResolutionOptions
+            {
+                App = appEnum,
+                EnableTenantAccessValidation = enableTenantAccessValidation
+            }));
     }
 }
