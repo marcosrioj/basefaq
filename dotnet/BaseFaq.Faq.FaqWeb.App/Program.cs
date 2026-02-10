@@ -58,7 +58,6 @@ public class Program
         app.UseApiErrorHandlingMiddleware();
 
         app.UseRouting();
-        app.UseTenantResolution(AppEnum.FaqWeb);
 
         if (!app.Environment.IsProduction())
         {
@@ -74,6 +73,7 @@ public class Program
 
         app.UseAuthentication();
         app.UseAuthorization();
+        app.UseTenantResolution(AppEnum.FaqWeb);
 
         app.MapControllers().RequireAuthorization();
 
