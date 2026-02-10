@@ -1,4 +1,4 @@
-using BaseFaq.Common.Infrastructure.Swagger.Filters;
+using BaseFaq.Common.Infrastructure.Core.Middleware;
 using BaseFaq.Common.Infrastructure.Swagger.Options;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
@@ -45,7 +45,19 @@ public static class SwaggerServiceCollection
 
             if (options?.EnableTenantHeader ?? true)
             {
-                c.OperationFilter<TenantHeaderOperationFilter>();
+                var tenantScheme = new OpenApiSecurityScheme
+                {
+                    Type = SecuritySchemeType.ApiKey,
+                    Name = TenantResolutionMiddleware.TenantHeaderName,
+                    In = ParameterLocation.Header,
+                    Description = "Set the tenant once in the Authorize dialog."
+                };
+
+                c.AddSecurityDefinition("TenantId", tenantScheme);
+                c.AddSecurityRequirement(document => new OpenApiSecurityRequirement
+                {
+                    [new OpenApiSecuritySchemeReference("TenantId", document)] = []
+                });
             }
         });
     }
@@ -99,14 +111,34 @@ public static class SwaggerServiceCollection
 
             c.AddSecurityDefinition("OAuth2", scheme);
 
-            c.AddSecurityRequirement(document => new OpenApiSecurityRequirement
-            {
-                [new OpenApiSecuritySchemeReference("OAuth2", document)] = []
-            });
-
             if (options?.EnableTenantHeader ?? true)
             {
-                c.OperationFilter<TenantHeaderOperationFilter>();
+                var tenantScheme = new OpenApiSecurityScheme
+                {
+                    Type = SecuritySchemeType.ApiKey,
+                    Name = TenantResolutionMiddleware.TenantHeaderName,
+                    In = ParameterLocation.Header,
+                    Description = "Set the tenant once in the Authorize dialog."
+                };
+
+                c.AddSecurityDefinition("TenantId", tenantScheme);
+                c.AddSecurityRequirement(document =>
+                {
+                    var requirement = new OpenApiSecurityRequirement
+                    {
+                        [new OpenApiSecuritySchemeReference("OAuth2", document)] = []
+                    };
+
+                    requirement[new OpenApiSecuritySchemeReference("TenantId", document)] = [];
+                    return requirement;
+                });
+            }
+            else
+            {
+                c.AddSecurityRequirement(document => new OpenApiSecurityRequirement
+                {
+                    [new OpenApiSecuritySchemeReference("OAuth2", document)] = []
+                });
             }
         });
     }
