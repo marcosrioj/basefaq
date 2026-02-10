@@ -14,12 +14,38 @@ public class FaqItemConfiguration : BaseConfiguration<FaqItem>
         builder.ToTable("FaqItems");
 
         builder.Property(p => p.Question)
+            .HasMaxLength(FaqItem.MaxQuestionLength)
+            .IsRequired();
+
+        builder.Property(p => p.ShortAnswer)
+            .HasMaxLength(FaqItem.MaxShortAnswerLength)
             .IsRequired();
 
         builder.Property(p => p.Answer)
+            .HasMaxLength(FaqItem.MaxAnswerLength);
+
+        builder.Property(p => p.AdditionalInfo)
+            .HasMaxLength(FaqItem.MaxAdditionalInfoLength);
+
+        builder.Property(p => p.CtaTitle)
+            .HasMaxLength(FaqItem.MaxCtaTitleLength);
+
+        builder.Property(p => p.CtaUrl)
+            .HasMaxLength(FaqItem.MaxCtaUrlLength);
+
+        builder.Property(p => p.Sort)
             .IsRequired();
 
-        builder.Property(p => p.Origin)
+        builder.Property(p => p.VoteScore)
+            .IsRequired();
+
+        builder.Property(p => p.AiConfidenceScore)
+            .IsRequired();
+
+        builder.Property(p => p.IsActive)
+            .IsRequired();
+
+        builder.Property(p => p.TenantId)
             .IsRequired();
 
         builder.Property(p => p.FaqId)

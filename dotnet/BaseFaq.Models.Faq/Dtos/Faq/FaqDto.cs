@@ -8,7 +8,11 @@ public class FaqDto
     public required string Name { get; set; }
     public required string Language { get; set; }
     public required FaqStatus Status { get; set; }
-    public required FaqSortType SortType { get; set; }
+    public required FaqSortStrategy SortStrategy { get; set; }
+    public required bool CtaEnabled { get; set; }
+    public required CtaTarget CtaTarget { get; set; }
+    public List<Guid> TagIds { get; set; } = [];
+    public List<Guid> ContentRefIds { get; set; } = [];
 
     public required Guid TenantId { get; set; }
 }

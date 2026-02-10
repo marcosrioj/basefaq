@@ -28,7 +28,11 @@ public class FaqsGetFaqListQueryHandler(FaqDbContext dbContext)
                 Name = faq.Name,
                 Language = faq.Language,
                 Status = faq.Status,
-                SortType = faq.SortType,
+                SortStrategy = faq.SortStrategy,
+                CtaEnabled = faq.CtaEnabled,
+                CtaTarget = faq.CtaTarget,
+                TagIds = faq.Tags.Select(tag => tag.TagId).ToList(),
+                ContentRefIds = faq.ContentRefs.Select(contentRef => contentRef.ContentRefId).ToList(),
                 TenantId = faq.TenantId
             })
             .ToListAsync(cancellationToken);
@@ -90,12 +94,25 @@ public class FaqsGetFaqListQueryHandler(FaqDbContext dbContext)
                     ? ((IOrderedQueryable<FaqWeb.Persistence.FaqDb.Entities.Faq>)query).ThenByDescending(faq =>
                         faq.Status)
                     : ((IOrderedQueryable<FaqWeb.Persistence.FaqDb.Entities.Faq>)query).ThenBy(faq => faq.Status)),
-            "sorttype" => isFirst
-                ? (desc ? query.OrderByDescending(faq => faq.SortType) : query.OrderBy(faq => faq.SortType))
+            "sortstrategy" => isFirst
+                ? (desc ? query.OrderByDescending(faq => faq.SortStrategy) : query.OrderBy(faq => faq.SortStrategy))
                 : (desc
                     ? ((IOrderedQueryable<FaqWeb.Persistence.FaqDb.Entities.Faq>)query).ThenByDescending(faq =>
-                        faq.SortType)
-                    : ((IOrderedQueryable<FaqWeb.Persistence.FaqDb.Entities.Faq>)query).ThenBy(faq => faq.SortType)),
+                        faq.SortStrategy)
+                    : ((IOrderedQueryable<FaqWeb.Persistence.FaqDb.Entities.Faq>)query).ThenBy(faq =>
+                        faq.SortStrategy)),
+            "ctaenabled" => isFirst
+                ? (desc ? query.OrderByDescending(faq => faq.CtaEnabled) : query.OrderBy(faq => faq.CtaEnabled))
+                : (desc
+                    ? ((IOrderedQueryable<FaqWeb.Persistence.FaqDb.Entities.Faq>)query)
+                    .ThenByDescending(faq => faq.CtaEnabled)
+                    : ((IOrderedQueryable<FaqWeb.Persistence.FaqDb.Entities.Faq>)query).ThenBy(faq => faq.CtaEnabled)),
+            "ctatarget" => isFirst
+                ? (desc ? query.OrderByDescending(faq => faq.CtaTarget) : query.OrderBy(faq => faq.CtaTarget))
+                : (desc
+                    ? ((IOrderedQueryable<FaqWeb.Persistence.FaqDb.Entities.Faq>)query)
+                    .ThenByDescending(faq => faq.CtaTarget)
+                    : ((IOrderedQueryable<FaqWeb.Persistence.FaqDb.Entities.Faq>)query).ThenBy(faq => faq.CtaTarget)),
             "createddate" => isFirst
                 ? (desc ? query.OrderByDescending(faq => faq.CreatedDate) : query.OrderBy(faq => faq.CreatedDate))
                 : (desc

@@ -22,6 +22,11 @@ public class FaqDbContext(
     public DbSet<Entities.Faq> Faqs { get; set; }
 
     public DbSet<FaqItem> FaqItems { get; set; }
+    public DbSet<Tag> Tags { get; set; }
+    public DbSet<ContentRef> ContentRefs { get; set; }
+    public DbSet<FaqTag> FaqTags { get; set; }
+    public DbSet<FaqContentRef> FaqContentRefs { get; set; }
+    public DbSet<Vote> Votes { get; set; }
 
     protected override IEnumerable<string> ConfigurationNamespaces =>
     [

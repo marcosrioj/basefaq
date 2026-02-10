@@ -26,7 +26,11 @@ public class FaqService(IMediator mediator, ISessionService sessionService) : IF
             Name = requestDto.Name,
             Language = requestDto.Language,
             Status = requestDto.Status,
-            SortType = requestDto.SortType,
+            SortStrategy = requestDto.SortStrategy,
+            CtaEnabled = requestDto.CtaEnabled,
+            CtaTarget = requestDto.CtaTarget,
+            TagIds = requestDto.TagIds,
+            ContentRefIds = requestDto.ContentRefIds,
             TenantId = tenantId
         };
 
@@ -73,7 +77,11 @@ public class FaqService(IMediator mediator, ISessionService sessionService) : IF
             Name = requestDto.Name,
             Language = requestDto.Language,
             Status = requestDto.Status,
-            SortType = requestDto.SortType
+            SortStrategy = requestDto.SortStrategy,
+            CtaEnabled = requestDto.CtaEnabled,
+            CtaTarget = requestDto.CtaTarget,
+            TagIds = requestDto.TagIds,
+            ContentRefIds = requestDto.ContentRefIds
         };
 
         await mediator.Send(command, token);

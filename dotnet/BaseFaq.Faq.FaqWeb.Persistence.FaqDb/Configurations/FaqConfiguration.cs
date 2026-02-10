@@ -13,15 +13,23 @@ public class FaqConfiguration : BaseConfiguration<Entities.Faq>
         builder.ToTable("Faqs");
 
         builder.Property(p => p.Name)
+            .HasMaxLength(Entities.Faq.MaxNameLength)
             .IsRequired();
 
         builder.Property(p => p.Language)
+            .HasMaxLength(Entities.Faq.MaxLanguageLength)
             .IsRequired();
 
         builder.Property(p => p.Status)
             .IsRequired();
 
-        builder.Property(p => p.SortType)
+        builder.Property(p => p.SortStrategy)
+            .IsRequired();
+
+        builder.Property(p => p.CtaEnabled)
+            .IsRequired();
+
+        builder.Property(p => p.CtaTarget)
             .IsRequired();
 
         builder.Property(p => p.TenantId)
@@ -30,6 +38,16 @@ public class FaqConfiguration : BaseConfiguration<Entities.Faq>
         builder.HasMany(p => p.Items)
             .WithOne()
             .HasForeignKey(p => p.FaqId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.HasMany(p => p.Tags)
+            .WithOne(tag => tag.Faq)
+            .HasForeignKey(tag => tag.FaqId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.HasMany(p => p.ContentRefs)
+            .WithOne(contentRef => contentRef.Faq)
+            .HasForeignKey(contentRef => contentRef.FaqId)
             .OnDelete(DeleteBehavior.Cascade);
     }
 }

@@ -28,6 +28,10 @@
         <ProjectReference Include="..\BaseFaq.Common.EntityFramework.Tenant\BaseFaq.Common.EntityFramework.Tenant.csproj"/>
         <ProjectReference Include="..\BaseFaq.Models.Tenant\BaseFaq.Models.Tenant.csproj"/>
         <ProjectReference Include="..\BaseFaq.Faq.FaqWeb.Business.Faq\BaseFaq.Faq.FaqWeb.Business.Faq.csproj"/>
+        <ProjectReference Include="..\BaseFaq.Faq.FaqWeb.Business.FaqItem\BaseFaq.Faq.FaqWeb.Business.FaqItem.csproj"/>
+        <ProjectReference Include="..\BaseFaq.Faq.FaqWeb.Business.Tag\BaseFaq.Faq.FaqWeb.Business.Tag.csproj"/>
+        <ProjectReference Include="..\BaseFaq.Faq.FaqWeb.Business.ContentRef\BaseFaq.Faq.FaqWeb.Business.ContentRef.csproj"/>
+        <ProjectReference Include="..\BaseFaq.Faq.FaqWeb.Business.Vote\BaseFaq.Faq.FaqWeb.Business.Vote.csproj"/>
     </ItemGroup>
 
 </Project>

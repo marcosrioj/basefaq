@@ -1,13 +1,9 @@
 namespace BaseFaq.Models.Faq.Enums;
 
-public enum FaqSortType
+public enum FaqSortStrategy
 {
-    QuestionAsc = 0,
-    QuestionDes = 1,
-    SortAsc = 2,
-    SortDesc = 3,
-    VoteScoreAsc = 4,
-    VoteScoreDesc = 5,
-    AiConfidenceScoreAsc = 6,
-    AiConfidenceScoreDesc = 7
+    Srot = 1,
+    Vote = 2,
+    Newest = 3,
+    AiConfidence = 4
 }
