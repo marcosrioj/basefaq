@@ -6,8 +6,7 @@ namespace BaseFaq.Common.Infrastructure.Core.Extensions;
 
 public static class TenantResolutionApplicationBuilderExtensions
 {
-    public static IApplicationBuilder UseTenantResolution(this IApplicationBuilder app, AppEnum appEnum,
-        bool enableTenantAccessValidation = true)
+    public static IApplicationBuilder UseTenantResolution(this IApplicationBuilder app, AppEnum appEnum)
     {
         return app.UseWhen(
             context =>
@@ -15,8 +14,7 @@ public static class TenantResolutionApplicationBuilderExtensions
                 !context.Request.Path.StartsWithSegments("/openapi", StringComparison.OrdinalIgnoreCase),
             branch => branch.UseMiddleware<TenantResolutionMiddleware>(new TenantResolutionOptions
             {
-                App = appEnum,
-                EnableTenantAccessValidation = enableTenantAccessValidation
+                App = appEnum
             }));
     }
 }

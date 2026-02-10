@@ -20,8 +20,16 @@ public sealed class TenantResolutionMiddleware(
         IAllowedTenantStore allowedTenantStore,
         IAllowedTenantProvider allowedTenantProvider)
     {
+        var skipTenantValidation = IsTenantAccessValidationSkipped(context);
+
         if (!context.Request.Headers.TryGetValue(TenantHeaderName, out var headerValues))
         {
+            if (skipTenantValidation)
+            {
+                await next(context);
+                return;
+            }
+
             throw new ApiErrorException(
                 $"Missing required header '{TenantHeaderName}'.",
                 errorCode: (int)HttpStatusCode.BadRequest);
@@ -35,7 +43,7 @@ public sealed class TenantResolutionMiddleware(
                 errorCode: (int)HttpStatusCode.BadRequest);
         }
 
-        if (options.EnableTenantAccessValidation && !IsTenantAccessValidationSkipped(context))
+        if (!skipTenantValidation)
         {
             var userId = sessionService.GetUserId();
             var allowedTenants = await allowedTenantStore.GetAllowedTenantIds(userId, context.RequestAborted);
@@ -77,5 +85,4 @@ public sealed class TenantResolutionMiddleware(
 public sealed class TenantResolutionOptions
 {
     public AppEnum App { get; init; }
-    public bool EnableTenantAccessValidation { get; init; } = true;
 }

@@ -41,7 +41,8 @@ public abstract class BaseDbContext<TContext> : DbContext where TContext : DbCon
 
     protected abstract AppEnum SessionApp { get; }
 
-    protected Guid? SessionTenantId => UseTenantConnectionString ? _sessionService.GetTenantId(SessionApp) : null;
+    protected Guid? SessionTenantId =>
+        UseTenantConnectionString && TenantFiltersEnabled ? _sessionService.GetTenantId(SessionApp) : null;
 
     public bool TenantFiltersEnabled { get; set; } = true;
     public bool SoftDeleteFiltersEnabled { get; set; } = true;
