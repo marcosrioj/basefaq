@@ -3,6 +3,7 @@ using System;
 using BaseFaq.Faq.FaqWeb.Persistence.FaqDb;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace BaseFaq.Faq.FaqWeb.Persistence.FaqDb.Migrations
 {
     [DbContext(typeof(FaqDbContext))]
-    partial class FaqDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260210043122_VotestenantIdRemoved")]
+    partial class VotestenantIdRemoved
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

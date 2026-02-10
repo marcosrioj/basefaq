@@ -20,9 +20,6 @@ public class VoteService(IMediator mediator) : IVoteService
         var command = new VotesCreateVoteCommand
         {
             Like = requestDto.Like,
-            UserPrint = requestDto.UserPrint,
-            Ip = requestDto.Ip,
-            UserAgent = requestDto.UserAgent,
             UnLikeReason = requestDto.UnLikeReason,
             FaqItemId = requestDto.FaqItemId
         };
