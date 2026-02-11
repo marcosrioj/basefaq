@@ -1,4 +1,5 @@
 using System.Linq.Expressions;
+using System.Net;
 using BaseFaq.Common.EntityFramework.Core.Abstractions;
 using BaseFaq.Common.EntityFramework.Core.Entities;
 using BaseFaq.Common.EntityFramework.Core.Helpers;
@@ -8,8 +9,8 @@ using BaseFaq.Common.Infrastructure.Core.Attributes;
 using BaseFaq.Models.Common.Enums;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.Extensions.Configuration;
-using System.Net;
 
 namespace BaseFaq.Common.EntityFramework.Core;
 
@@ -148,20 +149,38 @@ public abstract class BaseDbContext<TContext> : DbContext where TContext : DbCon
     private static void ApplyQueryFilter(ModelBuilder modelBuilder, Type entityType, LambdaExpression filter)
     {
         var entity = modelBuilder.Entity(entityType);
-        var existingFilter = entity.Metadata.GetQueryFilter();
+        var declaredFilters = entity.Metadata.GetDeclaredQueryFilters();
 
-        if (existingFilter is null)
+        if (!declaredFilters.Any())
         {
             entity.HasQueryFilter(filter);
             return;
         }
 
         var parameter = Expression.Parameter(entityType, "e");
-        var left = ReplaceParameter(existingFilter, parameter);
+        var combinedLeft = CombineFilters(declaredFilters, parameter);
         var right = ReplaceParameter(filter, parameter);
-        var combined = Expression.Lambda(Expression.AndAlso(left, right), parameter);
+        var combined = Expression.Lambda(Expression.AndAlso(combinedLeft, right), parameter);
 
         entity.HasQueryFilter(combined);
+    }
+
+    private static Expression CombineFilters(
+        IEnumerable<IQueryFilter> filters,
+        ParameterExpression parameter)
+    {
+        Expression? combined = null;
+
+        foreach (var queryFilter in filters)
+        {
+            if (queryFilter.Expression != null)
+            {
+                var filterBody = ReplaceParameter(queryFilter.Expression, parameter);
+                combined = combined is null ? filterBody : Expression.AndAlso(combined, filterBody);
+            }
+        }
+
+        return combined ?? Expression.Constant(true);
     }
 
     private static Expression ReplaceParameter(LambdaExpression expression, ParameterExpression parameter)
