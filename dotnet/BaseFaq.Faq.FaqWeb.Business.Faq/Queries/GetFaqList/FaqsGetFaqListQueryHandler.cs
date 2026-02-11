@@ -43,7 +43,7 @@ public class FaqsGetFaqListQueryHandler(FaqDbContext dbContext)
     {
         if (string.IsNullOrWhiteSpace(sorting))
         {
-            return query.OrderBy(faq => faq.Name);
+            return query.OrderByDescending(faq => faq.UpdatedDate);
         }
 
         IOrderedQueryable<FaqWeb.Persistence.FaqDb.Entities.Faq>? orderedQuery = null;
@@ -63,7 +63,7 @@ public class FaqsGetFaqListQueryHandler(FaqDbContext dbContext)
             orderedQuery = ApplyOrder(orderedQuery ?? query, fieldName, desc, orderedQuery is null);
         }
 
-        return orderedQuery ?? query.OrderBy(faq => faq.Name);
+        return orderedQuery ?? query.OrderByDescending(faq => faq.UpdatedDate);
     }
 
     private static IOrderedQueryable<FaqWeb.Persistence.FaqDb.Entities.Faq> ApplyOrder(
@@ -129,8 +129,9 @@ public class FaqsGetFaqListQueryHandler(FaqDbContext dbContext)
                     ? ((IOrderedQueryable<FaqWeb.Persistence.FaqDb.Entities.Faq>)query).ThenByDescending(faq => faq.Id)
                     : ((IOrderedQueryable<FaqWeb.Persistence.FaqDb.Entities.Faq>)query).ThenBy(faq => faq.Id)),
             _ => isFirst
-                ? query.OrderBy(faq => faq.Name)
-                : ((IOrderedQueryable<FaqWeb.Persistence.FaqDb.Entities.Faq>)query).ThenBy(faq => faq.Name)
+                ? query.OrderByDescending(faq => faq.UpdatedDate)
+                : ((IOrderedQueryable<FaqWeb.Persistence.FaqDb.Entities.Faq>)query)
+                .ThenByDescending(faq => faq.UpdatedDate)
         };
     }
 }

@@ -45,7 +45,7 @@ public class ContentRefsGetContentRefListQueryHandler(FaqDbContext dbContext)
     {
         if (string.IsNullOrWhiteSpace(sorting))
         {
-            return query.OrderBy(contentRef => contentRef.Locator);
+            return query.OrderByDescending(contentRef => contentRef.UpdatedDate);
         }
 
         IOrderedQueryable<BaseFaq.Faq.FaqWeb.Persistence.FaqDb.Entities.ContentRef>? orderedQuery = null;
@@ -65,7 +65,7 @@ public class ContentRefsGetContentRefListQueryHandler(FaqDbContext dbContext)
             orderedQuery = ApplyOrder(orderedQuery ?? query, fieldName, desc, orderedQuery is null);
         }
 
-        return orderedQuery ?? query.OrderBy(contentRef => contentRef.Locator);
+        return orderedQuery ?? query.OrderByDescending(contentRef => contentRef.UpdatedDate);
     }
 
     private static IOrderedQueryable<BaseFaq.Faq.FaqWeb.Persistence.FaqDb.Entities.ContentRef> ApplyOrder(
@@ -140,9 +140,9 @@ public class ContentRefsGetContentRefListQueryHandler(FaqDbContext dbContext)
                     : ((IOrderedQueryable<BaseFaq.Faq.FaqWeb.Persistence.FaqDb.Entities.ContentRef>)query)
                     .ThenBy(contentRef => contentRef.Id)),
             _ => isFirst
-                ? query.OrderBy(contentRef => contentRef.Locator)
+                ? query.OrderByDescending(contentRef => contentRef.UpdatedDate)
                 : ((IOrderedQueryable<BaseFaq.Faq.FaqWeb.Persistence.FaqDb.Entities.ContentRef>)query)
-                .ThenBy(contentRef => contentRef.Locator)
+                .ThenByDescending(contentRef => contentRef.UpdatedDate)
         };
     }
 }

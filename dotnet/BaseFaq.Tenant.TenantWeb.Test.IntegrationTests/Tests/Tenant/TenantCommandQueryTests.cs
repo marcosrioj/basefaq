@@ -181,11 +181,13 @@ public class TenantCommandQueryTests
     }
 
     [Fact]
-    public async Task GetTenantList_FallsBackToNameWhenSortingInvalid()
+    public async Task GetTenantList_FallsBackToUpdatedDateWhenSortingInvalid()
     {
         using var context = TestContext.Create();
-        await TestDataFactory.SeedTenantAsync(context.DbContext, name: "Bravo");
+        var first = await TestDataFactory.SeedTenantAsync(context.DbContext, name: "Zulu");
         await TestDataFactory.SeedTenantAsync(context.DbContext, name: "Alpha");
+        first.IsActive = !first.IsActive;
+        await context.DbContext.SaveChangesAsync();
 
         var handler = new TenantsGetTenantListQueryHandler(context.DbContext);
         var request = new TenantsGetTenantListQuery
@@ -200,8 +202,8 @@ public class TenantCommandQueryTests
 
         var result = await handler.Handle(request, CancellationToken.None);
 
-        Assert.Equal("Alpha", result.Items[0].Name);
-        Assert.Equal("Bravo", result.Items[1].Name);
+        Assert.Equal("Zulu", result.Items[0].Name);
+        Assert.Equal("Alpha", result.Items[1].Name);
     }
 
     [Fact]

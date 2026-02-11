@@ -40,7 +40,7 @@ public class TenantConnectionsGetTenantConnectionListQueryHandler(TenantDbContex
     {
         if (string.IsNullOrWhiteSpace(sorting))
         {
-            return query.OrderBy(connection => connection.App);
+            return query.OrderByDescending(connection => connection.UpdatedDate);
         }
 
         IOrderedQueryable<BaseFaq.Common.EntityFramework.Tenant.Entities.TenantConnection>? orderedQuery = null;
@@ -60,7 +60,7 @@ public class TenantConnectionsGetTenantConnectionListQueryHandler(TenantDbContex
             orderedQuery = ApplyOrder(orderedQuery ?? query, fieldName, desc, orderedQuery is null);
         }
 
-        return orderedQuery ?? query.OrderBy(connection => connection.UpdatedDate);
+        return orderedQuery ?? query.OrderByDescending(connection => connection.UpdatedDate);
     }
 
     private static IOrderedQueryable<BaseFaq.Common.EntityFramework.Tenant.Entities.TenantConnection> ApplyOrder(

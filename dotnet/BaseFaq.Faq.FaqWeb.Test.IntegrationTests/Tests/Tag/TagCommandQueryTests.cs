@@ -142,11 +142,13 @@ public class TagCommandQueryTests
     }
 
     [Fact]
-    public async Task GetTagList_FallsBackToValueWhenSortingInvalid()
+    public async Task GetTagList_FallsBackToUpdatedDateWhenSortingInvalid()
     {
         using var context = TestContext.Create();
-        await TestDataFactory.SeedTagAsync(context.DbContext, context.SessionService.TenantId, "beta");
+        var first = await TestDataFactory.SeedTagAsync(context.DbContext, context.SessionService.TenantId, "zulu");
         await TestDataFactory.SeedTagAsync(context.DbContext, context.SessionService.TenantId, "alpha");
+        first.Value = "zulu-updated";
+        await context.DbContext.SaveChangesAsync();
 
         var handler = new TagsGetTagListQueryHandler(context.DbContext);
         var request = new TagsGetTagListQuery
@@ -161,8 +163,8 @@ public class TagCommandQueryTests
 
         var result = await handler.Handle(request, CancellationToken.None);
 
-        Assert.Equal("alpha", result.Items[0].Value);
-        Assert.Equal("beta", result.Items[1].Value);
+        Assert.Equal("zulu-updated", result.Items[0].Value);
+        Assert.Equal("alpha", result.Items[1].Value);
     }
 
     [Fact]

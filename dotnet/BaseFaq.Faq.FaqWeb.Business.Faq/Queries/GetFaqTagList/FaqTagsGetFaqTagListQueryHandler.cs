@@ -42,7 +42,7 @@ public class FaqTagsGetFaqTagListQueryHandler(FaqDbContext dbContext)
     {
         if (string.IsNullOrWhiteSpace(sorting))
         {
-            return query.OrderBy(faqTag => faqTag.TagId);
+            return query.OrderByDescending(faqTag => faqTag.UpdatedDate);
         }
 
         IOrderedQueryable<Persistence.FaqDb.Entities.FaqTag>? orderedQuery = null;
@@ -62,7 +62,7 @@ public class FaqTagsGetFaqTagListQueryHandler(FaqDbContext dbContext)
             orderedQuery = ApplyOrder(orderedQuery ?? query, fieldName, desc, orderedQuery is null);
         }
 
-        return orderedQuery ?? query.OrderBy(faqTag => faqTag.TagId);
+        return orderedQuery ?? query.OrderByDescending(faqTag => faqTag.UpdatedDate);
     }
 
     private static IOrderedQueryable<Persistence.FaqDb.Entities.FaqTag> ApplyOrder(
@@ -110,8 +110,9 @@ public class FaqTagsGetFaqTagListQueryHandler(FaqDbContext dbContext)
                     .ThenByDescending(faqTag => faqTag.Id)
                     : ((IOrderedQueryable<Persistence.FaqDb.Entities.FaqTag>)query).ThenBy(faqTag => faqTag.Id)),
             _ => isFirst
-                ? query.OrderBy(faqTag => faqTag.TagId)
-                : ((IOrderedQueryable<Persistence.FaqDb.Entities.FaqTag>)query).ThenBy(faqTag => faqTag.TagId)
+                ? query.OrderByDescending(faqTag => faqTag.UpdatedDate)
+                : ((IOrderedQueryable<Persistence.FaqDb.Entities.FaqTag>)query)
+                .ThenByDescending(faqTag => faqTag.UpdatedDate)
         };
     }
 }

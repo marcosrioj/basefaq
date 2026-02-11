@@ -124,11 +124,13 @@ public class FaqBusinessRulesTests
     }
 
     [Fact]
-    public async Task Sorting_FallsBackToNameWhenInvalidField()
+    public async Task Sorting_FallsBackToUpdatedDateWhenInvalidField()
     {
         using var context = TestContext.Create();
-        await TestDataFactory.SeedFaqAsync(context.DbContext, context.SessionService.TenantId, "Bravo");
+        var first = await TestDataFactory.SeedFaqAsync(context.DbContext, context.SessionService.TenantId, "Zulu");
         await TestDataFactory.SeedFaqAsync(context.DbContext, context.SessionService.TenantId, "Alpha");
+        first.CtaEnabled = !first.CtaEnabled;
+        await context.DbContext.SaveChangesAsync();
 
         var handler = new FaqsGetFaqListQueryHandler(context.DbContext);
         var request = new FaqsGetFaqListQuery
@@ -143,7 +145,7 @@ public class FaqBusinessRulesTests
 
         var result = await handler.Handle(request, CancellationToken.None);
 
-        Assert.Equal("Alpha", result.Items[0].Name);
-        Assert.Equal("Bravo", result.Items[1].Name);
+        Assert.Equal("Zulu", result.Items[0].Name);
+        Assert.Equal("Alpha", result.Items[1].Name);
     }
 }

@@ -43,7 +43,7 @@ public class TenantsGetTenantListQueryHandler(TenantDbContext dbContext)
     {
         if (string.IsNullOrWhiteSpace(sorting))
         {
-            return query.OrderBy(tenant => tenant.Name);
+            return query.OrderByDescending(tenant => tenant.UpdatedDate);
         }
 
         IOrderedQueryable<BaseFaq.Common.EntityFramework.Tenant.Entities.Tenant>? orderedQuery = null;
@@ -63,7 +63,7 @@ public class TenantsGetTenantListQueryHandler(TenantDbContext dbContext)
             orderedQuery = ApplyOrder(orderedQuery ?? query, fieldName, desc, orderedQuery is null);
         }
 
-        return orderedQuery ?? query.OrderBy(tenant => tenant.Name);
+        return orderedQuery ?? query.OrderByDescending(tenant => tenant.UpdatedDate);
     }
 
     private static IOrderedQueryable<BaseFaq.Common.EntityFramework.Tenant.Entities.Tenant> ApplyOrder(
@@ -128,9 +128,9 @@ public class TenantsGetTenantListQueryHandler(TenantDbContext dbContext)
                     : ((IOrderedQueryable<BaseFaq.Common.EntityFramework.Tenant.Entities.Tenant>)query)
                     .ThenBy(tenant => tenant.Id)),
             _ => isFirst
-                ? query.OrderBy(tenant => tenant.Name)
+                ? query.OrderByDescending(tenant => tenant.UpdatedDate)
                 : ((IOrderedQueryable<BaseFaq.Common.EntityFramework.Tenant.Entities.Tenant>)query)
-                .ThenBy(tenant => tenant.Name)
+                .ThenByDescending(tenant => tenant.UpdatedDate)
         };
     }
 }

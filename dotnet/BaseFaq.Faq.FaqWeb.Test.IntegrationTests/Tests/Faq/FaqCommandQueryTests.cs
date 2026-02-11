@@ -129,11 +129,13 @@ public class FaqCommandQueryTests
     }
 
     [Fact]
-    public async Task GetFaqList_ReturnsSortedItems()
+    public async Task GetFaqList_ReturnsItemsSortedByUpdatedDate()
     {
         using var context = TestContext.Create();
-        await TestDataFactory.SeedFaqAsync(context.DbContext, context.SessionService.TenantId, "Bravo");
+        var first = await TestDataFactory.SeedFaqAsync(context.DbContext, context.SessionService.TenantId, "Zulu");
         await TestDataFactory.SeedFaqAsync(context.DbContext, context.SessionService.TenantId, "Alpha");
+        first.CtaEnabled = !first.CtaEnabled;
+        await context.DbContext.SaveChangesAsync();
 
         var handler = new FaqsGetFaqListQueryHandler(context.DbContext);
         var request = new FaqsGetFaqListQuery
@@ -144,7 +146,7 @@ public class FaqCommandQueryTests
         var result = await handler.Handle(request, CancellationToken.None);
 
         Assert.Equal(2, result.TotalCount);
-        Assert.Equal("Alpha", result.Items[0].Name);
-        Assert.Equal("Bravo", result.Items[1].Name);
+        Assert.Equal("Zulu", result.Items[0].Name);
+        Assert.Equal("Alpha", result.Items[1].Name);
     }
 }

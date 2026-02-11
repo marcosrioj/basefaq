@@ -194,11 +194,13 @@ public class UserCommandQueryTests
     }
 
     [Fact]
-    public async Task GetUserList_FallsBackToGivenNameWhenSortingInvalid()
+    public async Task GetUserList_FallsBackToUpdatedDateWhenSortingInvalid()
     {
         using var context = TestContext.Create();
-        await TestDataFactory.SeedUserAsync(context.DbContext, givenName: "Bravo");
+        var first = await TestDataFactory.SeedUserAsync(context.DbContext, givenName: "Zulu");
         await TestDataFactory.SeedUserAsync(context.DbContext, givenName: "Alpha");
+        first.PhoneNumber = "555-0200";
+        await context.DbContext.SaveChangesAsync();
 
         var handler = new UsersGetUserListQueryHandler(context.DbContext);
         var request = new UsersGetUserListQuery
@@ -213,8 +215,8 @@ public class UserCommandQueryTests
 
         var result = await handler.Handle(request, CancellationToken.None);
 
-        Assert.Equal("Alpha", result.Items[0].GivenName);
-        Assert.Equal("Bravo", result.Items[1].GivenName);
+        Assert.Equal("Zulu", result.Items[0].GivenName);
+        Assert.Equal("Alpha", result.Items[1].GivenName);
     }
 
     [Fact]

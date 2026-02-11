@@ -45,7 +45,7 @@ public class VotesGetVoteListQueryHandler(FaqDbContext dbContext)
     {
         if (string.IsNullOrWhiteSpace(sorting))
         {
-            return query.OrderBy(vote => vote.CreatedDate);
+            return query.OrderByDescending(vote => vote.UpdatedDate);
         }
 
         IOrderedQueryable<Persistence.FaqDb.Entities.Vote>? orderedQuery = null;
@@ -65,7 +65,7 @@ public class VotesGetVoteListQueryHandler(FaqDbContext dbContext)
             orderedQuery = ApplyOrder(orderedQuery ?? query, fieldName, desc, orderedQuery is null);
         }
 
-        return orderedQuery ?? query.OrderBy(vote => vote.CreatedDate);
+        return orderedQuery ?? query.OrderByDescending(vote => vote.UpdatedDate);
     }
 
     private static IOrderedQueryable<Persistence.FaqDb.Entities.Vote> ApplyOrder(
@@ -128,8 +128,9 @@ public class VotesGetVoteListQueryHandler(FaqDbContext dbContext)
                     ? ((IOrderedQueryable<Persistence.FaqDb.Entities.Vote>)query).ThenByDescending(vote => vote.Id)
                     : ((IOrderedQueryable<Persistence.FaqDb.Entities.Vote>)query).ThenBy(vote => vote.Id)),
             _ => isFirst
-                ? query.OrderBy(vote => vote.CreatedDate)
-                : ((IOrderedQueryable<Persistence.FaqDb.Entities.Vote>)query).ThenBy(vote => vote.CreatedDate)
+                ? query.OrderByDescending(vote => vote.UpdatedDate)
+                : ((IOrderedQueryable<Persistence.FaqDb.Entities.Vote>)query).ThenByDescending(vote =>
+                    vote.UpdatedDate)
         };
     }
 }

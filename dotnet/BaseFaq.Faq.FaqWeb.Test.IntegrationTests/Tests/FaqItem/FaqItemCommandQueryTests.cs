@@ -250,14 +250,14 @@ public class FaqItemCommandQueryTests
     }
 
     [Fact]
-    public async Task GetFaqItemList_FallsBackToQuestionWhenSortingInvalid()
+    public async Task GetFaqItemList_FallsBackToUpdatedDateWhenSortingInvalid()
     {
         using var context = TestContext.Create();
         var faq = await TestDataFactory.SeedFaqAsync(context.DbContext, context.SessionService.TenantId);
 
         var first = new BaseFaq.Faq.FaqWeb.Persistence.FaqDb.Entities.FaqItem
         {
-            Question = "Bravo question",
+            Question = "Zulu question",
             ShortAnswer = "Bravo short",
             Answer = "Bravo answer",
             AdditionalInfo = "Bravo info",
@@ -288,6 +288,8 @@ public class FaqItemCommandQueryTests
 
         context.DbContext.FaqItems.AddRange(first, second);
         await context.DbContext.SaveChangesAsync();
+        first.IsActive = false;
+        await context.DbContext.SaveChangesAsync();
 
         var handler = new FaqItemsGetFaqItemListQueryHandler(context.DbContext);
         var request = new FaqItemsGetFaqItemListQuery
@@ -302,8 +304,8 @@ public class FaqItemCommandQueryTests
 
         var result = await handler.Handle(request, CancellationToken.None);
 
-        Assert.Equal(second.Id, result.Items[0].Id);
-        Assert.Equal(first.Id, result.Items[1].Id);
+        Assert.Equal(first.Id, result.Items[0].Id);
+        Assert.Equal(second.Id, result.Items[1].Id);
     }
 
     [Fact]

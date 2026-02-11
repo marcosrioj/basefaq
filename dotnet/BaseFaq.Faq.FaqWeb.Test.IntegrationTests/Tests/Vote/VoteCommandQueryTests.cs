@@ -388,7 +388,7 @@ public class VoteCommandQueryTests
     }
 
     [Fact]
-    public async Task GetVoteList_FallsBackToCreatedDateWhenSortingInvalid()
+    public async Task GetVoteList_FallsBackToUpdatedDateWhenSortingInvalid()
     {
         using var context = TestContext.Create();
         var faq = await TestDataFactory.SeedFaqAsync(context.DbContext, context.SessionService.TenantId);
@@ -400,11 +400,12 @@ public class VoteCommandQueryTests
             context.DbContext,
             context.SessionService.TenantId,
             faqItem.Id);
-        await Task.Delay(5);
         var second = await TestDataFactory.SeedVoteAsync(
             context.DbContext,
             context.SessionService.TenantId,
             faqItem.Id);
+        second.UserPrint = "updated-user-print";
+        await context.DbContext.SaveChangesAsync();
 
         var handler = new VotesGetVoteListQueryHandler(context.DbContext);
         var request = new VotesGetVoteListQuery
@@ -419,8 +420,8 @@ public class VoteCommandQueryTests
 
         var result = await handler.Handle(request, CancellationToken.None);
 
-        Assert.Equal(first.Id, result.Items[0].Id);
-        Assert.Equal(second.Id, result.Items[1].Id);
+        Assert.Equal(second.Id, result.Items[0].Id);
+        Assert.Equal(first.Id, result.Items[1].Id);
     }
 
     [Fact]

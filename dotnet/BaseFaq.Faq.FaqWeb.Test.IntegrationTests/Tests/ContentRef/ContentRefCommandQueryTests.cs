@@ -174,13 +174,15 @@ public class ContentRefCommandQueryTests
     }
 
     [Fact]
-    public async Task GetContentRefList_FallsBackToLocatorWhenSortingInvalid()
+    public async Task GetContentRefList_FallsBackToUpdatedDateWhenSortingInvalid()
     {
         using var context = TestContext.Create();
-        await TestDataFactory.SeedContentRefAsync(context.DbContext, context.SessionService.TenantId,
-            ContentRefKind.Web, "b-locator");
+        var first = await TestDataFactory.SeedContentRefAsync(context.DbContext, context.SessionService.TenantId,
+            ContentRefKind.Web, "z-locator");
         await TestDataFactory.SeedContentRefAsync(context.DbContext, context.SessionService.TenantId,
             ContentRefKind.Web, "a-locator");
+        first.Label = "Updated";
+        await context.DbContext.SaveChangesAsync();
 
         var handler = new ContentRefsGetContentRefListQueryHandler(context.DbContext);
         var request = new ContentRefsGetContentRefListQuery
@@ -195,8 +197,8 @@ public class ContentRefCommandQueryTests
 
         var result = await handler.Handle(request, CancellationToken.None);
 
-        Assert.Equal("a-locator", result.Items[0].Locator);
-        Assert.Equal("b-locator", result.Items[1].Locator);
+        Assert.Equal("z-locator", result.Items[0].Locator);
+        Assert.Equal("a-locator", result.Items[1].Locator);
     }
 
     [Fact]

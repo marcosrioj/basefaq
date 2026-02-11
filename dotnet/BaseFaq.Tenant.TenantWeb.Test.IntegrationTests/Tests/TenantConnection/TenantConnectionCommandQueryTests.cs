@@ -169,11 +169,13 @@ public class TenantConnectionCommandQueryTests
     }
 
     [Fact]
-    public async Task GetTenantConnectionList_FallsBackToAppWhenSortingInvalid()
+    public async Task GetTenantConnectionList_FallsBackToUpdatedDateWhenSortingInvalid()
     {
         using var context = TestContext.Create();
-        await TestDataFactory.SeedTenantConnectionAsync(context.DbContext, app: AppEnum.TenantWeb);
+        var first = await TestDataFactory.SeedTenantConnectionAsync(context.DbContext, app: AppEnum.TenantWeb);
         await TestDataFactory.SeedTenantConnectionAsync(context.DbContext, app: AppEnum.FaqWeb);
+        first.IsCurrent = !first.IsCurrent;
+        await context.DbContext.SaveChangesAsync();
 
         var handler = new TenantConnectionsGetTenantConnectionListQueryHandler(context.DbContext);
         var request = new TenantConnectionsGetTenantConnectionListQuery
@@ -188,8 +190,8 @@ public class TenantConnectionCommandQueryTests
 
         var result = await handler.Handle(request, CancellationToken.None);
 
-        Assert.Equal(AppEnum.FaqWeb, result.Items[0].App);
-        Assert.Equal(AppEnum.TenantWeb, result.Items[1].App);
+        Assert.Equal(AppEnum.TenantWeb, result.Items[0].App);
+        Assert.Equal(AppEnum.FaqWeb, result.Items[1].App);
     }
 
     [Fact]
