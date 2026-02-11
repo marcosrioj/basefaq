@@ -219,4 +219,89 @@ public class FaqTagCommandQueryTests
 
         await Assert.ThrowsAsync<DbUpdateException>(() => handler.Handle(request, CancellationToken.None));
     }
+
+    [Fact]
+    public async Task GetFaqTagList_SortsByMultipleFields()
+    {
+        using var context = TestContext.Create();
+        var tenantId = context.SessionService.TenantId;
+
+        var faqA = new BaseFaq.Faq.FaqWeb.Persistence.FaqDb.Entities.Faq
+        {
+            Id = Guid.Parse("00000000-0000-0000-0000-000000000010"),
+            Name = "FAQ A",
+            Language = "en-US",
+            Status = BaseFaq.Models.Faq.Enums.FaqStatus.Draft,
+            SortStrategy = BaseFaq.Models.Faq.Enums.FaqSortStrategy.Sort,
+            CtaEnabled = false,
+            CtaTarget = BaseFaq.Models.Faq.Enums.CtaTarget.Self,
+            TenantId = tenantId
+        };
+        var faqB = new BaseFaq.Faq.FaqWeb.Persistence.FaqDb.Entities.Faq
+        {
+            Id = Guid.Parse("00000000-0000-0000-0000-000000000020"),
+            Name = "FAQ B",
+            Language = "en-US",
+            Status = BaseFaq.Models.Faq.Enums.FaqStatus.Draft,
+            SortStrategy = BaseFaq.Models.Faq.Enums.FaqSortStrategy.Sort,
+            CtaEnabled = false,
+            CtaTarget = BaseFaq.Models.Faq.Enums.CtaTarget.Self,
+            TenantId = tenantId
+        };
+        var tagA = new BaseFaq.Faq.FaqWeb.Persistence.FaqDb.Entities.Tag
+        {
+            Id = Guid.Parse("00000000-0000-0000-0000-000000000030"),
+            Value = "tag-a",
+            TenantId = tenantId
+        };
+        var tagB = new BaseFaq.Faq.FaqWeb.Persistence.FaqDb.Entities.Tag
+        {
+            Id = Guid.Parse("00000000-0000-0000-0000-000000000040"),
+            Value = "tag-b",
+            TenantId = tenantId
+        };
+
+        context.DbContext.Faqs.AddRange(faqA, faqB);
+        context.DbContext.Tags.AddRange(tagA, tagB);
+        await context.DbContext.SaveChangesAsync();
+
+        var faqTag1 = new BaseFaq.Faq.FaqWeb.Persistence.FaqDb.Entities.FaqTag
+        {
+            FaqId = faqA.Id,
+            TagId = tagA.Id,
+            TenantId = tenantId
+        };
+        var faqTag2 = new BaseFaq.Faq.FaqWeb.Persistence.FaqDb.Entities.FaqTag
+        {
+            FaqId = faqA.Id,
+            TagId = tagB.Id,
+            TenantId = tenantId
+        };
+        var faqTag3 = new BaseFaq.Faq.FaqWeb.Persistence.FaqDb.Entities.FaqTag
+        {
+            FaqId = faqB.Id,
+            TagId = tagA.Id,
+            TenantId = tenantId
+        };
+
+        context.DbContext.FaqTags.AddRange(faqTag1, faqTag2, faqTag3);
+        await context.DbContext.SaveChangesAsync();
+
+        var handler = new FaqTagsGetFaqTagListQueryHandler(context.DbContext);
+        var request = new FaqTagsGetFaqTagListQuery
+        {
+            Request = new FaqTagGetAllRequestDto
+            {
+                SkipCount = 0,
+                MaxResultCount = 10,
+                Sorting = "faqid ASC, tagid DESC"
+            }
+        };
+
+        var result = await handler.Handle(request, CancellationToken.None);
+
+        Assert.Equal(faqTag2.Id, result.Items[0].Id);
+        Assert.Equal(faqTag1.Id, result.Items[1].Id);
+        Assert.Equal(faqTag3.Id, result.Items[2].Id);
+    }
 }

@@ -285,4 +285,77 @@ public class FaqItemCommandQueryTests
         Assert.Equal(second.Id, result.Items[0].Id);
         Assert.Equal(first.Id, result.Items[1].Id);
     }
+
+    [Fact]
+    public async Task GetFaqItemList_SortsByMultipleFields()
+    {
+        using var context = TestContext.Create();
+        var faq = await TestDataFactory.SeedFaqAsync(context.DbContext, context.SessionService.TenantId);
+
+        var first = new BaseFaq.Faq.FaqWeb.Persistence.FaqDb.Entities.FaqItem
+        {
+            Question = "Bravo",
+            ShortAnswer = "Short",
+            Answer = "Answer",
+            AdditionalInfo = "Info",
+            CtaTitle = "CTA",
+            CtaUrl = "https://example.test/bravo",
+            Sort = 1,
+            VoteScore = 0,
+            AiConfidenceScore = 0,
+            IsActive = true,
+            FaqId = faq.Id,
+            TenantId = context.SessionService.TenantId
+        };
+        var second = new BaseFaq.Faq.FaqWeb.Persistence.FaqDb.Entities.FaqItem
+        {
+            Question = "Alpha",
+            ShortAnswer = "Short",
+            Answer = "Answer",
+            AdditionalInfo = "Info",
+            CtaTitle = "CTA",
+            CtaUrl = "https://example.test/alpha",
+            Sort = 1,
+            VoteScore = 0,
+            AiConfidenceScore = 0,
+            IsActive = true,
+            FaqId = faq.Id,
+            TenantId = context.SessionService.TenantId
+        };
+        var third = new BaseFaq.Faq.FaqWeb.Persistence.FaqDb.Entities.FaqItem
+        {
+            Question = "Zulu",
+            ShortAnswer = "Short",
+            Answer = "Answer",
+            AdditionalInfo = "Info",
+            CtaTitle = "CTA",
+            CtaUrl = "https://example.test/zulu",
+            Sort = 1,
+            VoteScore = 0,
+            AiConfidenceScore = 0,
+            IsActive = false,
+            FaqId = faq.Id,
+            TenantId = context.SessionService.TenantId
+        };
+
+        context.DbContext.FaqItems.AddRange(first, second, third);
+        await context.DbContext.SaveChangesAsync();
+
+        var handler = new FaqItemsGetFaqItemListQueryHandler(context.DbContext);
+        var request = new FaqItemsGetFaqItemListQuery
+        {
+            Request = new FaqItemGetAllRequestDto
+            {
+                SkipCount = 0,
+                MaxResultCount = 10,
+                Sorting = "isactive DESC, question ASC"
+            }
+        };
+
+        var result = await handler.Handle(request, CancellationToken.None);
+
+        Assert.Equal(second.Id, result.Items[0].Id);
+        Assert.Equal(first.Id, result.Items[1].Id);
+        Assert.Equal(third.Id, result.Items[2].Id);
+    }
 }

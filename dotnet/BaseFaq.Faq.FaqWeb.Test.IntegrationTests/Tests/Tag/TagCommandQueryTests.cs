@@ -148,4 +148,49 @@ public class TagCommandQueryTests
         Assert.Equal("alpha", result.Items[0].Value);
         Assert.Equal("beta", result.Items[1].Value);
     }
+
+    [Fact]
+    public async Task GetTagList_SortsByMultipleFields()
+    {
+        using var context = TestContext.Create();
+
+        var tagA = new BaseFaq.Faq.FaqWeb.Persistence.FaqDb.Entities.Tag
+        {
+            Id = Guid.Parse("00000000-0000-0000-0000-000000000001"),
+            Value = "beta",
+            TenantId = context.SessionService.TenantId
+        };
+        var tagB = new BaseFaq.Faq.FaqWeb.Persistence.FaqDb.Entities.Tag
+        {
+            Id = Guid.Parse("00000000-0000-0000-0000-000000000002"),
+            Value = "beta",
+            TenantId = context.SessionService.TenantId
+        };
+        var tagC = new BaseFaq.Faq.FaqWeb.Persistence.FaqDb.Entities.Tag
+        {
+            Id = Guid.Parse("00000000-0000-0000-0000-000000000003"),
+            Value = "alpha",
+            TenantId = context.SessionService.TenantId
+        };
+
+        context.DbContext.Tags.AddRange(tagA, tagB, tagC);
+        await context.DbContext.SaveChangesAsync();
+
+        var handler = new TagsGetTagListQueryHandler(context.DbContext);
+        var request = new TagsGetTagListQuery
+        {
+            Request = new TagGetAllRequestDto
+            {
+                SkipCount = 0,
+                MaxResultCount = 10,
+                Sorting = "value DESC, id ASC"
+            }
+        };
+
+        var result = await handler.Handle(request, CancellationToken.None);
+
+        Assert.Equal(tagA.Id, result.Items[0].Id);
+        Assert.Equal(tagB.Id, result.Items[1].Id);
+        Assert.Equal(tagC.Id, result.Items[2].Id);
+    }
 }

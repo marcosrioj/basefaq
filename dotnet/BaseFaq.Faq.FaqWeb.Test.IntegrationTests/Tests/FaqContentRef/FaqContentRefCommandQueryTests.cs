@@ -256,4 +256,95 @@ public class FaqContentRefCommandQueryTests
 
         await Assert.ThrowsAsync<DbUpdateException>(() => handler.Handle(request, CancellationToken.None));
     }
+
+    [Fact]
+    public async Task GetFaqContentRefList_SortsByMultipleFields()
+    {
+        using var context = TestContext.Create();
+        var tenantId = context.SessionService.TenantId;
+
+        var faqA = new BaseFaq.Faq.FaqWeb.Persistence.FaqDb.Entities.Faq
+        {
+            Id = Guid.Parse("00000000-0000-0000-0000-000000000110"),
+            Name = "FAQ A",
+            Language = "en-US",
+            Status = BaseFaq.Models.Faq.Enums.FaqStatus.Draft,
+            SortStrategy = BaseFaq.Models.Faq.Enums.FaqSortStrategy.Sort,
+            CtaEnabled = false,
+            CtaTarget = BaseFaq.Models.Faq.Enums.CtaTarget.Self,
+            TenantId = tenantId
+        };
+        var faqB = new BaseFaq.Faq.FaqWeb.Persistence.FaqDb.Entities.Faq
+        {
+            Id = Guid.Parse("00000000-0000-0000-0000-000000000120"),
+            Name = "FAQ B",
+            Language = "en-US",
+            Status = BaseFaq.Models.Faq.Enums.FaqStatus.Draft,
+            SortStrategy = BaseFaq.Models.Faq.Enums.FaqSortStrategy.Sort,
+            CtaEnabled = false,
+            CtaTarget = BaseFaq.Models.Faq.Enums.CtaTarget.Self,
+            TenantId = tenantId
+        };
+        var contentRefA = new BaseFaq.Faq.FaqWeb.Persistence.FaqDb.Entities.ContentRef
+        {
+            Id = Guid.Parse("00000000-0000-0000-0000-000000000130"),
+            Kind = BaseFaq.Models.Faq.Enums.ContentRefKind.Web,
+            Locator = "ref-a",
+            Label = "A",
+            Scope = "Scope",
+            TenantId = tenantId
+        };
+        var contentRefB = new BaseFaq.Faq.FaqWeb.Persistence.FaqDb.Entities.ContentRef
+        {
+            Id = Guid.Parse("00000000-0000-0000-0000-000000000140"),
+            Kind = BaseFaq.Models.Faq.Enums.ContentRefKind.Web,
+            Locator = "ref-b",
+            Label = "B",
+            Scope = "Scope",
+            TenantId = tenantId
+        };
+
+        context.DbContext.Faqs.AddRange(faqA, faqB);
+        context.DbContext.ContentRefs.AddRange(contentRefA, contentRefB);
+        await context.DbContext.SaveChangesAsync();
+
+        var ref1 = new BaseFaq.Faq.FaqWeb.Persistence.FaqDb.Entities.FaqContentRef
+        {
+            FaqId = faqA.Id,
+            ContentRefId = contentRefA.Id,
+            TenantId = tenantId
+        };
+        var ref2 = new BaseFaq.Faq.FaqWeb.Persistence.FaqDb.Entities.FaqContentRef
+        {
+            FaqId = faqA.Id,
+            ContentRefId = contentRefB.Id,
+            TenantId = tenantId
+        };
+        var ref3 = new BaseFaq.Faq.FaqWeb.Persistence.FaqDb.Entities.FaqContentRef
+        {
+            FaqId = faqB.Id,
+            ContentRefId = contentRefA.Id,
+            TenantId = tenantId
+        };
+
+        context.DbContext.FaqContentRefs.AddRange(ref1, ref2, ref3);
+        await context.DbContext.SaveChangesAsync();
+
+        var handler = new FaqContentRefsGetFaqContentRefListQueryHandler(context.DbContext);
+        var request = new FaqContentRefsGetFaqContentRefListQuery
+        {
+            Request = new FaqContentRefGetAllRequestDto
+            {
+                SkipCount = 0,
+                MaxResultCount = 10,
+                Sorting = "faqid ASC, contentrefid DESC"
+            }
+        };
+
+        var result = await handler.Handle(request, CancellationToken.None);
+
+        Assert.Equal(ref2.Id, result.Items[0].Id);
+        Assert.Equal(ref1.Id, result.Items[1].Id);
+        Assert.Equal(ref3.Id, result.Items[2].Id);
+    }
 }

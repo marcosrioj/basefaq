@@ -398,4 +398,97 @@ public class VoteCommandQueryTests
         Assert.Equal(first.Id, result.Items[0].Id);
         Assert.Equal(second.Id, result.Items[1].Id);
     }
+
+    [Fact]
+    public async Task GetVoteList_SortsByMultipleFields()
+    {
+        using var context = TestContext.Create();
+        var faq = await TestDataFactory.SeedFaqAsync(context.DbContext, context.SessionService.TenantId);
+        var faqItem = await TestDataFactory.SeedFaqItemAsync(
+            context.DbContext,
+            context.SessionService.TenantId,
+            faq.Id);
+
+        var voteA = new BaseFaq.Faq.FaqWeb.Persistence.FaqDb.Entities.Vote
+        {
+            Like = true,
+            UserPrint = "b-user",
+            Ip = "127.0.0.1",
+            UserAgent = "agent",
+            UnLikeReason = null,
+            TenantId = context.SessionService.TenantId,
+            FaqItemId = faqItem.Id
+        };
+        var voteB = new BaseFaq.Faq.FaqWeb.Persistence.FaqDb.Entities.Vote
+        {
+            Like = true,
+            UserPrint = "a-user",
+            Ip = "127.0.0.1",
+            UserAgent = "agent",
+            UnLikeReason = null,
+            TenantId = context.SessionService.TenantId,
+            FaqItemId = faqItem.Id
+        };
+        var voteC = new BaseFaq.Faq.FaqWeb.Persistence.FaqDb.Entities.Vote
+        {
+            Like = false,
+            UserPrint = "z-user",
+            Ip = "127.0.0.1",
+            UserAgent = "agent",
+            UnLikeReason = UnLikeReason.NotRelevant,
+            TenantId = context.SessionService.TenantId,
+            FaqItemId = faqItem.Id
+        };
+
+        context.DbContext.Votes.AddRange(voteA, voteB, voteC);
+        await context.DbContext.SaveChangesAsync();
+
+        var handler = new VotesGetVoteListQueryHandler(context.DbContext);
+        var request = new VotesGetVoteListQuery
+        {
+            Request = new VoteGetAllRequestDto
+            {
+                SkipCount = 0,
+                MaxResultCount = 10,
+                Sorting = "like DESC, userprint ASC"
+            }
+        };
+
+        var result = await handler.Handle(request, CancellationToken.None);
+
+        Assert.Equal(voteB.Id, result.Items[0].Id);
+        Assert.Equal(voteA.Id, result.Items[1].Id);
+        Assert.Equal(voteC.Id, result.Items[2].Id);
+    }
+
+    [Fact]
+    public async Task CreateVote_AllowsMissingUserAgentAndIp()
+    {
+        var httpContext = new DefaultHttpContext();
+
+        using var context = TestContext.Create(httpContext: httpContext);
+        var faq = await TestDataFactory.SeedFaqAsync(context.DbContext, context.SessionService.TenantId);
+        var faqItem = await TestDataFactory.SeedFaqItemAsync(
+            context.DbContext,
+            context.SessionService.TenantId,
+            faq.Id);
+
+        var handler = new VotesCreateVoteCommandHandler(
+            context.DbContext,
+            context.SessionService,
+            context.HttpContextAccessor);
+        var request = new VotesCreateVoteCommand
+        {
+            Like = true,
+            UnLikeReason = null,
+            FaqItemId = faqItem.Id
+        };
+
+        var id = await handler.Handle(request, CancellationToken.None);
+        var vote = await context.DbContext.Votes.FindAsync(id);
+
+        Assert.NotNull(vote);
+        Assert.Equal(string.Empty, vote!.Ip);
+        Assert.Equal(string.Empty, vote.UserAgent);
+    }
 }

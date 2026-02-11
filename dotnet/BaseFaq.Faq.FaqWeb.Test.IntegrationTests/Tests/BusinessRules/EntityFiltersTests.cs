@@ -120,6 +120,127 @@ public class EntityFiltersTests
     }
 
     [Fact]
+    public async Task TenantFilters_CanBeSkippedForTags()
+    {
+        using var database = TestDatabase.Create();
+        var tenantA = Guid.NewGuid();
+        var tenantB = Guid.NewGuid();
+
+        using var contextA = TestContext.CreateForDatabase(
+            database.ConnectionString,
+            database.AdminConnectionString,
+            database.DatabaseName,
+            tenantId: tenantA);
+        var tag = await TestDataFactory.SeedTagAsync(contextA.DbContext, tenantA, "Tenant A Tag");
+
+        var httpContext = TestHttpContextFactory.CreateWithTenantValidationSkipped();
+        using var contextB = TestContext.CreateForDatabase(
+            database.ConnectionString,
+            database.AdminConnectionString,
+            database.DatabaseName,
+            tenantId: tenantB,
+            httpContext: httpContext);
+        var handler = new TagsGetTagQueryHandler(contextB.DbContext);
+
+        var result = await handler.Handle(new TagsGetTagQuery { Id = tag.Id }, CancellationToken.None);
+
+        Assert.NotNull(result);
+        Assert.Equal(tag.Id, result!.Id);
+    }
+
+    [Fact]
+    public async Task TenantFilters_CanBeSkippedForContentRefs()
+    {
+        using var database = TestDatabase.Create();
+        var tenantA = Guid.NewGuid();
+        var tenantB = Guid.NewGuid();
+
+        using var contextA = TestContext.CreateForDatabase(
+            database.ConnectionString,
+            database.AdminConnectionString,
+            database.DatabaseName,
+            tenantId: tenantA);
+        var contentRef = await TestDataFactory.SeedContentRefAsync(contextA.DbContext, tenantA);
+
+        var httpContext = TestHttpContextFactory.CreateWithTenantValidationSkipped();
+        using var contextB = TestContext.CreateForDatabase(
+            database.ConnectionString,
+            database.AdminConnectionString,
+            database.DatabaseName,
+            tenantId: tenantB,
+            httpContext: httpContext);
+        var handler = new ContentRefsGetContentRefQueryHandler(contextB.DbContext);
+
+        var result = await handler.Handle(
+            new ContentRefsGetContentRefQuery { Id = contentRef.Id },
+            CancellationToken.None);
+
+        Assert.NotNull(result);
+        Assert.Equal(contentRef.Id, result!.Id);
+    }
+
+    [Fact]
+    public async Task TenantFilters_CanBeSkippedForFaqItems()
+    {
+        using var database = TestDatabase.Create();
+        var tenantA = Guid.NewGuid();
+        var tenantB = Guid.NewGuid();
+
+        using var contextA = TestContext.CreateForDatabase(
+            database.ConnectionString,
+            database.AdminConnectionString,
+            database.DatabaseName,
+            tenantId: tenantA);
+        var faq = await TestDataFactory.SeedFaqAsync(contextA.DbContext, tenantA);
+        var faqItem = await TestDataFactory.SeedFaqItemAsync(contextA.DbContext, tenantA, faq.Id);
+
+        var httpContext = TestHttpContextFactory.CreateWithTenantValidationSkipped();
+        using var contextB = TestContext.CreateForDatabase(
+            database.ConnectionString,
+            database.AdminConnectionString,
+            database.DatabaseName,
+            tenantId: tenantB,
+            httpContext: httpContext);
+        var handler = new FaqItemsGetFaqItemQueryHandler(contextB.DbContext);
+
+        var result = await handler.Handle(new FaqItemsGetFaqItemQuery { Id = faqItem.Id }, CancellationToken.None);
+
+        Assert.NotNull(result);
+        Assert.Equal(faqItem.Id, result!.Id);
+    }
+
+    [Fact]
+    public async Task TenantFilters_CanBeSkippedForVotes()
+    {
+        using var database = TestDatabase.Create();
+        var tenantA = Guid.NewGuid();
+        var tenantB = Guid.NewGuid();
+
+        using var contextA = TestContext.CreateForDatabase(
+            database.ConnectionString,
+            database.AdminConnectionString,
+            database.DatabaseName,
+            tenantId: tenantA);
+        var faq = await TestDataFactory.SeedFaqAsync(contextA.DbContext, tenantA);
+        var faqItem = await TestDataFactory.SeedFaqItemAsync(contextA.DbContext, tenantA, faq.Id);
+        var vote = await TestDataFactory.SeedVoteAsync(contextA.DbContext, tenantA, faqItem.Id);
+
+        var httpContext = TestHttpContextFactory.CreateWithTenantValidationSkipped();
+        using var contextB = TestContext.CreateForDatabase(
+            database.ConnectionString,
+            database.AdminConnectionString,
+            database.DatabaseName,
+            tenantId: tenantB,
+            httpContext: httpContext);
+        var handler = new VotesGetVoteQueryHandler(contextB.DbContext);
+
+        var result = await handler.Handle(new VotesGetVoteQuery { Id = vote.Id }, CancellationToken.None);
+
+        Assert.NotNull(result);
+        Assert.Equal(vote.Id, result!.Id);
+    }
+
+    [Fact]
     public async Task SoftDelete_HidesTagRecordsByDefault()
     {
         using var context = TestContext.Create();

@@ -178,4 +178,33 @@ public class ContentRefCommandQueryTests
         Assert.Equal("a-locator", result.Items[0].Locator);
         Assert.Equal("b-locator", result.Items[1].Locator);
     }
+
+    [Fact]
+    public async Task GetContentRefList_SortsByMultipleFields()
+    {
+        using var context = TestContext.Create();
+        await TestDataFactory.SeedContentRefAsync(context.DbContext, context.SessionService.TenantId,
+            ContentRefKind.Manual, "manual");
+        await TestDataFactory.SeedContentRefAsync(context.DbContext, context.SessionService.TenantId,
+            ContentRefKind.Web, "b-web");
+        await TestDataFactory.SeedContentRefAsync(context.DbContext, context.SessionService.TenantId,
+            ContentRefKind.Web, "a-web");
+
+        var handler = new ContentRefsGetContentRefListQueryHandler(context.DbContext);
+        var request = new ContentRefsGetContentRefListQuery
+        {
+            Request = new ContentRefGetAllRequestDto
+            {
+                SkipCount = 0,
+                MaxResultCount = 10,
+                Sorting = "kind ASC, locator DESC"
+            }
+        };
+
+        var result = await handler.Handle(request, CancellationToken.None);
+
+        Assert.Equal(ContentRefKind.Manual, result.Items[0].Kind);
+        Assert.Equal("b-web", result.Items[1].Locator);
+        Assert.Equal("a-web", result.Items[2].Locator);
+    }
 }
