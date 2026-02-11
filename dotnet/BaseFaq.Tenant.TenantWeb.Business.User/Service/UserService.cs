@@ -5,6 +5,7 @@ using BaseFaq.Models.User.Dtos.User;
 using BaseFaq.Common.Infrastructure.ApiErrorHandling.Exception;
 using BaseFaq.Tenant.TenantWeb.Business.User.Abstractions;
 using BaseFaq.Tenant.TenantWeb.Business.User.Commands.CreateUser;
+using BaseFaq.Tenant.TenantWeb.Business.User.Commands.DeleteUser;
 using BaseFaq.Tenant.TenantWeb.Business.User.Commands.UpdateUser;
 using BaseFaq.Tenant.TenantWeb.Business.User.Queries.GetUser;
 using BaseFaq.Tenant.TenantWeb.Business.User.Queries.GetUserList;
@@ -47,6 +48,11 @@ public class UserService(IMediator mediator) : IUserService
         ArgumentNullException.ThrowIfNull(requestDto);
 
         return mediator.Send(new UsersGetUserListQuery { Request = requestDto }, token);
+    }
+
+    public Task Delete(Guid id, CancellationToken token)
+    {
+        return mediator.Send(new UsersDeleteUserCommand { Id = id }, token);
     }
 
     public async Task<UserDto> GetById(Guid id, CancellationToken token)

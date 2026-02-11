@@ -7,6 +7,8 @@ public interface ITenantConnectionService
 {
     Task<TenantConnectionDto> Create(TenantConnectionCreateRequestDto requestDto, CancellationToken token);
 
+    Task Delete(Guid id, CancellationToken token);
+
     Task<PagedResultDto<TenantConnectionDto>> GetAll(TenantConnectionGetAllRequestDto requestDto,
         CancellationToken token);
 

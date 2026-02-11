@@ -1,5 +1,6 @@
 using BaseFaq.Common.Infrastructure.ApiErrorHandling.Exception;
 using BaseFaq.Faq.FaqWeb.Business.Tag.Abstractions;
+using BaseFaq.Faq.FaqWeb.Business.Tag.Commands.DeleteTag;
 using BaseFaq.Faq.FaqWeb.Business.Tag.Commands.CreateTag;
 using BaseFaq.Faq.FaqWeb.Business.Tag.Commands.UpdateTag;
 using BaseFaq.Faq.FaqWeb.Business.Tag.Queries.GetTag;
@@ -40,6 +41,11 @@ public class TagService(IMediator mediator) : ITagService
         ArgumentNullException.ThrowIfNull(requestDto);
 
         return mediator.Send(new TagsGetTagListQuery { Request = requestDto }, token);
+    }
+
+    public Task Delete(Guid id, CancellationToken token)
+    {
+        return mediator.Send(new TagsDeleteTagCommand { Id = id }, token);
     }
 
     public async Task<TagDto> GetById(Guid id, CancellationToken token)

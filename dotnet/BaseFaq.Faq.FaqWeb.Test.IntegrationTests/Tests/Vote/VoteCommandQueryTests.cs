@@ -1,6 +1,7 @@
 using System.Net;
 using BaseFaq.Common.Infrastructure.ApiErrorHandling.Exception;
 using BaseFaq.Faq.FaqWeb.Business.Vote.Commands.CreateVote;
+using BaseFaq.Faq.FaqWeb.Business.Vote.Commands.DeleteVote;
 using BaseFaq.Faq.FaqWeb.Business.Vote.Commands.UpdateVote;
 using BaseFaq.Faq.FaqWeb.Business.Vote.Helpers;
 using BaseFaq.Faq.FaqWeb.Business.Vote.Queries.GetVote;
@@ -215,6 +216,29 @@ public class VoteCommandQueryTests
             await Assert.ThrowsAsync<ApiErrorException>(() => handler.Handle(request, CancellationToken.None));
 
         Assert.Equal(404, exception.ErrorCode);
+    }
+
+    [Fact]
+    public async Task DeleteVote_SoftDeletesEntity()
+    {
+        using var context = TestContext.Create();
+        var faq = await TestDataFactory.SeedFaqAsync(context.DbContext, context.SessionService.TenantId);
+        var faqItem = await TestDataFactory.SeedFaqItemAsync(
+            context.DbContext,
+            context.SessionService.TenantId,
+            faq.Id);
+        var vote = await TestDataFactory.SeedVoteAsync(
+            context.DbContext,
+            context.SessionService.TenantId,
+            faqItem.Id);
+
+        var handler = new VotesDeleteVoteCommandHandler(context.DbContext);
+        await handler.Handle(new VotesDeleteVoteCommand { Id = vote.Id }, CancellationToken.None);
+
+        context.DbContext.SoftDeleteFiltersEnabled = false;
+        var deleted = await context.DbContext.Votes.FindAsync(vote.Id);
+        Assert.NotNull(deleted);
+        Assert.True(deleted!.IsDeleted);
     }
 
     [Fact]

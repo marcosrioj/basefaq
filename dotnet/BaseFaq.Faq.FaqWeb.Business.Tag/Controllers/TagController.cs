@@ -44,4 +44,12 @@ public class TagController(ITagService tagService) : ControllerBase
         var result = await tagService.Update(id, dto, token);
         return Ok(result);
     }
+
+    [HttpDelete("{id:guid}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    public async Task<IActionResult> Delete(Guid id, CancellationToken token)
+    {
+        await tagService.Delete(id, token);
+        return NoContent();
+    }
 }

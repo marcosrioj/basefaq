@@ -1,6 +1,7 @@
 using BaseFaq.Common.Infrastructure.ApiErrorHandling.Exception;
 using BaseFaq.Faq.FaqWeb.Business.Vote.Abstractions;
 using BaseFaq.Faq.FaqWeb.Business.Vote.Commands.CreateVote;
+using BaseFaq.Faq.FaqWeb.Business.Vote.Commands.DeleteVote;
 using BaseFaq.Faq.FaqWeb.Business.Vote.Commands.UpdateVote;
 using BaseFaq.Faq.FaqWeb.Business.Vote.Queries.GetVote;
 using BaseFaq.Faq.FaqWeb.Business.Vote.Queries.GetVoteList;
@@ -42,6 +43,11 @@ public class VoteService(IMediator mediator) : IVoteService
         ArgumentNullException.ThrowIfNull(requestDto);
 
         return mediator.Send(new VotesGetVoteListQuery { Request = requestDto }, token);
+    }
+
+    public Task Delete(Guid id, CancellationToken token)
+    {
+        return mediator.Send(new VotesDeleteVoteCommand { Id = id }, token);
     }
 
     public async Task<VoteDto> GetById(Guid id, CancellationToken token)

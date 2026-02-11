@@ -1,6 +1,7 @@
 using BaseFaq.Common.Infrastructure.ApiErrorHandling.Exception;
 using BaseFaq.Faq.FaqWeb.Business.ContentRef.Abstractions;
 using BaseFaq.Faq.FaqWeb.Business.ContentRef.Commands.CreateContentRef;
+using BaseFaq.Faq.FaqWeb.Business.ContentRef.Commands.DeleteContentRef;
 using BaseFaq.Faq.FaqWeb.Business.ContentRef.Commands.UpdateContentRef;
 using BaseFaq.Faq.FaqWeb.Business.ContentRef.Queries.GetContentRef;
 using BaseFaq.Faq.FaqWeb.Business.ContentRef.Queries.GetContentRefList;
@@ -43,6 +44,11 @@ public class ContentRefService(IMediator mediator) : IContentRefService
         ArgumentNullException.ThrowIfNull(requestDto);
 
         return mediator.Send(new ContentRefsGetContentRefListQuery { Request = requestDto }, token);
+    }
+
+    public Task Delete(Guid id, CancellationToken token)
+    {
+        return mediator.Send(new ContentRefsDeleteContentRefCommand { Id = id }, token);
     }
 
     public async Task<ContentRefDto> GetById(Guid id, CancellationToken token)

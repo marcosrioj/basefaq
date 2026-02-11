@@ -1,6 +1,7 @@
 using BaseFaq.Common.Infrastructure.ApiErrorHandling.Exception;
 using BaseFaq.Faq.FaqWeb.Business.FaqItem.Abstractions;
 using BaseFaq.Faq.FaqWeb.Business.FaqItem.Commands.CreateFaqItem;
+using BaseFaq.Faq.FaqWeb.Business.FaqItem.Commands.DeleteFaqItem;
 using BaseFaq.Faq.FaqWeb.Business.FaqItem.Commands.UpdateFaqItem;
 using BaseFaq.Faq.FaqWeb.Business.FaqItem.Queries.GetFaqItem;
 using BaseFaq.Faq.FaqWeb.Business.FaqItem.Queries.GetFaqItemList;
@@ -51,6 +52,11 @@ public class FaqItemService(IMediator mediator) : IFaqItemService
         ArgumentNullException.ThrowIfNull(requestDto);
 
         return mediator.Send(new FaqItemsGetFaqItemListQuery { Request = requestDto }, token);
+    }
+
+    public Task Delete(Guid id, CancellationToken token)
+    {
+        return mediator.Send(new FaqItemsDeleteFaqItemCommand { Id = id }, token);
     }
 
     public async Task<FaqItemDto> GetById(Guid id, CancellationToken token)

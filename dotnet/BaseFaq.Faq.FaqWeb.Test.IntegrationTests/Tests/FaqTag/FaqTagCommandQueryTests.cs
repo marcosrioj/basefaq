@@ -1,5 +1,6 @@
 using BaseFaq.Common.Infrastructure.ApiErrorHandling.Exception;
 using BaseFaq.Faq.FaqWeb.Business.Faq.Commands.CreateFaqTag;
+using BaseFaq.Faq.FaqWeb.Business.Faq.Commands.DeleteFaqTag;
 using BaseFaq.Faq.FaqWeb.Business.Faq.Commands.UpdateFaqTag;
 using BaseFaq.Faq.FaqWeb.Business.Faq.Queries.GetFaqTag;
 using BaseFaq.Faq.FaqWeb.Business.Faq.Queries.GetFaqTagList;
@@ -160,6 +161,27 @@ public class FaqTagCommandQueryTests
             await Assert.ThrowsAsync<ApiErrorException>(() => handler.Handle(request, CancellationToken.None));
 
         Assert.Equal(404, exception.ErrorCode);
+    }
+
+    [Fact]
+    public async Task DeleteFaqTag_SoftDeletesEntity()
+    {
+        using var context = TestContext.Create();
+        var faq = await TestDataFactory.SeedFaqAsync(context.DbContext, context.SessionService.TenantId);
+        var tag = await TestDataFactory.SeedTagAsync(context.DbContext, context.SessionService.TenantId);
+        var faqTag = await TestDataFactory.SeedFaqTagAsync(
+            context.DbContext,
+            context.SessionService.TenantId,
+            faq.Id,
+            tag.Id);
+
+        var handler = new FaqTagsDeleteFaqTagCommandHandler(context.DbContext);
+        await handler.Handle(new FaqTagsDeleteFaqTagCommand { Id = faqTag.Id }, CancellationToken.None);
+
+        context.DbContext.SoftDeleteFiltersEnabled = false;
+        var deleted = await context.DbContext.FaqTags.FindAsync(faqTag.Id);
+        Assert.NotNull(deleted);
+        Assert.True(deleted!.IsDeleted);
     }
 
     [Fact]

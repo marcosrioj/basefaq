@@ -1,5 +1,6 @@
 using BaseFaq.Common.Infrastructure.ApiErrorHandling.Exception;
 using BaseFaq.Faq.FaqWeb.Business.ContentRef.Commands.CreateContentRef;
+using BaseFaq.Faq.FaqWeb.Business.ContentRef.Commands.DeleteContentRef;
 using BaseFaq.Faq.FaqWeb.Business.ContentRef.Commands.UpdateContentRef;
 using BaseFaq.Faq.FaqWeb.Business.ContentRef.Queries.GetContentRef;
 using BaseFaq.Faq.FaqWeb.Business.ContentRef.Queries.GetContentRefList;
@@ -83,6 +84,25 @@ public class ContentRefCommandQueryTests
             await Assert.ThrowsAsync<ApiErrorException>(() => handler.Handle(request, CancellationToken.None));
 
         Assert.Equal(404, exception.ErrorCode);
+    }
+
+    [Fact]
+    public async Task DeleteContentRef_SoftDeletesEntity()
+    {
+        using var context = TestContext.Create();
+        var contentRef = await TestDataFactory.SeedContentRefAsync(
+            context.DbContext,
+            context.SessionService.TenantId,
+            ContentRefKind.Web,
+            "delete-ref");
+
+        var handler = new ContentRefsDeleteContentRefCommandHandler(context.DbContext);
+        await handler.Handle(new ContentRefsDeleteContentRefCommand { Id = contentRef.Id }, CancellationToken.None);
+
+        context.DbContext.SoftDeleteFiltersEnabled = false;
+        var deleted = await context.DbContext.ContentRefs.FindAsync(contentRef.Id);
+        Assert.NotNull(deleted);
+        Assert.True(deleted!.IsDeleted);
     }
 
     [Fact]

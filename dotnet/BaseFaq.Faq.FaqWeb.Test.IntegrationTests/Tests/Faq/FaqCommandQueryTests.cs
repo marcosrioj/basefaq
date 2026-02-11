@@ -1,5 +1,6 @@
 using BaseFaq.Common.Infrastructure.ApiErrorHandling.Exception;
 using BaseFaq.Faq.FaqWeb.Business.Faq.Commands.CreateFaq;
+using BaseFaq.Faq.FaqWeb.Business.Faq.Commands.DeleteFaq;
 using BaseFaq.Faq.FaqWeb.Business.Faq.Commands.UpdateFaq;
 using BaseFaq.Faq.FaqWeb.Business.Faq.Queries.GetFaq;
 using BaseFaq.Faq.FaqWeb.Business.Faq.Queries.GetFaqList;
@@ -91,6 +92,21 @@ public class FaqCommandQueryTests
             await Assert.ThrowsAsync<ApiErrorException>(() => handler.Handle(request, CancellationToken.None));
 
         Assert.Equal(404, exception.ErrorCode);
+    }
+
+    [Fact]
+    public async Task DeleteFaq_SoftDeletesEntity()
+    {
+        using var context = TestContext.Create();
+        var faq = await TestDataFactory.SeedFaqAsync(context.DbContext, context.SessionService.TenantId);
+
+        var handler = new FaqsDeleteFaqCommandHandler(context.DbContext);
+        await handler.Handle(new FaqsDeleteFaqCommand { Id = faq.Id }, CancellationToken.None);
+
+        context.DbContext.SoftDeleteFiltersEnabled = false;
+        var deleted = await context.DbContext.Faqs.FindAsync(faq.Id);
+        Assert.NotNull(deleted);
+        Assert.True(deleted!.IsDeleted);
     }
 
     [Fact]

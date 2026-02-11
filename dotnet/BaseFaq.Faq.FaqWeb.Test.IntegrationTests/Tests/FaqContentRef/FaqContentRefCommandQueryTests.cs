@@ -1,5 +1,6 @@
 using BaseFaq.Common.Infrastructure.ApiErrorHandling.Exception;
 using BaseFaq.Faq.FaqWeb.Business.Faq.Commands.CreateFaqContentRef;
+using BaseFaq.Faq.FaqWeb.Business.Faq.Commands.DeleteFaqContentRef;
 using BaseFaq.Faq.FaqWeb.Business.Faq.Commands.UpdateFaqContentRef;
 using BaseFaq.Faq.FaqWeb.Business.Faq.Queries.GetFaqContentRef;
 using BaseFaq.Faq.FaqWeb.Business.Faq.Queries.GetFaqContentRefList;
@@ -183,6 +184,29 @@ public class FaqContentRefCommandQueryTests
             await Assert.ThrowsAsync<ApiErrorException>(() => handler.Handle(request, CancellationToken.None));
 
         Assert.Equal(404, exception.ErrorCode);
+    }
+
+    [Fact]
+    public async Task DeleteFaqContentRef_SoftDeletesEntity()
+    {
+        using var context = TestContext.Create();
+        var faq = await TestDataFactory.SeedFaqAsync(context.DbContext, context.SessionService.TenantId);
+        var contentRef = await TestDataFactory.SeedContentRefAsync(context.DbContext, context.SessionService.TenantId);
+        var faqContentRef = await TestDataFactory.SeedFaqContentRefAsync(
+            context.DbContext,
+            context.SessionService.TenantId,
+            faq.Id,
+            contentRef.Id);
+
+        var handler = new FaqContentRefsDeleteFaqContentRefCommandHandler(context.DbContext);
+        await handler.Handle(
+            new FaqContentRefsDeleteFaqContentRefCommand { Id = faqContentRef.Id },
+            CancellationToken.None);
+
+        context.DbContext.SoftDeleteFiltersEnabled = false;
+        var deleted = await context.DbContext.FaqContentRefs.FindAsync(faqContentRef.Id);
+        Assert.NotNull(deleted);
+        Assert.True(deleted!.IsDeleted);
     }
 
     [Fact]

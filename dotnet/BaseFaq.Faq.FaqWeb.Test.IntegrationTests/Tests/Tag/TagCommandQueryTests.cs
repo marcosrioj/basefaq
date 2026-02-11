@@ -1,5 +1,6 @@
 using BaseFaq.Common.Infrastructure.ApiErrorHandling.Exception;
 using BaseFaq.Faq.FaqWeb.Business.Tag.Commands.CreateTag;
+using BaseFaq.Faq.FaqWeb.Business.Tag.Commands.DeleteTag;
 using BaseFaq.Faq.FaqWeb.Business.Tag.Commands.UpdateTag;
 using BaseFaq.Faq.FaqWeb.Business.Tag.Queries.GetTag;
 using BaseFaq.Faq.FaqWeb.Business.Tag.Queries.GetTagList;
@@ -54,6 +55,21 @@ public class TagCommandQueryTests
             await Assert.ThrowsAsync<ApiErrorException>(() => handler.Handle(request, CancellationToken.None));
 
         Assert.Equal(404, exception.ErrorCode);
+    }
+
+    [Fact]
+    public async Task DeleteTag_SoftDeletesEntity()
+    {
+        using var context = TestContext.Create();
+        var tag = await TestDataFactory.SeedTagAsync(context.DbContext, context.SessionService.TenantId, "billing");
+
+        var handler = new TagsDeleteTagCommandHandler(context.DbContext);
+        await handler.Handle(new TagsDeleteTagCommand { Id = tag.Id }, CancellationToken.None);
+
+        context.DbContext.SoftDeleteFiltersEnabled = false;
+        var deleted = await context.DbContext.Tags.FindAsync(tag.Id);
+        Assert.NotNull(deleted);
+        Assert.True(deleted!.IsDeleted);
     }
 
     [Fact]

@@ -44,4 +44,12 @@ public class TenantController(ITenantService tenantService) : ControllerBase
         var result = await tenantService.Update(id, dto, token);
         return Ok(result);
     }
+
+    [HttpDelete("{id:guid}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    public async Task<IActionResult> Delete(Guid id, CancellationToken token)
+    {
+        await tenantService.Delete(id, token);
+        return NoContent();
+    }
 }

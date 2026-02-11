@@ -44,4 +44,12 @@ public class FaqItemController(IFaqItemService faqItemService) : ControllerBase
         var result = await faqItemService.Update(id, dto, token);
         return Ok(result);
     }
+
+    [HttpDelete("{id:guid}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    public async Task<IActionResult> Delete(Guid id, CancellationToken token)
+    {
+        await faqItemService.Delete(id, token);
+        return NoContent();
+    }
 }

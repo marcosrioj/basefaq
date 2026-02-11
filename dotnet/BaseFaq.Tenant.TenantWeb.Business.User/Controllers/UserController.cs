@@ -44,4 +44,12 @@ public class UserController(IUserService userService) : ControllerBase
         var result = await userService.Update(id, dto, token);
         return Ok(result);
     }
+
+    [HttpDelete("{id:guid}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    public async Task<IActionResult> Delete(Guid id, CancellationToken token)
+    {
+        await userService.Delete(id, token);
+        return NoContent();
+    }
 }

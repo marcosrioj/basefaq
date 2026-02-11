@@ -3,6 +3,7 @@ using BaseFaq.Models.Tenant.Dtos.TenantConnection;
 using BaseFaq.Common.Infrastructure.ApiErrorHandling.Exception;
 using BaseFaq.Tenant.TenantWeb.Business.Tenant.Abstractions;
 using BaseFaq.Tenant.TenantWeb.Business.Tenant.Commands.CreateTenantConnection;
+using BaseFaq.Tenant.TenantWeb.Business.Tenant.Commands.DeleteTenantConnection;
 using BaseFaq.Tenant.TenantWeb.Business.Tenant.Commands.UpdateTenantConnection;
 using BaseFaq.Tenant.TenantWeb.Business.Tenant.Queries.GetTenantConnection;
 using BaseFaq.Tenant.TenantWeb.Business.Tenant.Queries.GetTenantConnectionList;
@@ -43,6 +44,11 @@ public class TenantConnectionService(IMediator mediator) : ITenantConnectionServ
         ArgumentNullException.ThrowIfNull(requestDto);
 
         return mediator.Send(new TenantConnectionsGetTenantConnectionListQuery { Request = requestDto }, token);
+    }
+
+    public Task Delete(Guid id, CancellationToken token)
+    {
+        return mediator.Send(new TenantConnectionsDeleteTenantConnectionCommand { Id = id }, token);
     }
 
     public async Task<TenantConnectionDto> GetById(Guid id, CancellationToken token)

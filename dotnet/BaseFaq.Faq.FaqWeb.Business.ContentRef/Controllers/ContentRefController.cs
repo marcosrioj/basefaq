@@ -44,4 +44,12 @@ public class ContentRefController(IContentRefService contentRefService) : Contro
         var result = await contentRefService.Update(id, dto, token);
         return Ok(result);
     }
+
+    [HttpDelete("{id:guid}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    public async Task<IActionResult> Delete(Guid id, CancellationToken token)
+    {
+        await contentRefService.Delete(id, token);
+        return NoContent();
+    }
 }
