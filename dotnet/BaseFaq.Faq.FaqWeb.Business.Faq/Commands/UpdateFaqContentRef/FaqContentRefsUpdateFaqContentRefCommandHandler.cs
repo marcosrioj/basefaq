@@ -1,5 +1,5 @@
 using BaseFaq.Common.Infrastructure.ApiErrorHandling.Exception;
-using BaseFaq.Faq.FaqWeb.Persistence.FaqDb;
+using BaseFaq.Faq.Common.Persistence.FaqDb;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using System.Net;

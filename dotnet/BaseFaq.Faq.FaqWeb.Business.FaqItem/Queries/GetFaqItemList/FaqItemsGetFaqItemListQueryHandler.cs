@@ -1,4 +1,4 @@
-using BaseFaq.Faq.FaqWeb.Persistence.FaqDb;
+using BaseFaq.Faq.Common.Persistence.FaqDb;
 using BaseFaq.Models.Common.Dtos;
 using BaseFaq.Models.Faq.Dtos.FaqItem;
 using MediatR;
@@ -45,15 +45,15 @@ public class FaqItemsGetFaqItemListQueryHandler(FaqDbContext dbContext)
         return new PagedResultDto<FaqItemDto>(totalCount, items);
     }
 
-    private static IQueryable<Persistence.FaqDb.Entities.FaqItem> ApplySorting(
-        IQueryable<Persistence.FaqDb.Entities.FaqItem> query, string? sorting)
+    private static IQueryable<Common.Persistence.FaqDb.Entities.FaqItem> ApplySorting(
+        IQueryable<Common.Persistence.FaqDb.Entities.FaqItem> query, string? sorting)
     {
         if (string.IsNullOrWhiteSpace(sorting))
         {
             return query.OrderByDescending(item => item.UpdatedDate);
         }
 
-        IOrderedQueryable<Persistence.FaqDb.Entities.FaqItem>? orderedQuery = null;
+        IOrderedQueryable<Common.Persistence.FaqDb.Entities.FaqItem>? orderedQuery = null;
         var fields = sorting.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
 
         foreach (var field in fields)
@@ -73,8 +73,8 @@ public class FaqItemsGetFaqItemListQueryHandler(FaqDbContext dbContext)
         return orderedQuery ?? query.OrderByDescending(item => item.UpdatedDate);
     }
 
-    private static IOrderedQueryable<Persistence.FaqDb.Entities.FaqItem> ApplyOrder(
-        IQueryable<Persistence.FaqDb.Entities.FaqItem> query,
+    private static IOrderedQueryable<Common.Persistence.FaqDb.Entities.FaqItem> ApplyOrder(
+        IQueryable<Common.Persistence.FaqDb.Entities.FaqItem> query,
         string fieldName,
         bool desc,
         bool isFirst)
@@ -84,108 +84,116 @@ public class FaqItemsGetFaqItemListQueryHandler(FaqDbContext dbContext)
             "question" => isFirst
                 ? (desc ? query.OrderByDescending(item => item.Question) : query.OrderBy(item => item.Question))
                 : (desc
-                    ? ((IOrderedQueryable<Persistence.FaqDb.Entities.FaqItem>)query)
+                    ? ((IOrderedQueryable<Common.Persistence.FaqDb.Entities.FaqItem>)query)
                     .ThenByDescending(item => item.Question)
-                    : ((IOrderedQueryable<Persistence.FaqDb.Entities.FaqItem>)query).ThenBy(item => item.Question)),
+                    : ((IOrderedQueryable<Common.Persistence.FaqDb.Entities.FaqItem>)query)
+                    .ThenBy(item => item.Question)),
             "answer" => isFirst
                 ? (desc ? query.OrderByDescending(item => item.Answer) : query.OrderBy(item => item.Answer))
                 : (desc
-                    ? ((IOrderedQueryable<Persistence.FaqDb.Entities.FaqItem>)query)
+                    ? ((IOrderedQueryable<Common.Persistence.FaqDb.Entities.FaqItem>)query)
                     .ThenByDescending(item => item.Answer)
-                    : ((IOrderedQueryable<Persistence.FaqDb.Entities.FaqItem>)query).ThenBy(item => item.Answer)),
+                    : ((IOrderedQueryable<Common.Persistence.FaqDb.Entities.FaqItem>)query)
+                    .ThenBy(item => item.Answer)),
             "shortanswer" => isFirst
                 ? (desc
                     ? query.OrderByDescending(item => item.ShortAnswer)
                     : query.OrderBy(item => item.ShortAnswer))
                 : (desc
-                    ? ((IOrderedQueryable<Persistence.FaqDb.Entities.FaqItem>)query)
+                    ? ((IOrderedQueryable<Common.Persistence.FaqDb.Entities.FaqItem>)query)
                     .ThenByDescending(item => item.ShortAnswer)
-                    : ((IOrderedQueryable<Persistence.FaqDb.Entities.FaqItem>)query).ThenBy(item => item.ShortAnswer)),
+                    : ((IOrderedQueryable<Common.Persistence.FaqDb.Entities.FaqItem>)query).ThenBy(item =>
+                        item.ShortAnswer)),
             "additionalinfo" => isFirst
                 ? (desc
                     ? query.OrderByDescending(item => item.AdditionalInfo)
                     : query.OrderBy(item => item.AdditionalInfo))
                 : (desc
-                    ? ((IOrderedQueryable<Persistence.FaqDb.Entities.FaqItem>)query)
+                    ? ((IOrderedQueryable<Common.Persistence.FaqDb.Entities.FaqItem>)query)
                     .ThenByDescending(item => item.AdditionalInfo)
-                    : ((IOrderedQueryable<Persistence.FaqDb.Entities.FaqItem>)query).ThenBy(item =>
+                    : ((IOrderedQueryable<Common.Persistence.FaqDb.Entities.FaqItem>)query).ThenBy(item =>
                         item.AdditionalInfo)),
             "ctatitle" => isFirst
                 ? (desc ? query.OrderByDescending(item => item.CtaTitle) : query.OrderBy(item => item.CtaTitle))
                 : (desc
-                    ? ((IOrderedQueryable<Persistence.FaqDb.Entities.FaqItem>)query)
+                    ? ((IOrderedQueryable<Common.Persistence.FaqDb.Entities.FaqItem>)query)
                     .ThenByDescending(item => item.CtaTitle)
-                    : ((IOrderedQueryable<Persistence.FaqDb.Entities.FaqItem>)query).ThenBy(item => item.CtaTitle)),
+                    : ((IOrderedQueryable<Common.Persistence.FaqDb.Entities.FaqItem>)query)
+                    .ThenBy(item => item.CtaTitle)),
             "ctaurl" => isFirst
                 ? (desc ? query.OrderByDescending(item => item.CtaUrl) : query.OrderBy(item => item.CtaUrl))
                 : (desc
-                    ? ((IOrderedQueryable<Persistence.FaqDb.Entities.FaqItem>)query)
+                    ? ((IOrderedQueryable<Common.Persistence.FaqDb.Entities.FaqItem>)query)
                     .ThenByDescending(item => item.CtaUrl)
-                    : ((IOrderedQueryable<Persistence.FaqDb.Entities.FaqItem>)query).ThenBy(item => item.CtaUrl)),
+                    : ((IOrderedQueryable<Common.Persistence.FaqDb.Entities.FaqItem>)query)
+                    .ThenBy(item => item.CtaUrl)),
             "sort" => isFirst
                 ? (desc ? query.OrderByDescending(item => item.Sort) : query.OrderBy(item => item.Sort))
                 : (desc
-                    ? ((IOrderedQueryable<Persistence.FaqDb.Entities.FaqItem>)query)
+                    ? ((IOrderedQueryable<Common.Persistence.FaqDb.Entities.FaqItem>)query)
                     .ThenByDescending(item => item.Sort)
-                    : ((IOrderedQueryable<Persistence.FaqDb.Entities.FaqItem>)query).ThenBy(item => item.Sort)),
+                    : ((IOrderedQueryable<Common.Persistence.FaqDb.Entities.FaqItem>)query).ThenBy(item => item.Sort)),
             "votescore" => isFirst
                 ? (desc ? query.OrderByDescending(item => item.VoteScore) : query.OrderBy(item => item.VoteScore))
                 : (desc
-                    ? ((IOrderedQueryable<Persistence.FaqDb.Entities.FaqItem>)query)
+                    ? ((IOrderedQueryable<Common.Persistence.FaqDb.Entities.FaqItem>)query)
                     .ThenByDescending(item => item.VoteScore)
-                    : ((IOrderedQueryable<Persistence.FaqDb.Entities.FaqItem>)query).ThenBy(item => item.VoteScore)),
+                    : ((IOrderedQueryable<Common.Persistence.FaqDb.Entities.FaqItem>)query).ThenBy(item =>
+                        item.VoteScore)),
             "aiconfidencescore" => isFirst
                 ? (desc
                     ? query.OrderByDescending(item => item.AiConfidenceScore)
                     : query.OrderBy(item => item.AiConfidenceScore))
                 : (desc
-                    ? ((IOrderedQueryable<Persistence.FaqDb.Entities.FaqItem>)query)
+                    ? ((IOrderedQueryable<Common.Persistence.FaqDb.Entities.FaqItem>)query)
                     .ThenByDescending(item => item.AiConfidenceScore)
-                    : ((IOrderedQueryable<Persistence.FaqDb.Entities.FaqItem>)query)
+                    : ((IOrderedQueryable<Common.Persistence.FaqDb.Entities.FaqItem>)query)
                     .ThenBy(item => item.AiConfidenceScore)),
             "isactive" => isFirst
                 ? (desc ? query.OrderByDescending(item => item.IsActive) : query.OrderBy(item => item.IsActive))
                 : (desc
-                    ? ((IOrderedQueryable<Persistence.FaqDb.Entities.FaqItem>)query)
+                    ? ((IOrderedQueryable<Common.Persistence.FaqDb.Entities.FaqItem>)query)
                     .ThenByDescending(item => item.IsActive)
-                    : ((IOrderedQueryable<Persistence.FaqDb.Entities.FaqItem>)query).ThenBy(item => item.IsActive)),
+                    : ((IOrderedQueryable<Common.Persistence.FaqDb.Entities.FaqItem>)query)
+                    .ThenBy(item => item.IsActive)),
             "faqid" => isFirst
                 ? (desc ? query.OrderByDescending(item => item.FaqId) : query.OrderBy(item => item.FaqId))
                 : (desc
-                    ? ((IOrderedQueryable<Persistence.FaqDb.Entities.FaqItem>)query)
+                    ? ((IOrderedQueryable<Common.Persistence.FaqDb.Entities.FaqItem>)query)
                     .ThenByDescending(item => item.FaqId)
-                    : ((IOrderedQueryable<Persistence.FaqDb.Entities.FaqItem>)query).ThenBy(item => item.FaqId)),
+                    : ((IOrderedQueryable<Common.Persistence.FaqDb.Entities.FaqItem>)query).ThenBy(item => item.FaqId)),
             "contentrefid" => isFirst
                 ? (desc
                     ? query.OrderByDescending(item => item.ContentRefId)
                     : query.OrderBy(item => item.ContentRefId))
                 : (desc
-                    ? ((IOrderedQueryable<Persistence.FaqDb.Entities.FaqItem>)query)
+                    ? ((IOrderedQueryable<Common.Persistence.FaqDb.Entities.FaqItem>)query)
                     .ThenByDescending(item => item.ContentRefId)
-                    : ((IOrderedQueryable<Persistence.FaqDb.Entities.FaqItem>)query).ThenBy(item => item.ContentRefId)),
+                    : ((IOrderedQueryable<Common.Persistence.FaqDb.Entities.FaqItem>)query).ThenBy(item =>
+                        item.ContentRefId)),
             "createddate" => isFirst
                 ? (desc ? query.OrderByDescending(item => item.CreatedDate) : query.OrderBy(item => item.CreatedDate))
                 : (desc
-                    ? ((IOrderedQueryable<Persistence.FaqDb.Entities.FaqItem>)query)
+                    ? ((IOrderedQueryable<Common.Persistence.FaqDb.Entities.FaqItem>)query)
                     .ThenByDescending(item => item.CreatedDate)
-                    : ((IOrderedQueryable<Persistence.FaqDb.Entities.FaqItem>)query)
+                    : ((IOrderedQueryable<Common.Persistence.FaqDb.Entities.FaqItem>)query)
                     .ThenBy(item => item.CreatedDate)),
             "updateddate" => isFirst
                 ? (desc ? query.OrderByDescending(item => item.UpdatedDate) : query.OrderBy(item => item.UpdatedDate))
                 : (desc
-                    ? ((IOrderedQueryable<Persistence.FaqDb.Entities.FaqItem>)query)
+                    ? ((IOrderedQueryable<Common.Persistence.FaqDb.Entities.FaqItem>)query)
                     .ThenByDescending(item => item.UpdatedDate)
-                    : ((IOrderedQueryable<Persistence.FaqDb.Entities.FaqItem>)query)
+                    : ((IOrderedQueryable<Common.Persistence.FaqDb.Entities.FaqItem>)query)
                     .ThenBy(item => item.UpdatedDate)),
             "id" => isFirst
                 ? (desc ? query.OrderByDescending(item => item.Id) : query.OrderBy(item => item.Id))
                 : (desc
-                    ? ((IOrderedQueryable<Persistence.FaqDb.Entities.FaqItem>)query)
+                    ? ((IOrderedQueryable<Common.Persistence.FaqDb.Entities.FaqItem>)query)
                     .ThenByDescending(item => item.Id)
-                    : ((IOrderedQueryable<Persistence.FaqDb.Entities.FaqItem>)query).ThenBy(item => item.Id)),
+                    : ((IOrderedQueryable<Common.Persistence.FaqDb.Entities.FaqItem>)query).ThenBy(item => item.Id)),
             _ => isFirst
                 ? query.OrderByDescending(item => item.UpdatedDate)
-                : ((IOrderedQueryable<Persistence.FaqDb.Entities.FaqItem>)query).ThenByDescending(item =>
+                : ((IOrderedQueryable<Common.Persistence.FaqDb.Entities.FaqItem>)query).ThenByDescending(item =>
                     item.UpdatedDate)
         };
     }

@@ -434,7 +434,7 @@ public class VoteCommandQueryTests
             context.SessionService.TenantId,
             faq.Id);
 
-        var voteA = new BaseFaq.Faq.FaqWeb.Persistence.FaqDb.Entities.Vote
+        var voteA = new Common.Persistence.FaqDb.Entities.Vote
         {
             Like = true,
             UserPrint = "b-user",
@@ -444,7 +444,7 @@ public class VoteCommandQueryTests
             TenantId = context.SessionService.TenantId,
             FaqItemId = faqItem.Id
         };
-        var voteB = new BaseFaq.Faq.FaqWeb.Persistence.FaqDb.Entities.Vote
+        var voteB = new Common.Persistence.FaqDb.Entities.Vote
         {
             Like = true,
             UserPrint = "a-user",
@@ -454,7 +454,7 @@ public class VoteCommandQueryTests
             TenantId = context.SessionService.TenantId,
             FaqItemId = faqItem.Id
         };
-        var voteC = new BaseFaq.Faq.FaqWeb.Persistence.FaqDb.Entities.Vote
+        var voteC = new Common.Persistence.FaqDb.Entities.Vote
         {
             Like = false,
             UserPrint = "z-user",

@@ -1,6 +1,6 @@
 using BaseFaq.Common.Infrastructure.ApiErrorHandling.Exception;
 using BaseFaq.Common.Infrastructure.Core.Abstractions;
-using BaseFaq.Faq.FaqWeb.Persistence.FaqDb;
+using BaseFaq.Faq.Common.Persistence.FaqDb;
 using BaseFaq.Models.Common.Enums;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -38,7 +38,7 @@ public class FaqContentRefsCreateFaqContentRefCommandHandler(
                 errorCode: (int)HttpStatusCode.NotFound);
         }
 
-        var faqContentRef = new Persistence.FaqDb.Entities.FaqContentRef
+        var faqContentRef = new Common.Persistence.FaqDb.Entities.FaqContentRef
         {
             FaqId = request.FaqId,
             ContentRefId = request.ContentRefId,

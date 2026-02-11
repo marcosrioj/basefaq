@@ -1,6 +1,6 @@
 using BaseFaq.Common.EntityFramework.Migrations.Services;
 using BaseFaq.Common.EntityFramework.Tenant;
-using BaseFaq.Faq.FaqWeb.Persistence.FaqDb;
+using BaseFaq.Faq.Common.Persistence.FaqDb;
 using BaseFaq.Models.Common.Enums;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;

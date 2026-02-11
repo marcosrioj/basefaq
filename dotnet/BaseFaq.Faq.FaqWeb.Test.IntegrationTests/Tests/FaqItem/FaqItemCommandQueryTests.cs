@@ -197,7 +197,7 @@ public class FaqItemCommandQueryTests
         using var context = TestContext.Create();
         var faq = await TestDataFactory.SeedFaqAsync(context.DbContext, context.SessionService.TenantId);
 
-        var first = new BaseFaq.Faq.FaqWeb.Persistence.FaqDb.Entities.FaqItem
+        var first = new Common.Persistence.FaqDb.Entities.FaqItem
         {
             Question = "B question",
             ShortAnswer = "B short",
@@ -212,7 +212,7 @@ public class FaqItemCommandQueryTests
             FaqId = faq.Id,
             TenantId = context.SessionService.TenantId
         };
-        var second = new BaseFaq.Faq.FaqWeb.Persistence.FaqDb.Entities.FaqItem
+        var second = new Common.Persistence.FaqDb.Entities.FaqItem
         {
             Question = "A question",
             ShortAnswer = "A short",
@@ -255,7 +255,7 @@ public class FaqItemCommandQueryTests
         using var context = TestContext.Create();
         var faq = await TestDataFactory.SeedFaqAsync(context.DbContext, context.SessionService.TenantId);
 
-        var first = new BaseFaq.Faq.FaqWeb.Persistence.FaqDb.Entities.FaqItem
+        var first = new Common.Persistence.FaqDb.Entities.FaqItem
         {
             Question = "Zulu question",
             ShortAnswer = "Bravo short",
@@ -270,7 +270,7 @@ public class FaqItemCommandQueryTests
             FaqId = faq.Id,
             TenantId = context.SessionService.TenantId
         };
-        var second = new BaseFaq.Faq.FaqWeb.Persistence.FaqDb.Entities.FaqItem
+        var second = new Common.Persistence.FaqDb.Entities.FaqItem
         {
             Question = "Alpha question",
             ShortAnswer = "Alpha short",
@@ -314,7 +314,7 @@ public class FaqItemCommandQueryTests
         using var context = TestContext.Create();
         var faq = await TestDataFactory.SeedFaqAsync(context.DbContext, context.SessionService.TenantId);
 
-        var first = new BaseFaq.Faq.FaqWeb.Persistence.FaqDb.Entities.FaqItem
+        var first = new Common.Persistence.FaqDb.Entities.FaqItem
         {
             Question = "Bravo",
             ShortAnswer = "Short",
@@ -329,7 +329,7 @@ public class FaqItemCommandQueryTests
             FaqId = faq.Id,
             TenantId = context.SessionService.TenantId
         };
-        var second = new BaseFaq.Faq.FaqWeb.Persistence.FaqDb.Entities.FaqItem
+        var second = new Common.Persistence.FaqDb.Entities.FaqItem
         {
             Question = "Alpha",
             ShortAnswer = "Short",
@@ -344,7 +344,7 @@ public class FaqItemCommandQueryTests
             FaqId = faq.Id,
             TenantId = context.SessionService.TenantId
         };
-        var third = new BaseFaq.Faq.FaqWeb.Persistence.FaqDb.Entities.FaqItem
+        var third = new Common.Persistence.FaqDb.Entities.FaqItem
         {
             Question = "Zulu",
             ShortAnswer = "Short",

@@ -1,4 +1,4 @@
-using BaseFaq.Faq.FaqWeb.Persistence.FaqDb;
+using BaseFaq.Faq.Common.Persistence.FaqDb;
 using BaseFaq.Models.Common.Dtos;
 using BaseFaq.Models.Faq.Dtos.FaqTag;
 using MediatR;
@@ -36,8 +36,8 @@ public class FaqTagsGetFaqTagListQueryHandler(FaqDbContext dbContext)
         return new PagedResultDto<FaqTagDto>(totalCount, items);
     }
 
-    private static IQueryable<Persistence.FaqDb.Entities.FaqTag> ApplySorting(
-        IQueryable<Persistence.FaqDb.Entities.FaqTag> query,
+    private static IQueryable<Common.Persistence.FaqDb.Entities.FaqTag> ApplySorting(
+        IQueryable<Common.Persistence.FaqDb.Entities.FaqTag> query,
         string? sorting)
     {
         if (string.IsNullOrWhiteSpace(sorting))
@@ -45,7 +45,7 @@ public class FaqTagsGetFaqTagListQueryHandler(FaqDbContext dbContext)
             return query.OrderByDescending(faqTag => faqTag.UpdatedDate);
         }
 
-        IOrderedQueryable<Persistence.FaqDb.Entities.FaqTag>? orderedQuery = null;
+        IOrderedQueryable<Common.Persistence.FaqDb.Entities.FaqTag>? orderedQuery = null;
         var fields = sorting.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
 
         foreach (var field in fields)
@@ -65,8 +65,8 @@ public class FaqTagsGetFaqTagListQueryHandler(FaqDbContext dbContext)
         return orderedQuery ?? query.OrderByDescending(faqTag => faqTag.UpdatedDate);
     }
 
-    private static IOrderedQueryable<Persistence.FaqDb.Entities.FaqTag> ApplyOrder(
-        IQueryable<Persistence.FaqDb.Entities.FaqTag> query,
+    private static IOrderedQueryable<Common.Persistence.FaqDb.Entities.FaqTag> ApplyOrder(
+        IQueryable<Common.Persistence.FaqDb.Entities.FaqTag> query,
         string fieldName,
         bool desc,
         bool isFirst)
@@ -76,42 +76,44 @@ public class FaqTagsGetFaqTagListQueryHandler(FaqDbContext dbContext)
             "faqid" => isFirst
                 ? (desc ? query.OrderByDescending(faqTag => faqTag.FaqId) : query.OrderBy(faqTag => faqTag.FaqId))
                 : (desc
-                    ? ((IOrderedQueryable<Persistence.FaqDb.Entities.FaqTag>)query)
+                    ? ((IOrderedQueryable<Common.Persistence.FaqDb.Entities.FaqTag>)query)
                     .ThenByDescending(faqTag => faqTag.FaqId)
-                    : ((IOrderedQueryable<Persistence.FaqDb.Entities.FaqTag>)query).ThenBy(faqTag => faqTag.FaqId)),
+                    : ((IOrderedQueryable<Common.Persistence.FaqDb.Entities.FaqTag>)query)
+                    .ThenBy(faqTag => faqTag.FaqId)),
             "tagid" => isFirst
                 ? (desc ? query.OrderByDescending(faqTag => faqTag.TagId) : query.OrderBy(faqTag => faqTag.TagId))
                 : (desc
-                    ? ((IOrderedQueryable<Persistence.FaqDb.Entities.FaqTag>)query)
+                    ? ((IOrderedQueryable<Common.Persistence.FaqDb.Entities.FaqTag>)query)
                     .ThenByDescending(faqTag => faqTag.TagId)
-                    : ((IOrderedQueryable<Persistence.FaqDb.Entities.FaqTag>)query).ThenBy(faqTag => faqTag.TagId)),
+                    : ((IOrderedQueryable<Common.Persistence.FaqDb.Entities.FaqTag>)query)
+                    .ThenBy(faqTag => faqTag.TagId)),
             "createddate" => isFirst
                 ? (desc
                     ? query.OrderByDescending(faqTag => faqTag.CreatedDate)
                     : query.OrderBy(faqTag => faqTag.CreatedDate))
                 : (desc
-                    ? ((IOrderedQueryable<Persistence.FaqDb.Entities.FaqTag>)query)
+                    ? ((IOrderedQueryable<Common.Persistence.FaqDb.Entities.FaqTag>)query)
                     .ThenByDescending(faqTag => faqTag.CreatedDate)
-                    : ((IOrderedQueryable<Persistence.FaqDb.Entities.FaqTag>)query).ThenBy(faqTag =>
+                    : ((IOrderedQueryable<Common.Persistence.FaqDb.Entities.FaqTag>)query).ThenBy(faqTag =>
                         faqTag.CreatedDate)),
             "updateddate" => isFirst
                 ? (desc
                     ? query.OrderByDescending(faqTag => faqTag.UpdatedDate)
                     : query.OrderBy(faqTag => faqTag.UpdatedDate))
                 : (desc
-                    ? ((IOrderedQueryable<Persistence.FaqDb.Entities.FaqTag>)query)
+                    ? ((IOrderedQueryable<Common.Persistence.FaqDb.Entities.FaqTag>)query)
                     .ThenByDescending(faqTag => faqTag.UpdatedDate)
-                    : ((IOrderedQueryable<Persistence.FaqDb.Entities.FaqTag>)query).ThenBy(faqTag =>
+                    : ((IOrderedQueryable<Common.Persistence.FaqDb.Entities.FaqTag>)query).ThenBy(faqTag =>
                         faqTag.UpdatedDate)),
             "id" => isFirst
                 ? (desc ? query.OrderByDescending(faqTag => faqTag.Id) : query.OrderBy(faqTag => faqTag.Id))
                 : (desc
-                    ? ((IOrderedQueryable<Persistence.FaqDb.Entities.FaqTag>)query)
+                    ? ((IOrderedQueryable<Common.Persistence.FaqDb.Entities.FaqTag>)query)
                     .ThenByDescending(faqTag => faqTag.Id)
-                    : ((IOrderedQueryable<Persistence.FaqDb.Entities.FaqTag>)query).ThenBy(faqTag => faqTag.Id)),
+                    : ((IOrderedQueryable<Common.Persistence.FaqDb.Entities.FaqTag>)query).ThenBy(faqTag => faqTag.Id)),
             _ => isFirst
                 ? query.OrderByDescending(faqTag => faqTag.UpdatedDate)
-                : ((IOrderedQueryable<Persistence.FaqDb.Entities.FaqTag>)query)
+                : ((IOrderedQueryable<Common.Persistence.FaqDb.Entities.FaqTag>)query)
                 .ThenByDescending(faqTag => faqTag.UpdatedDate)
         };
     }

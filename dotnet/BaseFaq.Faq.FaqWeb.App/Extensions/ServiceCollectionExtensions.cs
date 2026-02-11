@@ -3,7 +3,7 @@ using BaseFaq.Faq.FaqWeb.Business.Faq.Extensions;
 using BaseFaq.Faq.FaqWeb.Business.FaqItem.Extensions;
 using BaseFaq.Faq.FaqWeb.Business.Tag.Extensions;
 using BaseFaq.Faq.FaqWeb.Business.Vote.Extensions;
-using BaseFaq.Faq.FaqWeb.Persistence.FaqDb.Extensions;
+using BaseFaq.Faq.Common.Persistence.FaqDb.Extensions;
 
 namespace BaseFaq.Faq.FaqWeb.App.Extensions;
 

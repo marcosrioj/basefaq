@@ -1,4 +1,4 @@
-using BaseFaq.Faq.FaqWeb.Persistence.FaqDb;
+using BaseFaq.Faq.Common.Persistence.FaqDb;
 using BaseFaq.Models.Common.Dtos;
 using BaseFaq.Models.Faq.Dtos.Vote;
 using MediatR;
@@ -40,15 +40,15 @@ public class VotesGetVoteListQueryHandler(FaqDbContext dbContext)
         return new PagedResultDto<VoteDto>(totalCount, items);
     }
 
-    private static IQueryable<Persistence.FaqDb.Entities.Vote> ApplySorting(
-        IQueryable<Persistence.FaqDb.Entities.Vote> query, string? sorting)
+    private static IQueryable<Common.Persistence.FaqDb.Entities.Vote> ApplySorting(
+        IQueryable<Common.Persistence.FaqDb.Entities.Vote> query, string? sorting)
     {
         if (string.IsNullOrWhiteSpace(sorting))
         {
             return query.OrderByDescending(vote => vote.UpdatedDate);
         }
 
-        IOrderedQueryable<Persistence.FaqDb.Entities.Vote>? orderedQuery = null;
+        IOrderedQueryable<Common.Persistence.FaqDb.Entities.Vote>? orderedQuery = null;
         var fields = sorting.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
 
         foreach (var field in fields)
@@ -68,8 +68,8 @@ public class VotesGetVoteListQueryHandler(FaqDbContext dbContext)
         return orderedQuery ?? query.OrderByDescending(vote => vote.UpdatedDate);
     }
 
-    private static IOrderedQueryable<Persistence.FaqDb.Entities.Vote> ApplyOrder(
-        IQueryable<Persistence.FaqDb.Entities.Vote> query,
+    private static IOrderedQueryable<Common.Persistence.FaqDb.Entities.Vote> ApplyOrder(
+        IQueryable<Common.Persistence.FaqDb.Entities.Vote> query,
         string fieldName,
         bool desc,
         bool isFirst)
@@ -79,57 +79,66 @@ public class VotesGetVoteListQueryHandler(FaqDbContext dbContext)
             "like" => isFirst
                 ? (desc ? query.OrderByDescending(vote => vote.Like) : query.OrderBy(vote => vote.Like))
                 : (desc
-                    ? ((IOrderedQueryable<Persistence.FaqDb.Entities.Vote>)query).ThenByDescending(vote => vote.Like)
-                    : ((IOrderedQueryable<Persistence.FaqDb.Entities.Vote>)query).ThenBy(vote => vote.Like)),
+                    ? ((IOrderedQueryable<Common.Persistence.FaqDb.Entities.Vote>)query).ThenByDescending(vote =>
+                        vote.Like)
+                    : ((IOrderedQueryable<Common.Persistence.FaqDb.Entities.Vote>)query).ThenBy(vote => vote.Like)),
             "userprint" => isFirst
                 ? (desc ? query.OrderByDescending(vote => vote.UserPrint) : query.OrderBy(vote => vote.UserPrint))
                 : (desc
-                    ? ((IOrderedQueryable<Persistence.FaqDb.Entities.Vote>)query).ThenByDescending(vote =>
+                    ? ((IOrderedQueryable<Common.Persistence.FaqDb.Entities.Vote>)query).ThenByDescending(vote =>
                         vote.UserPrint)
-                    : ((IOrderedQueryable<Persistence.FaqDb.Entities.Vote>)query).ThenBy(vote => vote.UserPrint)),
+                    : ((IOrderedQueryable<Common.Persistence.FaqDb.Entities.Vote>)query)
+                    .ThenBy(vote => vote.UserPrint)),
             "ip" => isFirst
                 ? (desc ? query.OrderByDescending(vote => vote.Ip) : query.OrderBy(vote => vote.Ip))
                 : (desc
-                    ? ((IOrderedQueryable<Persistence.FaqDb.Entities.Vote>)query).ThenByDescending(vote => vote.Ip)
-                    : ((IOrderedQueryable<Persistence.FaqDb.Entities.Vote>)query).ThenBy(vote => vote.Ip)),
+                    ? ((IOrderedQueryable<Common.Persistence.FaqDb.Entities.Vote>)query).ThenByDescending(vote =>
+                        vote.Ip)
+                    : ((IOrderedQueryable<Common.Persistence.FaqDb.Entities.Vote>)query).ThenBy(vote => vote.Ip)),
             "useragent" => isFirst
                 ? (desc ? query.OrderByDescending(vote => vote.UserAgent) : query.OrderBy(vote => vote.UserAgent))
                 : (desc
-                    ? ((IOrderedQueryable<Persistence.FaqDb.Entities.Vote>)query).ThenByDescending(vote =>
+                    ? ((IOrderedQueryable<Common.Persistence.FaqDb.Entities.Vote>)query).ThenByDescending(vote =>
                         vote.UserAgent)
-                    : ((IOrderedQueryable<Persistence.FaqDb.Entities.Vote>)query).ThenBy(vote => vote.UserAgent)),
+                    : ((IOrderedQueryable<Common.Persistence.FaqDb.Entities.Vote>)query)
+                    .ThenBy(vote => vote.UserAgent)),
             "unlikereason" => isFirst
                 ? (desc ? query.OrderByDescending(vote => vote.UnLikeReason) : query.OrderBy(vote => vote.UnLikeReason))
                 : (desc
-                    ? ((IOrderedQueryable<Persistence.FaqDb.Entities.Vote>)query).ThenByDescending(vote =>
+                    ? ((IOrderedQueryable<Common.Persistence.FaqDb.Entities.Vote>)query).ThenByDescending(vote =>
                         vote.UnLikeReason)
-                    : ((IOrderedQueryable<Persistence.FaqDb.Entities.Vote>)query).ThenBy(vote => vote.UnLikeReason)),
+                    : ((IOrderedQueryable<Common.Persistence.FaqDb.Entities.Vote>)query).ThenBy(vote =>
+                        vote.UnLikeReason)),
             "faqitemid" => isFirst
                 ? (desc ? query.OrderByDescending(vote => vote.FaqItemId) : query.OrderBy(vote => vote.FaqItemId))
                 : (desc
-                    ? ((IOrderedQueryable<Persistence.FaqDb.Entities.Vote>)query).ThenByDescending(vote =>
+                    ? ((IOrderedQueryable<Common.Persistence.FaqDb.Entities.Vote>)query).ThenByDescending(vote =>
                         vote.FaqItemId)
-                    : ((IOrderedQueryable<Persistence.FaqDb.Entities.Vote>)query).ThenBy(vote => vote.FaqItemId)),
+                    : ((IOrderedQueryable<Common.Persistence.FaqDb.Entities.Vote>)query)
+                    .ThenBy(vote => vote.FaqItemId)),
             "createddate" => isFirst
                 ? (desc ? query.OrderByDescending(vote => vote.CreatedDate) : query.OrderBy(vote => vote.CreatedDate))
                 : (desc
-                    ? ((IOrderedQueryable<Persistence.FaqDb.Entities.Vote>)query).ThenByDescending(vote =>
+                    ? ((IOrderedQueryable<Common.Persistence.FaqDb.Entities.Vote>)query).ThenByDescending(vote =>
                         vote.CreatedDate)
-                    : ((IOrderedQueryable<Persistence.FaqDb.Entities.Vote>)query).ThenBy(vote => vote.CreatedDate)),
+                    : ((IOrderedQueryable<Common.Persistence.FaqDb.Entities.Vote>)query)
+                    .ThenBy(vote => vote.CreatedDate)),
             "updateddate" => isFirst
                 ? (desc ? query.OrderByDescending(vote => vote.UpdatedDate) : query.OrderBy(vote => vote.UpdatedDate))
                 : (desc
-                    ? ((IOrderedQueryable<Persistence.FaqDb.Entities.Vote>)query).ThenByDescending(vote =>
+                    ? ((IOrderedQueryable<Common.Persistence.FaqDb.Entities.Vote>)query).ThenByDescending(vote =>
                         vote.UpdatedDate)
-                    : ((IOrderedQueryable<Persistence.FaqDb.Entities.Vote>)query).ThenBy(vote => vote.UpdatedDate)),
+                    : ((IOrderedQueryable<Common.Persistence.FaqDb.Entities.Vote>)query)
+                    .ThenBy(vote => vote.UpdatedDate)),
             "id" => isFirst
                 ? (desc ? query.OrderByDescending(vote => vote.Id) : query.OrderBy(vote => vote.Id))
                 : (desc
-                    ? ((IOrderedQueryable<Persistence.FaqDb.Entities.Vote>)query).ThenByDescending(vote => vote.Id)
-                    : ((IOrderedQueryable<Persistence.FaqDb.Entities.Vote>)query).ThenBy(vote => vote.Id)),
+                    ? ((IOrderedQueryable<Common.Persistence.FaqDb.Entities.Vote>)query).ThenByDescending(vote =>
+                        vote.Id)
+                    : ((IOrderedQueryable<Common.Persistence.FaqDb.Entities.Vote>)query).ThenBy(vote => vote.Id)),
             _ => isFirst
                 ? query.OrderByDescending(vote => vote.UpdatedDate)
-                : ((IOrderedQueryable<Persistence.FaqDb.Entities.Vote>)query).ThenByDescending(vote =>
+                : ((IOrderedQueryable<Common.Persistence.FaqDb.Entities.Vote>)query).ThenByDescending(vote =>
                     vote.UpdatedDate)
         };
     }

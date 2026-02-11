@@ -1,4 +1,4 @@
-using BaseFaq.Faq.FaqWeb.Persistence.FaqDb;
+using BaseFaq.Faq.Common.Persistence.FaqDb;
 using BaseFaq.Models.Faq.Dtos.ContentRef;
 using MediatR;
 using Microsoft.EntityFrameworkCore;

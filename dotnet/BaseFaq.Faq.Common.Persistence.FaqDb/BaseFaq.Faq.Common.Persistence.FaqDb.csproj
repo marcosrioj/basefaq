@@ -4,7 +4,7 @@
         <TargetFramework>net10.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
-        <PackageId>BaseFaq.Faq.FaqWeb.Persistence.FaqDb</PackageId>
+        <PackageId>BaseFaq.Faq.Common.Persistence.FaqDb</PackageId>
     </PropertyGroup>
 
     <ItemGroup>

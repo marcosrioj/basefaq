@@ -1,6 +1,6 @@
 using BaseFaq.Common.Infrastructure.Core.Abstractions;
-using BaseFaq.Faq.FaqWeb.Persistence.FaqDb.Entities;
-using BaseFaq.Faq.FaqWeb.Persistence.FaqDb;
+using BaseFaq.Faq.Common.Persistence.FaqDb.Entities;
+using BaseFaq.Faq.Common.Persistence.FaqDb;
 using BaseFaq.Models.Common.Enums;
 using MediatR;
 
@@ -13,7 +13,7 @@ public class FaqItemsCreateFaqItemCommandHandler(FaqDbContext dbContext, ISessio
     {
         var tenantId = sessionService.GetTenantId(AppEnum.Faq);
 
-        var faqItem = new Persistence.FaqDb.Entities.FaqItem
+        var faqItem = new Common.Persistence.FaqDb.Entities.FaqItem
         {
             Question = request.Question,
             ShortAnswer = request.ShortAnswer,

@@ -1,5 +1,5 @@
 using BaseFaq.Common.Infrastructure.Core.Abstractions;
-using BaseFaq.Faq.FaqWeb.Persistence.FaqDb;
+using BaseFaq.Faq.Common.Persistence.FaqDb;
 using BaseFaq.Models.Common.Enums;
 using MediatR;
 
@@ -14,7 +14,7 @@ public class FaqsCreateFaqCommandHandler(FaqDbContext dbContext, ISessionService
 
         var tenantId = sessionService.GetTenantId(AppEnum.Faq);
 
-        var faq = new FaqWeb.Persistence.FaqDb.Entities.Faq
+        var faq = new Common.Persistence.FaqDb.Entities.Faq
         {
             Name = request.Name,
             Language = request.Language,

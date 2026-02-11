@@ -1,13 +1,12 @@
 using BaseFaq.Common.EntityFramework.Core;
-using BaseFaq.Common.EntityFramework.Core.Abstractions;
 using BaseFaq.Common.Infrastructure.Core.Abstractions;
-using BaseFaq.Faq.FaqWeb.Persistence.FaqDb.Entities;
+using BaseFaq.Faq.Common.Persistence.FaqDb.Entities;
 using BaseFaq.Models.Common.Enums;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 
-namespace BaseFaq.Faq.FaqWeb.Persistence.FaqDb;
+namespace BaseFaq.Faq.Common.Persistence.FaqDb;
 
 public class FaqDbContext(
     DbContextOptions<FaqDbContext> options,
@@ -22,7 +21,7 @@ public class FaqDbContext(
         tenantConnectionStringProvider,
         httpContextAccessor)
 {
-    public DbSet<Entities.Faq> Faqs { get; set; }
+    public DbSet<Common.Persistence.FaqDb.Entities.Faq> Faqs { get; set; }
 
     public DbSet<FaqItem> FaqItems { get; set; }
     public DbSet<Tag> Tags { get; set; }

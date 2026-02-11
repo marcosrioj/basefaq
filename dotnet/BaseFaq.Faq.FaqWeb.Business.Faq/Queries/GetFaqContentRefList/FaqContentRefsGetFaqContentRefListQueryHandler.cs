@@ -1,4 +1,4 @@
-using BaseFaq.Faq.FaqWeb.Persistence.FaqDb;
+using BaseFaq.Faq.Common.Persistence.FaqDb;
 using BaseFaq.Models.Common.Dtos;
 using BaseFaq.Models.Faq.Dtos.FaqContentRef;
 using MediatR;
@@ -36,8 +36,8 @@ public class FaqContentRefsGetFaqContentRefListQueryHandler(FaqDbContext dbConte
         return new PagedResultDto<FaqContentRefDto>(totalCount, items);
     }
 
-    private static IQueryable<Persistence.FaqDb.Entities.FaqContentRef> ApplySorting(
-        IQueryable<Persistence.FaqDb.Entities.FaqContentRef> query,
+    private static IQueryable<Common.Persistence.FaqDb.Entities.FaqContentRef> ApplySorting(
+        IQueryable<Common.Persistence.FaqDb.Entities.FaqContentRef> query,
         string? sorting)
     {
         if (string.IsNullOrWhiteSpace(sorting))
@@ -45,7 +45,7 @@ public class FaqContentRefsGetFaqContentRefListQueryHandler(FaqDbContext dbConte
             return query.OrderByDescending(faqContentRef => faqContentRef.UpdatedDate);
         }
 
-        IOrderedQueryable<Persistence.FaqDb.Entities.FaqContentRef>? orderedQuery = null;
+        IOrderedQueryable<Common.Persistence.FaqDb.Entities.FaqContentRef>? orderedQuery = null;
         var fields = sorting.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
 
         foreach (var field in fields)
@@ -65,8 +65,8 @@ public class FaqContentRefsGetFaqContentRefListQueryHandler(FaqDbContext dbConte
         return orderedQuery ?? query.OrderByDescending(faqContentRef => faqContentRef.UpdatedDate);
     }
 
-    private static IOrderedQueryable<Persistence.FaqDb.Entities.FaqContentRef> ApplyOrder(
-        IQueryable<Persistence.FaqDb.Entities.FaqContentRef> query,
+    private static IOrderedQueryable<Common.Persistence.FaqDb.Entities.FaqContentRef> ApplyOrder(
+        IQueryable<Common.Persistence.FaqDb.Entities.FaqContentRef> query,
         string fieldName,
         bool desc,
         bool isFirst)
@@ -78,49 +78,49 @@ public class FaqContentRefsGetFaqContentRefListQueryHandler(FaqDbContext dbConte
                     ? query.OrderByDescending(faqContentRef => faqContentRef.FaqId)
                     : query.OrderBy(faqContentRef => faqContentRef.FaqId))
                 : (desc
-                    ? ((IOrderedQueryable<Persistence.FaqDb.Entities.FaqContentRef>)query)
+                    ? ((IOrderedQueryable<Common.Persistence.FaqDb.Entities.FaqContentRef>)query)
                     .ThenByDescending(faqContentRef => faqContentRef.FaqId)
-                    : ((IOrderedQueryable<Persistence.FaqDb.Entities.FaqContentRef>)query)
+                    : ((IOrderedQueryable<Common.Persistence.FaqDb.Entities.FaqContentRef>)query)
                     .ThenBy(faqContentRef => faqContentRef.FaqId)),
             "contentrefid" => isFirst
                 ? (desc
                     ? query.OrderByDescending(faqContentRef => faqContentRef.ContentRefId)
                     : query.OrderBy(faqContentRef => faqContentRef.ContentRefId))
                 : (desc
-                    ? ((IOrderedQueryable<Persistence.FaqDb.Entities.FaqContentRef>)query)
+                    ? ((IOrderedQueryable<Common.Persistence.FaqDb.Entities.FaqContentRef>)query)
                     .ThenByDescending(faqContentRef => faqContentRef.ContentRefId)
-                    : ((IOrderedQueryable<Persistence.FaqDb.Entities.FaqContentRef>)query)
+                    : ((IOrderedQueryable<Common.Persistence.FaqDb.Entities.FaqContentRef>)query)
                     .ThenBy(faqContentRef => faqContentRef.ContentRefId)),
             "createddate" => isFirst
                 ? (desc
                     ? query.OrderByDescending(faqContentRef => faqContentRef.CreatedDate)
                     : query.OrderBy(faqContentRef => faqContentRef.CreatedDate))
                 : (desc
-                    ? ((IOrderedQueryable<Persistence.FaqDb.Entities.FaqContentRef>)query)
+                    ? ((IOrderedQueryable<Common.Persistence.FaqDb.Entities.FaqContentRef>)query)
                     .ThenByDescending(faqContentRef => faqContentRef.CreatedDate)
-                    : ((IOrderedQueryable<Persistence.FaqDb.Entities.FaqContentRef>)query)
+                    : ((IOrderedQueryable<Common.Persistence.FaqDb.Entities.FaqContentRef>)query)
                     .ThenBy(faqContentRef => faqContentRef.CreatedDate)),
             "updateddate" => isFirst
                 ? (desc
                     ? query.OrderByDescending(faqContentRef => faqContentRef.UpdatedDate)
                     : query.OrderBy(faqContentRef => faqContentRef.UpdatedDate))
                 : (desc
-                    ? ((IOrderedQueryable<Persistence.FaqDb.Entities.FaqContentRef>)query)
+                    ? ((IOrderedQueryable<Common.Persistence.FaqDb.Entities.FaqContentRef>)query)
                     .ThenByDescending(faqContentRef => faqContentRef.UpdatedDate)
-                    : ((IOrderedQueryable<Persistence.FaqDb.Entities.FaqContentRef>)query)
+                    : ((IOrderedQueryable<Common.Persistence.FaqDb.Entities.FaqContentRef>)query)
                     .ThenBy(faqContentRef => faqContentRef.UpdatedDate)),
             "id" => isFirst
                 ? (desc
                     ? query.OrderByDescending(faqContentRef => faqContentRef.Id)
                     : query.OrderBy(faqContentRef => faqContentRef.Id))
                 : (desc
-                    ? ((IOrderedQueryable<Persistence.FaqDb.Entities.FaqContentRef>)query)
+                    ? ((IOrderedQueryable<Common.Persistence.FaqDb.Entities.FaqContentRef>)query)
                     .ThenByDescending(faqContentRef => faqContentRef.Id)
-                    : ((IOrderedQueryable<Persistence.FaqDb.Entities.FaqContentRef>)query)
+                    : ((IOrderedQueryable<Common.Persistence.FaqDb.Entities.FaqContentRef>)query)
                     .ThenBy(faqContentRef => faqContentRef.Id)),
             _ => isFirst
                 ? query.OrderByDescending(faqContentRef => faqContentRef.UpdatedDate)
-                : ((IOrderedQueryable<Persistence.FaqDb.Entities.FaqContentRef>)query)
+                : ((IOrderedQueryable<Common.Persistence.FaqDb.Entities.FaqContentRef>)query)
                 .ThenByDescending(faqContentRef => faqContentRef.UpdatedDate)
         };
     }

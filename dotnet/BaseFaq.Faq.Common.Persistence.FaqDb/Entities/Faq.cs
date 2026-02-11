@@ -2,7 +2,7 @@ using BaseFaq.Common.EntityFramework.Core.Abstractions;
 using BaseFaq.Common.EntityFramework.Core.Entities;
 using BaseFaq.Models.Faq.Enums;
 
-namespace BaseFaq.Faq.FaqWeb.Persistence.FaqDb.Entities;
+namespace BaseFaq.Faq.Common.Persistence.FaqDb.Entities;
 
 public class Faq : BaseEntity, IMustHaveTenant
 {

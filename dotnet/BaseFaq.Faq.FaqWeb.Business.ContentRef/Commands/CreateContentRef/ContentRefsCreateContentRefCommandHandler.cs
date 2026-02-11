@@ -1,6 +1,6 @@
 using BaseFaq.Common.Infrastructure.Core.Abstractions;
-using BaseFaq.Faq.FaqWeb.Persistence.FaqDb;
-using BaseFaq.Faq.FaqWeb.Persistence.FaqDb.Entities;
+using BaseFaq.Faq.Common.Persistence.FaqDb;
+using BaseFaq.Faq.Common.Persistence.FaqDb.Entities;
 using BaseFaq.Models.Common.Enums;
 using MediatR;
 
@@ -13,7 +13,7 @@ public class ContentRefsCreateContentRefCommandHandler(FaqDbContext dbContext, I
     {
         var tenantId = sessionService.GetTenantId(AppEnum.Faq);
 
-        var contentRef = new Persistence.FaqDb.Entities.ContentRef
+        var contentRef = new Common.Persistence.FaqDb.Entities.ContentRef
         {
             Kind = request.Kind,
             Locator = request.Locator,

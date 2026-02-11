@@ -1,7 +1,7 @@
 using BaseFaq.Common.Infrastructure.ApiErrorHandling.Exception;
 using BaseFaq.Common.Infrastructure.Core.Abstractions;
-using BaseFaq.Faq.FaqWeb.Persistence.FaqDb;
-using BaseFaq.Faq.FaqWeb.Persistence.FaqDb.Entities;
+using BaseFaq.Faq.Common.Persistence.FaqDb;
+using BaseFaq.Faq.Common.Persistence.FaqDb.Entities;
 using BaseFaq.Models.Common.Enums;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -34,7 +34,7 @@ public class FaqTagsCreateFaqTagCommandHandler(FaqDbContext dbContext, ISessionS
                 errorCode: (int)HttpStatusCode.NotFound);
         }
 
-        var faqTag = new Persistence.FaqDb.Entities.FaqTag
+        var faqTag = new Common.Persistence.FaqDb.Entities.FaqTag
         {
             FaqId = request.FaqId,
             TagId = request.TagId,

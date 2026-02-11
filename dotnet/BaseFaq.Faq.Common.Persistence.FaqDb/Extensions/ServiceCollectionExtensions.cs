@@ -3,7 +3,7 @@ using BaseFaq.Common.EntityFramework.Tenant.Providers;
 using BaseFaq.Common.Infrastructure.Core.Abstractions;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace BaseFaq.Faq.FaqWeb.Persistence.FaqDb.Extensions;
+namespace BaseFaq.Faq.Common.Persistence.FaqDb.Extensions;
 
 public static class ServiceCollectionExtensions
 {

@@ -248,7 +248,7 @@ public class FaqTagCommandQueryTests
         using var context = TestContext.Create();
         var tenantId = context.SessionService.TenantId;
 
-        var faqA = new BaseFaq.Faq.FaqWeb.Persistence.FaqDb.Entities.Faq
+        var faqA = new Common.Persistence.FaqDb.Entities.Faq
         {
             Id = Guid.Parse("00000000-0000-0000-0000-000000000010"),
             Name = "FAQ A",
@@ -259,7 +259,7 @@ public class FaqTagCommandQueryTests
             CtaTarget = BaseFaq.Models.Faq.Enums.CtaTarget.Self,
             TenantId = tenantId
         };
-        var faqB = new BaseFaq.Faq.FaqWeb.Persistence.FaqDb.Entities.Faq
+        var faqB = new Common.Persistence.FaqDb.Entities.Faq
         {
             Id = Guid.Parse("00000000-0000-0000-0000-000000000020"),
             Name = "FAQ B",
@@ -270,13 +270,13 @@ public class FaqTagCommandQueryTests
             CtaTarget = BaseFaq.Models.Faq.Enums.CtaTarget.Self,
             TenantId = tenantId
         };
-        var tagA = new BaseFaq.Faq.FaqWeb.Persistence.FaqDb.Entities.Tag
+        var tagA = new Common.Persistence.FaqDb.Entities.Tag
         {
             Id = Guid.Parse("00000000-0000-0000-0000-000000000030"),
             Value = "tag-a",
             TenantId = tenantId
         };
-        var tagB = new BaseFaq.Faq.FaqWeb.Persistence.FaqDb.Entities.Tag
+        var tagB = new Common.Persistence.FaqDb.Entities.Tag
         {
             Id = Guid.Parse("00000000-0000-0000-0000-000000000040"),
             Value = "tag-b",
@@ -287,19 +287,19 @@ public class FaqTagCommandQueryTests
         context.DbContext.Tags.AddRange(tagA, tagB);
         await context.DbContext.SaveChangesAsync();
 
-        var faqTag1 = new BaseFaq.Faq.FaqWeb.Persistence.FaqDb.Entities.FaqTag
+        var faqTag1 = new Common.Persistence.FaqDb.Entities.FaqTag
         {
             FaqId = faqA.Id,
             TagId = tagA.Id,
             TenantId = tenantId
         };
-        var faqTag2 = new BaseFaq.Faq.FaqWeb.Persistence.FaqDb.Entities.FaqTag
+        var faqTag2 = new Common.Persistence.FaqDb.Entities.FaqTag
         {
             FaqId = faqA.Id,
             TagId = tagB.Id,
             TenantId = tenantId
         };
-        var faqTag3 = new BaseFaq.Faq.FaqWeb.Persistence.FaqDb.Entities.FaqTag
+        var faqTag3 = new Common.Persistence.FaqDb.Entities.FaqTag
         {
             FaqId = faqB.Id,
             TagId = tagA.Id,

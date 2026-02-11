@@ -1,4 +1,4 @@
-using BaseFaq.Faq.FaqWeb.Persistence.FaqDb.Entities;
+using BaseFaq.Faq.Common.Persistence.FaqDb.Entities;
 using BaseFaq.Faq.FaqWeb.Test.IntegrationTests.Helpers;
 using BaseFaq.Models.Faq.Enums;
 using Microsoft.EntityFrameworkCore;
@@ -13,9 +13,9 @@ public class EntityConstraintsTests
     {
         using var context = TestContext.Create();
 
-        var faq = new Persistence.FaqDb.Entities.Faq
+        var faq = new Common.Persistence.FaqDb.Entities.Faq
         {
-            Name = new string('a', Persistence.FaqDb.Entities.Faq.MaxNameLength + 1),
+            Name = new string('a', Common.Persistence.FaqDb.Entities.Faq.MaxNameLength + 1),
             Language = "en-US",
             Status = FaqStatus.Draft,
             SortStrategy = FaqSortStrategy.Sort,
@@ -34,10 +34,10 @@ public class EntityConstraintsTests
     {
         using var context = TestContext.Create();
 
-        var faq = new Persistence.FaqDb.Entities.Faq
+        var faq = new Common.Persistence.FaqDb.Entities.Faq
         {
             Name = "FAQ",
-            Language = new string('b', Persistence.FaqDb.Entities.Faq.MaxLanguageLength + 1),
+            Language = new string('b', Common.Persistence.FaqDb.Entities.Faq.MaxLanguageLength + 1),
             Status = FaqStatus.Draft,
             SortStrategy = FaqSortStrategy.Sort,
             CtaEnabled = false,
@@ -55,7 +55,7 @@ public class EntityConstraintsTests
     {
         using var context = TestContext.Create();
 
-        var tag = new Persistence.FaqDb.Entities.Tag
+        var tag = new Common.Persistence.FaqDb.Entities.Tag
         {
             Value = null!,
             TenantId = context.SessionService.TenantId
@@ -71,9 +71,9 @@ public class EntityConstraintsTests
     {
         using var context = TestContext.Create();
 
-        var tag = new Persistence.FaqDb.Entities.Tag
+        var tag = new Common.Persistence.FaqDb.Entities.Tag
         {
-            Value = new string('c', Persistence.FaqDb.Entities.Tag.MaxValueLength + 1),
+            Value = new string('c', Common.Persistence.FaqDb.Entities.Tag.MaxValueLength + 1),
             TenantId = context.SessionService.TenantId
         };
 
@@ -87,7 +87,7 @@ public class EntityConstraintsTests
     {
         using var context = TestContext.Create();
 
-        var contentRef = new Persistence.FaqDb.Entities.ContentRef
+        var contentRef = new Common.Persistence.FaqDb.Entities.ContentRef
         {
             Kind = ContentRefKind.Web,
             Locator = null!,
@@ -106,10 +106,10 @@ public class EntityConstraintsTests
     {
         using var context = TestContext.Create();
 
-        var contentRef = new Persistence.FaqDb.Entities.ContentRef
+        var contentRef = new Common.Persistence.FaqDb.Entities.ContentRef
         {
             Kind = ContentRefKind.Web,
-            Locator = new string('d', Persistence.FaqDb.Entities.ContentRef.MaxLocatorLength + 1),
+            Locator = new string('d', Common.Persistence.FaqDb.Entities.ContentRef.MaxLocatorLength + 1),
             Label = "Docs",
             Scope = "Scope",
             TenantId = context.SessionService.TenantId
@@ -126,9 +126,9 @@ public class EntityConstraintsTests
         using var context = TestContext.Create();
         var faq = await TestDataFactory.SeedFaqAsync(context.DbContext, context.SessionService.TenantId);
 
-        var faqItem = new Persistence.FaqDb.Entities.FaqItem
+        var faqItem = new Common.Persistence.FaqDb.Entities.FaqItem
         {
-            Question = new string('e', Persistence.FaqDb.Entities.FaqItem.MaxQuestionLength + 1),
+            Question = new string('e', Common.Persistence.FaqDb.Entities.FaqItem.MaxQuestionLength + 1),
             ShortAnswer = "Short",
             Answer = "Answer",
             AdditionalInfo = "Info",
@@ -153,7 +153,7 @@ public class EntityConstraintsTests
         using var context = TestContext.Create();
         var faq = await TestDataFactory.SeedFaqAsync(context.DbContext, context.SessionService.TenantId);
 
-        var faqItem = new Persistence.FaqDb.Entities.FaqItem
+        var faqItem = new Common.Persistence.FaqDb.Entities.FaqItem
         {
             Question = "Question",
             ShortAnswer = null!,
@@ -184,12 +184,12 @@ public class EntityConstraintsTests
             context.SessionService.TenantId,
             faq.Id);
 
-        var vote = new Persistence.FaqDb.Entities.Vote
+        var vote = new Common.Persistence.FaqDb.Entities.Vote
         {
             Like = true,
             UserPrint = "user",
             Ip = "127.0.0.1",
-            UserAgent = new string('f', Persistence.FaqDb.Entities.Vote.MaxUserAgentLength + 1),
+            UserAgent = new string('f', Common.Persistence.FaqDb.Entities.Vote.MaxUserAgentLength + 1),
             UnLikeReason = null,
             TenantId = context.SessionService.TenantId,
             FaqItemId = faqItem.Id

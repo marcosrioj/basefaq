@@ -14,7 +14,7 @@
 
     <ItemGroup>
         <ProjectReference Include="..\BaseFaq.Common.Infrastructure.MediatR\BaseFaq.Common.Infrastructure.MediatR.csproj"/>
-        <ProjectReference Include="..\BaseFaq.Faq.FaqWeb.Persistence.FaqDb\BaseFaq.Faq.FaqWeb.Persistence.FaqDb.csproj"/>
+        <ProjectReference Include="..\BaseFaq.Faq.Common.Persistence.FaqDb\BaseFaq.Faq.Common.Persistence.FaqDb.csproj"/>
         <ProjectReference Include="..\BaseFaq.Models.Faq\BaseFaq.Models.Faq.csproj"/>
     </ItemGroup>
 

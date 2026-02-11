@@ -1,6 +1,6 @@
 using BaseFaq.Common.Infrastructure.ApiErrorHandling.Exception;
 using BaseFaq.Common.Infrastructure.Core.Abstractions;
-using BaseFaq.Faq.FaqWeb.Persistence.FaqDb;
+using BaseFaq.Faq.Common.Persistence.FaqDb;
 using BaseFaq.Faq.FaqWeb.Business.Vote.Helpers;
 using BaseFaq.Models.Common.Enums;
 using MediatR;
@@ -27,7 +27,7 @@ public class VotesCreateVoteCommandHandler(
         var identity = VoteRequestContext.GetIdentity(sessionService, httpContextAccessor);
         var tenantId = sessionService.GetTenantId(AppEnum.Faq);
 
-        var vote = new Persistence.FaqDb.Entities.Vote
+        var vote = new Common.Persistence.FaqDb.Entities.Vote
         {
             Like = request.Like,
             UserPrint = identity.UserPrint,

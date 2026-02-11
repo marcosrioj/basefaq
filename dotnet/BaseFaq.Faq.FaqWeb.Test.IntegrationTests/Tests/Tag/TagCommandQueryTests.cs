@@ -172,19 +172,19 @@ public class TagCommandQueryTests
     {
         using var context = TestContext.Create();
 
-        var tagA = new BaseFaq.Faq.FaqWeb.Persistence.FaqDb.Entities.Tag
+        var tagA = new Common.Persistence.FaqDb.Entities.Tag
         {
             Id = Guid.Parse("00000000-0000-0000-0000-000000000001"),
             Value = "beta",
             TenantId = context.SessionService.TenantId
         };
-        var tagB = new BaseFaq.Faq.FaqWeb.Persistence.FaqDb.Entities.Tag
+        var tagB = new Common.Persistence.FaqDb.Entities.Tag
         {
             Id = Guid.Parse("00000000-0000-0000-0000-000000000002"),
             Value = "beta",
             TenantId = context.SessionService.TenantId
         };
-        var tagC = new BaseFaq.Faq.FaqWeb.Persistence.FaqDb.Entities.Tag
+        var tagC = new Common.Persistence.FaqDb.Entities.Tag
         {
             Id = Guid.Parse("00000000-0000-0000-0000-000000000003"),
             Value = "alpha",

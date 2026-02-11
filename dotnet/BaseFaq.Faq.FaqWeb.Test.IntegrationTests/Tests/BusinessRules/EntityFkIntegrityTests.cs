@@ -1,4 +1,4 @@
-using BaseFaq.Faq.FaqWeb.Persistence.FaqDb.Entities;
+using BaseFaq.Faq.Common.Persistence.FaqDb.Entities;
 using BaseFaq.Faq.FaqWeb.Test.IntegrationTests.Helpers;
 using BaseFaq.Models.Faq.Enums;
 using Microsoft.EntityFrameworkCore;
@@ -13,7 +13,7 @@ public class EntityFkIntegrityTests
     {
         using var context = TestContext.Create();
 
-        var faqItem = new Persistence.FaqDb.Entities.FaqItem
+        var faqItem = new Common.Persistence.FaqDb.Entities.FaqItem
         {
             Question = "Question",
             ShortAnswer = "Short",
@@ -40,7 +40,7 @@ public class EntityFkIntegrityTests
         using var context = TestContext.Create();
         var faq = await TestDataFactory.SeedFaqAsync(context.DbContext, context.SessionService.TenantId);
 
-        var faqItem = new Persistence.FaqDb.Entities.FaqItem
+        var faqItem = new Common.Persistence.FaqDb.Entities.FaqItem
         {
             Question = "Question",
             ShortAnswer = "Short",
@@ -67,7 +67,7 @@ public class EntityFkIntegrityTests
     {
         using var context = TestContext.Create();
 
-        var vote = new Persistence.FaqDb.Entities.Vote
+        var vote = new Common.Persistence.FaqDb.Entities.Vote
         {
             Like = true,
             UserPrint = "user",

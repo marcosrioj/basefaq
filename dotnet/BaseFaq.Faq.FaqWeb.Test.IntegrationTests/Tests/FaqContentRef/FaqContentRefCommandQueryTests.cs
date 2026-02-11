@@ -287,7 +287,7 @@ public class FaqContentRefCommandQueryTests
         using var context = TestContext.Create();
         var tenantId = context.SessionService.TenantId;
 
-        var faqA = new BaseFaq.Faq.FaqWeb.Persistence.FaqDb.Entities.Faq
+        var faqA = new Common.Persistence.FaqDb.Entities.Faq
         {
             Id = Guid.Parse("00000000-0000-0000-0000-000000000110"),
             Name = "FAQ A",
@@ -298,7 +298,7 @@ public class FaqContentRefCommandQueryTests
             CtaTarget = BaseFaq.Models.Faq.Enums.CtaTarget.Self,
             TenantId = tenantId
         };
-        var faqB = new BaseFaq.Faq.FaqWeb.Persistence.FaqDb.Entities.Faq
+        var faqB = new Common.Persistence.FaqDb.Entities.Faq
         {
             Id = Guid.Parse("00000000-0000-0000-0000-000000000120"),
             Name = "FAQ B",
@@ -309,7 +309,7 @@ public class FaqContentRefCommandQueryTests
             CtaTarget = BaseFaq.Models.Faq.Enums.CtaTarget.Self,
             TenantId = tenantId
         };
-        var contentRefA = new BaseFaq.Faq.FaqWeb.Persistence.FaqDb.Entities.ContentRef
+        var contentRefA = new Common.Persistence.FaqDb.Entities.ContentRef
         {
             Id = Guid.Parse("00000000-0000-0000-0000-000000000130"),
             Kind = BaseFaq.Models.Faq.Enums.ContentRefKind.Web,
@@ -318,7 +318,7 @@ public class FaqContentRefCommandQueryTests
             Scope = "Scope",
             TenantId = tenantId
         };
-        var contentRefB = new BaseFaq.Faq.FaqWeb.Persistence.FaqDb.Entities.ContentRef
+        var contentRefB = new Common.Persistence.FaqDb.Entities.ContentRef
         {
             Id = Guid.Parse("00000000-0000-0000-0000-000000000140"),
             Kind = BaseFaq.Models.Faq.Enums.ContentRefKind.Web,
@@ -332,19 +332,19 @@ public class FaqContentRefCommandQueryTests
         context.DbContext.ContentRefs.AddRange(contentRefA, contentRefB);
         await context.DbContext.SaveChangesAsync();
 
-        var ref1 = new BaseFaq.Faq.FaqWeb.Persistence.FaqDb.Entities.FaqContentRef
+        var ref1 = new Common.Persistence.FaqDb.Entities.FaqContentRef
         {
             FaqId = faqA.Id,
             ContentRefId = contentRefA.Id,
             TenantId = tenantId
         };
-        var ref2 = new BaseFaq.Faq.FaqWeb.Persistence.FaqDb.Entities.FaqContentRef
+        var ref2 = new Common.Persistence.FaqDb.Entities.FaqContentRef
         {
             FaqId = faqA.Id,
             ContentRefId = contentRefB.Id,
             TenantId = tenantId
         };
-        var ref3 = new BaseFaq.Faq.FaqWeb.Persistence.FaqDb.Entities.FaqContentRef
+        var ref3 = new Common.Persistence.FaqDb.Entities.FaqContentRef
         {
             FaqId = faqB.Id,
             ContentRefId = contentRefA.Id,

@@ -1,12 +1,12 @@
-using BaseFaq.Faq.FaqWeb.Persistence.FaqDb;
-using BaseFaq.Faq.FaqWeb.Persistence.FaqDb.Entities;
+using BaseFaq.Faq.Common.Persistence.FaqDb;
+using BaseFaq.Faq.Common.Persistence.FaqDb.Entities;
 using BaseFaq.Models.Faq.Enums;
 
 namespace BaseFaq.Faq.FaqWeb.Test.IntegrationTests.Helpers;
 
 public static class TestDataFactory
 {
-    public static async Task<Persistence.FaqDb.Entities.Faq> SeedFaqAsync(
+    public static async Task<Common.Persistence.FaqDb.Entities.Faq> SeedFaqAsync(
         FaqDbContext dbContext,
         Guid tenantId,
         string? name = null,
@@ -14,7 +14,7 @@ public static class TestDataFactory
         FaqStatus status = FaqStatus.Draft,
         FaqSortStrategy sortStrategy = FaqSortStrategy.Sort)
     {
-        var faq = new Persistence.FaqDb.Entities.Faq
+        var faq = new Common.Persistence.FaqDb.Entities.Faq
         {
             Name = name ?? "General FAQ",
             Language = language ?? "en-US",

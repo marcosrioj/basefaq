@@ -34,7 +34,7 @@
         <ProjectReference Include="..\BaseFaq.Faq.FaqWeb.Business.FaqItem\BaseFaq.Faq.FaqWeb.Business.FaqItem.csproj"/>
         <ProjectReference Include="..\BaseFaq.Faq.FaqWeb.Business.Tag\BaseFaq.Faq.FaqWeb.Business.Tag.csproj"/>
         <ProjectReference Include="..\BaseFaq.Faq.FaqWeb.Business.Vote\BaseFaq.Faq.FaqWeb.Business.Vote.csproj"/>
-        <ProjectReference Include="..\BaseFaq.Faq.FaqWeb.Persistence.FaqDb\BaseFaq.Faq.FaqWeb.Persistence.FaqDb.csproj"/>
+        <ProjectReference Include="..\BaseFaq.Faq.Common.Persistence.FaqDb\BaseFaq.Faq.Common.Persistence.FaqDb.csproj"/>
         <ProjectReference Include="..\BaseFaq.Models.Faq\BaseFaq.Models.Faq.csproj"/>
     </ItemGroup>
 

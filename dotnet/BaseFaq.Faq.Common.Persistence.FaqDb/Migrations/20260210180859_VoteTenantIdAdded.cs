@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace BaseFaq.Faq.FaqWeb.Persistence.FaqDb.Migrations
+namespace BaseFaq.Faq.Common.Persistence.FaqDb.Migrations
 {
     /// <inheritdoc />
     public partial class VoteTenantIdAdded : Migration

@@ -2,7 +2,7 @@ using BaseFaq.Common.EntityFramework.Core.Configurations;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace BaseFaq.Faq.FaqWeb.Persistence.FaqDb.Configurations;
+namespace BaseFaq.Faq.Common.Persistence.FaqDb.Configurations;
 
 public class FaqConfiguration : BaseConfiguration<Entities.Faq>
 {
