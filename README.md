@@ -152,6 +152,7 @@ Integration tests:
 
 ```bash
 dotnet test dotnet/BaseFaq.Faq.FaqWeb.Test.IntegrationTests/BaseFaq.Faq.FaqWeb.Test.IntegrationTests.csproj
+dotnet test dotnet/BaseFaq.Tenant.TenantWeb.Test.IntegrationTests/BaseFaq.Tenant.TenantWeb.Test.IntegrationTests.csproj
 ```
 
 ## Auth0 setup (step-by-step)

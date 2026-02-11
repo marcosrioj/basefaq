@@ -1,0 +1,234 @@
+using BaseFaq.Common.Infrastructure.ApiErrorHandling.Exception;
+using BaseFaq.Models.Common.Enums;
+using BaseFaq.Models.Tenant.Dtos.TenantConnection;
+using BaseFaq.Tenant.TenantWeb.Business.Tenant.Commands.CreateTenantConnection;
+using BaseFaq.Tenant.TenantWeb.Business.Tenant.Commands.DeleteTenantConnection;
+using BaseFaq.Tenant.TenantWeb.Business.Tenant.Commands.UpdateTenantConnection;
+using BaseFaq.Tenant.TenantWeb.Business.Tenant.Queries.GetTenantConnection;
+using BaseFaq.Tenant.TenantWeb.Business.Tenant.Queries.GetTenantConnectionList;
+using BaseFaq.Tenant.TenantWeb.Test.IntegrationTests.Helpers;
+using Xunit;
+
+namespace BaseFaq.Tenant.TenantWeb.Test.IntegrationTests.Tests.TenantConnection;
+
+public class TenantConnectionCommandQueryTests
+{
+    [Fact]
+    public async Task CreateTenantConnection_PersistsEntityAndReturnsId()
+    {
+        using var context = TestContext.Create();
+
+        var handler = new TenantConnectionsCreateTenantConnectionCommandHandler(context.DbContext);
+        var request = new TenantConnectionsCreateTenantConnectionCommand
+        {
+            App = AppEnum.TenantWeb,
+            ConnectionString = "Host=localhost;Database=tenant;Username=tenant;Password=tenant;",
+            IsCurrent = true
+        };
+
+        var id = await handler.Handle(request, CancellationToken.None);
+
+        var connection = await context.DbContext.TenantConnections.FindAsync(id);
+        Assert.NotNull(connection);
+        Assert.Equal(AppEnum.TenantWeb, connection!.App);
+        Assert.Equal(request.ConnectionString, connection.ConnectionString);
+        Assert.True(connection.IsCurrent);
+    }
+
+    [Fact]
+    public async Task UpdateTenantConnection_UpdatesExistingConnection()
+    {
+        using var context = TestContext.Create();
+        var connection = await TestDataFactory.SeedTenantConnectionAsync(context.DbContext, app: AppEnum.FaqWeb);
+
+        var handler = new TenantConnectionsUpdateTenantConnectionCommandHandler(context.DbContext);
+        var request = new TenantConnectionsUpdateTenantConnectionCommand
+        {
+            Id = connection.Id,
+            App = AppEnum.TenantWeb,
+            ConnectionString = "Host=localhost;Database=updated;Username=tenant;Password=tenant;",
+            IsCurrent = false
+        };
+
+        await handler.Handle(request, CancellationToken.None);
+
+        var updated = await context.DbContext.TenantConnections.FindAsync(connection.Id);
+        Assert.NotNull(updated);
+        Assert.Equal(AppEnum.TenantWeb, updated!.App);
+        Assert.Equal(request.ConnectionString, updated.ConnectionString);
+        Assert.False(updated.IsCurrent);
+    }
+
+    [Fact]
+    public async Task UpdateTenantConnection_ThrowsWhenMissing()
+    {
+        using var context = TestContext.Create();
+        var handler = new TenantConnectionsUpdateTenantConnectionCommandHandler(context.DbContext);
+        var request = new TenantConnectionsUpdateTenantConnectionCommand
+        {
+            Id = Guid.NewGuid(),
+            App = AppEnum.FaqWeb,
+            ConnectionString = "Host=localhost;Database=missing;Username=tenant;Password=tenant;",
+            IsCurrent = true
+        };
+
+        var exception =
+            await Assert.ThrowsAsync<ApiErrorException>(() => handler.Handle(request, CancellationToken.None));
+
+        Assert.Equal(404, exception.ErrorCode);
+    }
+
+    [Fact]
+    public async Task DeleteTenantConnection_SoftDeletesEntity()
+    {
+        using var context = TestContext.Create();
+        var connection = await TestDataFactory.SeedTenantConnectionAsync(context.DbContext);
+
+        var handler = new TenantConnectionsDeleteTenantConnectionCommandHandler(context.DbContext);
+        await handler.Handle(new TenantConnectionsDeleteTenantConnectionCommand { Id = connection.Id },
+            CancellationToken.None);
+
+        context.DbContext.SoftDeleteFiltersEnabled = false;
+        var deleted = await context.DbContext.TenantConnections.FindAsync(connection.Id);
+        Assert.NotNull(deleted);
+        Assert.True(deleted!.IsDeleted);
+    }
+
+    [Fact]
+    public async Task GetTenantConnection_ReturnsDto()
+    {
+        using var context = TestContext.Create();
+        var connection = await TestDataFactory.SeedTenantConnectionAsync(context.DbContext, app: AppEnum.FaqWeb);
+
+        var handler = new TenantConnectionsGetTenantConnectionQueryHandler(context.DbContext);
+        var result =
+            await handler.Handle(new TenantConnectionsGetTenantConnectionQuery { Id = connection.Id },
+                CancellationToken.None);
+
+        Assert.NotNull(result);
+        Assert.Equal(connection.Id, result!.Id);
+        Assert.Equal(connection.App, result.App);
+        Assert.Equal(string.Empty, result.ConnectionString);
+        Assert.Equal(connection.IsCurrent, result.IsCurrent);
+    }
+
+    [Fact]
+    public async Task GetTenantConnection_ReturnsNullWhenMissing()
+    {
+        using var context = TestContext.Create();
+        var handler = new TenantConnectionsGetTenantConnectionQueryHandler(context.DbContext);
+
+        var result =
+            await handler.Handle(new TenantConnectionsGetTenantConnectionQuery { Id = Guid.NewGuid() },
+                CancellationToken.None);
+
+        Assert.Null(result);
+    }
+
+    [Fact]
+    public async Task GetTenantConnectionList_ReturnsPagedItems()
+    {
+        using var context = TestContext.Create();
+        await TestDataFactory.SeedTenantConnectionAsync(context.DbContext, app: AppEnum.FaqWeb);
+        await TestDataFactory.SeedTenantConnectionAsync(context.DbContext, app: AppEnum.TenantWeb);
+
+        var handler = new TenantConnectionsGetTenantConnectionListQueryHandler(context.DbContext);
+        var request = new TenantConnectionsGetTenantConnectionListQuery
+        {
+            Request = new TenantConnectionGetAllRequestDto { SkipCount = 0, MaxResultCount = 10 }
+        };
+
+        var result = await handler.Handle(request, CancellationToken.None);
+
+        Assert.Equal(2, result.TotalCount);
+        Assert.Equal(2, result.Items.Count);
+    }
+
+    [Fact]
+    public async Task GetTenantConnectionList_SortsByExplicitField()
+    {
+        using var context = TestContext.Create();
+        await TestDataFactory.SeedTenantConnectionAsync(context.DbContext, app: AppEnum.FaqWeb, isCurrent: false);
+        await TestDataFactory.SeedTenantConnectionAsync(context.DbContext, app: AppEnum.TenantWeb, isCurrent: true);
+
+        var handler = new TenantConnectionsGetTenantConnectionListQueryHandler(context.DbContext);
+        var request = new TenantConnectionsGetTenantConnectionListQuery
+        {
+            Request = new TenantConnectionGetAllRequestDto
+            {
+                SkipCount = 0,
+                MaxResultCount = 10,
+                Sorting = "isCurrent DESC"
+            }
+        };
+
+        var result = await handler.Handle(request, CancellationToken.None);
+
+        Assert.True(result.Items[0].IsCurrent);
+        Assert.False(result.Items[1].IsCurrent);
+    }
+
+    [Fact]
+    public async Task GetTenantConnectionList_FallsBackToAppWhenSortingInvalid()
+    {
+        using var context = TestContext.Create();
+        await TestDataFactory.SeedTenantConnectionAsync(context.DbContext, app: AppEnum.TenantWeb);
+        await TestDataFactory.SeedTenantConnectionAsync(context.DbContext, app: AppEnum.FaqWeb);
+
+        var handler = new TenantConnectionsGetTenantConnectionListQueryHandler(context.DbContext);
+        var request = new TenantConnectionsGetTenantConnectionListQuery
+        {
+            Request = new TenantConnectionGetAllRequestDto
+            {
+                SkipCount = 0,
+                MaxResultCount = 10,
+                Sorting = "unknown DESC"
+            }
+        };
+
+        var result = await handler.Handle(request, CancellationToken.None);
+
+        Assert.Equal(AppEnum.FaqWeb, result.Items[0].App);
+        Assert.Equal(AppEnum.TenantWeb, result.Items[1].App);
+    }
+
+    [Fact]
+    public async Task GetTenantConnectionList_SortsByMultipleFields()
+    {
+        using var context = TestContext.Create();
+
+        var connectionA = new BaseFaq.Common.EntityFramework.Tenant.Entities.TenantConnection
+        {
+            Id = Guid.Parse("00000000-0000-0000-0000-000000000021"),
+            App = AppEnum.FaqWeb,
+            ConnectionString = "Host=localhost;Database=a;Username=tenant;Password=tenant;",
+            IsCurrent = false
+        };
+        var connectionB = new BaseFaq.Common.EntityFramework.Tenant.Entities.TenantConnection
+        {
+            Id = Guid.Parse("00000000-0000-0000-0000-000000000022"),
+            App = AppEnum.FaqWeb,
+            ConnectionString = "Host=localhost;Database=b;Username=tenant;Password=tenant;",
+            IsCurrent = true
+        };
+
+        context.DbContext.TenantConnections.AddRange(connectionA, connectionB);
+        await context.DbContext.SaveChangesAsync();
+
+        var handler = new TenantConnectionsGetTenantConnectionListQueryHandler(context.DbContext);
+        var request = new TenantConnectionsGetTenantConnectionListQuery
+        {
+            Request = new TenantConnectionGetAllRequestDto
+            {
+                SkipCount = 0,
+                MaxResultCount = 10,
+                Sorting = "app ASC, isCurrent DESC"
+            }
+        };
+
+        var result = await handler.Handle(request, CancellationToken.None);
+
+        Assert.Equal(connectionB.Id, result.Items[0].Id);
+        Assert.Equal(connectionA.Id, result.Items[1].Id);
+    }
+}

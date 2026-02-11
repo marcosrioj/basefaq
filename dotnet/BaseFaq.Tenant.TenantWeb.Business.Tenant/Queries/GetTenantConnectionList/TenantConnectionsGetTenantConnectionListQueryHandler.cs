@@ -60,7 +60,7 @@ public class TenantConnectionsGetTenantConnectionListQueryHandler(TenantDbContex
             orderedQuery = ApplyOrder(orderedQuery ?? query, fieldName, desc, orderedQuery is null);
         }
 
-        return orderedQuery ?? query.OrderBy(connection => connection.App);
+        return orderedQuery ?? query.OrderBy(connection => connection.UpdatedDate);
     }
 
     private static IOrderedQueryable<BaseFaq.Common.EntityFramework.Tenant.Entities.TenantConnection> ApplyOrder(
@@ -117,9 +117,9 @@ public class TenantConnectionsGetTenantConnectionListQueryHandler(TenantDbContex
                     : ((IOrderedQueryable<BaseFaq.Common.EntityFramework.Tenant.Entities.TenantConnection>)query)
                     .ThenBy(connection => connection.Id)),
             _ => isFirst
-                ? query.OrderBy(connection => connection.App)
+                ? query.OrderByDescending(connection => connection.UpdatedDate)
                 : ((IOrderedQueryable<BaseFaq.Common.EntityFramework.Tenant.Entities.TenantConnection>)query)
-                .ThenBy(connection => connection.App)
+                .ThenByDescending(connection => connection.UpdatedDate)
         };
     }
 }
