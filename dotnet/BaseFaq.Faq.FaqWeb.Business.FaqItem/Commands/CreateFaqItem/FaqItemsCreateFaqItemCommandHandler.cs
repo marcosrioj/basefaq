@@ -11,7 +11,7 @@ public class FaqItemsCreateFaqItemCommandHandler(FaqDbContext dbContext, ISessio
 {
     public async Task<Guid> Handle(FaqItemsCreateFaqItemCommand request, CancellationToken cancellationToken)
     {
-        var tenantId = sessionService.GetTenantId(AppEnum.FaqWeb);
+        var tenantId = sessionService.GetTenantId(AppEnum.Faq);
 
         var faqItem = new Persistence.FaqDb.Entities.FaqItem
         {

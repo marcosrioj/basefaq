@@ -26,7 +26,7 @@ public class TenantCommandQueryTests
             Slug = "tenant-one",
             Name = "Tenant One",
             Edition = TenantEdition.Free,
-            App = AppEnum.FaqWeb,
+            App = AppEnum.Faq,
             ConnectionString = "Host=localhost;Database=tenant;Username=tenant;Password=tenant;",
             IsActive = true
         };
@@ -38,7 +38,7 @@ public class TenantCommandQueryTests
         Assert.Equal("tenant-one", tenant!.Slug);
         Assert.Equal("Tenant One", tenant.Name);
         Assert.Equal(TenantEdition.Free, tenant.Edition);
-        Assert.Equal(AppEnum.FaqWeb, tenant.App);
+        Assert.Equal(AppEnum.Faq, tenant.App);
         Assert.Equal(request.ConnectionString, tenant.ConnectionString);
         Assert.True(tenant.IsActive);
     }
@@ -217,7 +217,7 @@ public class TenantCommandQueryTests
             Slug = "b-slug",
             Name = "Same",
             Edition = TenantEdition.Free,
-            App = AppEnum.FaqWeb,
+            App = AppEnum.Faq,
             ConnectionString = "Host=localhost;Database=a;Username=tenant;Password=tenant;",
             IsActive = true
         };
@@ -227,7 +227,7 @@ public class TenantCommandQueryTests
             Slug = "a-slug",
             Name = "Same",
             Edition = TenantEdition.Free,
-            App = AppEnum.FaqWeb,
+            App = AppEnum.Faq,
             ConnectionString = "Host=localhost;Database=b;Username=tenant;Password=tenant;",
             IsActive = true
         };
@@ -264,7 +264,7 @@ public class TenantCommandQueryTests
             Slug = "dup",
             Name = "Duplicate",
             Edition = TenantEdition.Free,
-            App = AppEnum.FaqWeb,
+            App = AppEnum.Faq,
             ConnectionString = "Host=localhost;Database=dup;Username=tenant;Password=tenant;",
             IsActive = true
         };

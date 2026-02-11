@@ -11,7 +11,7 @@ public class ContentRefsCreateContentRefCommandHandler(FaqDbContext dbContext, I
 {
     public async Task<Guid> Handle(ContentRefsCreateContentRefCommand request, CancellationToken cancellationToken)
     {
-        var tenantId = sessionService.GetTenantId(AppEnum.FaqWeb);
+        var tenantId = sessionService.GetTenantId(AppEnum.Faq);
 
         var contentRef = new Persistence.FaqDb.Entities.ContentRef
         {

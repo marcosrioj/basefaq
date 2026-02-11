@@ -11,7 +11,7 @@ public class TagsCreateTagCommandHandler(FaqDbContext dbContext, ISessionService
 {
     public async Task<Guid> Handle(TagsCreateTagCommand request, CancellationToken cancellationToken)
     {
-        var tenantId = sessionService.GetTenantId(AppEnum.FaqWeb);
+        var tenantId = sessionService.GetTenantId(AppEnum.Faq);
 
         var tag = new Persistence.FaqDb.Entities.Tag
         {

@@ -16,7 +16,7 @@ public class FaqTagsCreateFaqTagCommandHandler(FaqDbContext dbContext, ISessionS
     {
         ArgumentNullException.ThrowIfNull(request);
 
-        var tenantId = sessionService.GetTenantId(AppEnum.FaqWeb);
+        var tenantId = sessionService.GetTenantId(AppEnum.Faq);
 
         var faqExists = await dbContext.Faqs.AnyAsync(entity => entity.Id == request.FaqId, cancellationToken);
         if (!faqExists)

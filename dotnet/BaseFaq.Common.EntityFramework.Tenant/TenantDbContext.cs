@@ -37,7 +37,7 @@ public class TenantDbContext(
     ];
 
     protected override bool UseTenantConnectionString => false;
-    protected override AppEnum SessionApp => AppEnum.TenantWeb;
+    protected override AppEnum SessionApp => AppEnum.Tenant;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

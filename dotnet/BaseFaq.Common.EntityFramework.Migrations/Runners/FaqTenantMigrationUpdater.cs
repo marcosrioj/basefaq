@@ -12,10 +12,10 @@ internal static class FaqTenantMigrationUpdater
 {
     public static void ApplyAll(IConfiguration configuration, string tenantDbConnectionString, AppEnum app)
     {
-        if (app != AppEnum.FaqWeb)
+        if (app != AppEnum.Faq)
         {
             throw new InvalidOperationException(
-                $"Database update is only supported for {AppEnum.FaqWeb} at the moment.");
+                $"Database update is only supported for {AppEnum.Faq} at the moment.");
         }
 
         var sessionService = new MigrationsSessionService();

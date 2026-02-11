@@ -18,7 +18,7 @@ public class TenantEntityConstraintsTests
             Slug = "unique-slug",
             Name = "Tenant A",
             Edition = TenantEdition.Free,
-            App = AppEnum.FaqWeb,
+            App = AppEnum.Faq,
             ConnectionString = "Host=localhost;Database=a;Username=tenant;Password=tenant;",
             IsActive = true
         };
@@ -27,7 +27,7 @@ public class TenantEntityConstraintsTests
             Slug = "unique-slug",
             Name = "Tenant B",
             Edition = TenantEdition.Free,
-            App = AppEnum.FaqWeb,
+            App = AppEnum.Faq,
             ConnectionString = "Host=localhost;Database=b;Username=tenant;Password=tenant;",
             IsActive = true
         };
@@ -50,7 +50,7 @@ public class TenantEntityConstraintsTests
             Slug = "tenant-a",
             Name = "Tenant A",
             Edition = TenantEdition.Free,
-            App = AppEnum.FaqWeb,
+            App = AppEnum.Faq,
             ConnectionString = "Host=localhost;Database=a;Username=tenant;Password=tenant;",
             IsActive = true,
             UserId = userId
@@ -60,7 +60,7 @@ public class TenantEntityConstraintsTests
             Slug = "tenant-b",
             Name = "Tenant B",
             Edition = TenantEdition.Free,
-            App = AppEnum.FaqWeb,
+            App = AppEnum.Faq,
             ConnectionString = "Host=localhost;Database=b;Username=tenant;Password=tenant;",
             IsActive = true,
             UserId = userId

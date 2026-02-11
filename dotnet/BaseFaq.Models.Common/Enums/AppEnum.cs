@@ -2,6 +2,6 @@ namespace BaseFaq.Models.Common.Enums;
 
 public enum AppEnum
 {
-    TenantWeb = 0,
-    FaqWeb = 1
+    Tenant = 0,
+    Faq = 1
 }

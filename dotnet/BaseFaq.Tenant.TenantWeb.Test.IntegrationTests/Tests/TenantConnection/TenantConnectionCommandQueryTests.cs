@@ -21,7 +21,7 @@ public class TenantConnectionCommandQueryTests
         var handler = new TenantConnectionsCreateTenantConnectionCommandHandler(context.DbContext);
         var request = new TenantConnectionsCreateTenantConnectionCommand
         {
-            App = AppEnum.TenantWeb,
+            App = AppEnum.Tenant,
             ConnectionString = "Host=localhost;Database=tenant;Username=tenant;Password=tenant;",
             IsCurrent = true
         };
@@ -30,7 +30,7 @@ public class TenantConnectionCommandQueryTests
 
         var connection = await context.DbContext.TenantConnections.FindAsync(id);
         Assert.NotNull(connection);
-        Assert.Equal(AppEnum.TenantWeb, connection!.App);
+        Assert.Equal(AppEnum.Tenant, connection!.App);
         Assert.Equal(request.ConnectionString, connection.ConnectionString);
         Assert.True(connection.IsCurrent);
     }
@@ -39,13 +39,13 @@ public class TenantConnectionCommandQueryTests
     public async Task UpdateTenantConnection_UpdatesExistingConnection()
     {
         using var context = TestContext.Create();
-        var connection = await TestDataFactory.SeedTenantConnectionAsync(context.DbContext, app: AppEnum.FaqWeb);
+        var connection = await TestDataFactory.SeedTenantConnectionAsync(context.DbContext, app: AppEnum.Faq);
 
         var handler = new TenantConnectionsUpdateTenantConnectionCommandHandler(context.DbContext);
         var request = new TenantConnectionsUpdateTenantConnectionCommand
         {
             Id = connection.Id,
-            App = AppEnum.TenantWeb,
+            App = AppEnum.Tenant,
             ConnectionString = "Host=localhost;Database=updated;Username=tenant;Password=tenant;",
             IsCurrent = false
         };
@@ -54,7 +54,7 @@ public class TenantConnectionCommandQueryTests
 
         var updated = await context.DbContext.TenantConnections.FindAsync(connection.Id);
         Assert.NotNull(updated);
-        Assert.Equal(AppEnum.TenantWeb, updated!.App);
+        Assert.Equal(AppEnum.Tenant, updated!.App);
         Assert.Equal(request.ConnectionString, updated.ConnectionString);
         Assert.False(updated.IsCurrent);
     }
@@ -67,7 +67,7 @@ public class TenantConnectionCommandQueryTests
         var request = new TenantConnectionsUpdateTenantConnectionCommand
         {
             Id = Guid.NewGuid(),
-            App = AppEnum.FaqWeb,
+            App = AppEnum.Faq,
             ConnectionString = "Host=localhost;Database=missing;Username=tenant;Password=tenant;",
             IsCurrent = true
         };
@@ -98,7 +98,7 @@ public class TenantConnectionCommandQueryTests
     public async Task GetTenantConnection_ReturnsDto()
     {
         using var context = TestContext.Create();
-        var connection = await TestDataFactory.SeedTenantConnectionAsync(context.DbContext, app: AppEnum.FaqWeb);
+        var connection = await TestDataFactory.SeedTenantConnectionAsync(context.DbContext, app: AppEnum.Faq);
 
         var handler = new TenantConnectionsGetTenantConnectionQueryHandler(context.DbContext);
         var result =
@@ -129,8 +129,8 @@ public class TenantConnectionCommandQueryTests
     public async Task GetTenantConnectionList_ReturnsPagedItems()
     {
         using var context = TestContext.Create();
-        await TestDataFactory.SeedTenantConnectionAsync(context.DbContext, app: AppEnum.FaqWeb);
-        await TestDataFactory.SeedTenantConnectionAsync(context.DbContext, app: AppEnum.TenantWeb);
+        await TestDataFactory.SeedTenantConnectionAsync(context.DbContext, app: AppEnum.Faq);
+        await TestDataFactory.SeedTenantConnectionAsync(context.DbContext, app: AppEnum.Tenant);
 
         var handler = new TenantConnectionsGetTenantConnectionListQueryHandler(context.DbContext);
         var request = new TenantConnectionsGetTenantConnectionListQuery
@@ -148,8 +148,8 @@ public class TenantConnectionCommandQueryTests
     public async Task GetTenantConnectionList_SortsByExplicitField()
     {
         using var context = TestContext.Create();
-        await TestDataFactory.SeedTenantConnectionAsync(context.DbContext, app: AppEnum.FaqWeb, isCurrent: false);
-        await TestDataFactory.SeedTenantConnectionAsync(context.DbContext, app: AppEnum.TenantWeb, isCurrent: true);
+        await TestDataFactory.SeedTenantConnectionAsync(context.DbContext, app: AppEnum.Faq, isCurrent: false);
+        await TestDataFactory.SeedTenantConnectionAsync(context.DbContext, app: AppEnum.Tenant, isCurrent: true);
 
         var handler = new TenantConnectionsGetTenantConnectionListQueryHandler(context.DbContext);
         var request = new TenantConnectionsGetTenantConnectionListQuery
@@ -172,8 +172,8 @@ public class TenantConnectionCommandQueryTests
     public async Task GetTenantConnectionList_FallsBackToUpdatedDateWhenSortingInvalid()
     {
         using var context = TestContext.Create();
-        var first = await TestDataFactory.SeedTenantConnectionAsync(context.DbContext, app: AppEnum.TenantWeb);
-        await TestDataFactory.SeedTenantConnectionAsync(context.DbContext, app: AppEnum.FaqWeb);
+        var first = await TestDataFactory.SeedTenantConnectionAsync(context.DbContext, app: AppEnum.Tenant);
+        await TestDataFactory.SeedTenantConnectionAsync(context.DbContext, app: AppEnum.Faq);
         first.IsCurrent = !first.IsCurrent;
         await context.DbContext.SaveChangesAsync();
 
@@ -190,8 +190,8 @@ public class TenantConnectionCommandQueryTests
 
         var result = await handler.Handle(request, CancellationToken.None);
 
-        Assert.Equal(AppEnum.TenantWeb, result.Items[0].App);
-        Assert.Equal(AppEnum.FaqWeb, result.Items[1].App);
+        Assert.Equal(AppEnum.Tenant, result.Items[0].App);
+        Assert.Equal(AppEnum.Faq, result.Items[1].App);
     }
 
     [Fact]
@@ -202,14 +202,14 @@ public class TenantConnectionCommandQueryTests
         var connectionA = new BaseFaq.Common.EntityFramework.Tenant.Entities.TenantConnection
         {
             Id = Guid.Parse("00000000-0000-0000-0000-000000000021"),
-            App = AppEnum.FaqWeb,
+            App = AppEnum.Faq,
             ConnectionString = "Host=localhost;Database=a;Username=tenant;Password=tenant;",
             IsCurrent = false
         };
         var connectionB = new BaseFaq.Common.EntityFramework.Tenant.Entities.TenantConnection
         {
             Id = Guid.Parse("00000000-0000-0000-0000-000000000022"),
-            App = AppEnum.FaqWeb,
+            App = AppEnum.Faq,
             ConnectionString = "Host=localhost;Database=b;Username=tenant;Password=tenant;",
             IsCurrent = true
         };

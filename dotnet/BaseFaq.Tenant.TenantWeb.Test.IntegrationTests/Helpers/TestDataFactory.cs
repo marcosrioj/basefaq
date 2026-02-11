@@ -13,7 +13,7 @@ public static class TestDataFactory
         string? slug = null,
         string? name = null,
         TenantEdition edition = TenantEdition.Free,
-        AppEnum app = AppEnum.FaqWeb,
+        AppEnum app = AppEnum.Faq,
         string? connectionString = null,
         bool isActive = true,
         Guid? userId = null)
@@ -36,7 +36,7 @@ public static class TestDataFactory
 
     public static async Task<TenantConnection> SeedTenantConnectionAsync(
         TenantDbContext dbContext,
-        AppEnum app = AppEnum.FaqWeb,
+        AppEnum app = AppEnum.Faq,
         string? connectionString = null,
         bool isCurrent = true)
     {

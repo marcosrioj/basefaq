@@ -7,9 +7,9 @@ internal static class EfMigrationsRunner
 {
     public static int AddFaqMigration(string solutionRoot, string migrationName, AppEnum app)
     {
-        if (app != AppEnum.FaqWeb)
+        if (app != AppEnum.Faq)
         {
-            Console.Error.WriteLine($"Migrations are only supported for {AppEnum.FaqWeb} at the moment.");
+            Console.Error.WriteLine($"Migrations are only supported for {AppEnum.Faq} at the moment.");
             return 1;
         }
 

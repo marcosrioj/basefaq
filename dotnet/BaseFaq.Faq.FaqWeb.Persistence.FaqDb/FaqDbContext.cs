@@ -36,5 +36,5 @@ public class FaqDbContext(
         "BaseFaq.Faq.FaqWeb.Persistence.FaqDb.Configurations"
     ];
 
-    protected override AppEnum SessionApp => AppEnum.FaqWeb;
+    protected override AppEnum SessionApp => AppEnum.Faq;
 }

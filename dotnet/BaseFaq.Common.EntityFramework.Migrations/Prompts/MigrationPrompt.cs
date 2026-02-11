@@ -7,21 +7,21 @@ internal static class MigrationPrompt
     public static AppEnum SelectApp()
     {
         Console.WriteLine("Which AppEnum?");
-        Console.WriteLine($"1) {AppEnum.FaqWeb}");
+        Console.WriteLine($"1) {AppEnum.Faq}");
 
         while (true)
         {
-            Console.Write($"Select (default {AppEnum.FaqWeb}): ");
+            Console.Write($"Select (default {AppEnum.Faq}): ");
             var input = Console.ReadLine();
             if (string.IsNullOrWhiteSpace(input))
             {
-                return AppEnum.FaqWeb;
+                return AppEnum.Faq;
             }
 
             if (string.Equals(input, "1", StringComparison.OrdinalIgnoreCase) ||
-                string.Equals(input, AppEnum.FaqWeb.ToString(), StringComparison.OrdinalIgnoreCase))
+                string.Equals(input, AppEnum.Faq.ToString(), StringComparison.OrdinalIgnoreCase))
             {
-                return AppEnum.FaqWeb;
+                return AppEnum.Faq;
             }
 
             Console.WriteLine("Invalid AppEnum value.");

@@ -17,7 +17,7 @@ public sealed class FaqDbContextFactory : IDesignTimeDbContextFactory<FaqDbConte
     {
         var configuration = MigrationsConfiguration.Build(SolutionRootLocator.Find());
         var app = ResolveAppEnum(args);
-        if (app != AppEnum.FaqWeb)
+        if (app != AppEnum.Faq)
         {
             throw new InvalidOperationException(
                 $"App '{app}' is not supported by {nameof(FaqDbContextFactory)}.");
@@ -81,7 +81,7 @@ public sealed class FaqDbContextFactory : IDesignTimeDbContextFactory<FaqDbConte
             }
         }
 
-        return AppEnum.FaqWeb;
+        return AppEnum.Faq;
     }
 
     private static AppEnum ParseAppEnum(string value)

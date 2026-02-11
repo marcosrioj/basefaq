@@ -25,7 +25,7 @@ public class VotesCreateVoteCommandHandler(
         }
 
         var identity = VoteRequestContext.GetIdentity(sessionService, httpContextAccessor);
-        var tenantId = sessionService.GetTenantId(AppEnum.FaqWeb);
+        var tenantId = sessionService.GetTenantId(AppEnum.Faq);
 
         var vote = new Persistence.FaqDb.Entities.Vote
         {

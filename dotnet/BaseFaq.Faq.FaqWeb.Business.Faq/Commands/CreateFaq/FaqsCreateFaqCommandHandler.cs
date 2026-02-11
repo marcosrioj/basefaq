@@ -12,7 +12,7 @@ public class FaqsCreateFaqCommandHandler(FaqDbContext dbContext, ISessionService
     {
         ArgumentNullException.ThrowIfNull(request);
 
-        var tenantId = sessionService.GetTenantId(AppEnum.FaqWeb);
+        var tenantId = sessionService.GetTenantId(AppEnum.Faq);
 
         var faq = new FaqWeb.Persistence.FaqDb.Entities.Faq
         {

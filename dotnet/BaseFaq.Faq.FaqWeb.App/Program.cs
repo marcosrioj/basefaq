@@ -73,7 +73,7 @@ public class Program
 
         app.UseAuthentication();
         app.UseAuthorization();
-        app.UseTenantResolution(AppEnum.FaqWeb);
+        app.UseTenantResolution(AppEnum.Faq);
 
         app.MapControllers().RequireAuthorization();
 
