@@ -19,7 +19,7 @@ public class TenantEntityConstraintsTests
             Name = "Tenant A",
             Edition = TenantEdition.Free,
             App = AppEnum.Faq,
-            ConnectionString = "Host=localhost;Database=a;Username=tenant;Password=tenant;",
+            ConnectionString = "Host=host.docker.internal;Database=a;Username=tenant;Password=tenant;",
             IsActive = true
         };
         var tenantB = new BaseFaq.Common.EntityFramework.Tenant.Entities.Tenant
@@ -28,7 +28,7 @@ public class TenantEntityConstraintsTests
             Name = "Tenant B",
             Edition = TenantEdition.Free,
             App = AppEnum.Faq,
-            ConnectionString = "Host=localhost;Database=b;Username=tenant;Password=tenant;",
+            ConnectionString = "Host=host.docker.internal;Database=b;Username=tenant;Password=tenant;",
             IsActive = true
         };
 
@@ -51,7 +51,7 @@ public class TenantEntityConstraintsTests
             Name = "Tenant A",
             Edition = TenantEdition.Free,
             App = AppEnum.Faq,
-            ConnectionString = "Host=localhost;Database=a;Username=tenant;Password=tenant;",
+            ConnectionString = "Host=host.docker.internal;Database=a;Username=tenant;Password=tenant;",
             IsActive = true,
             UserId = userId
         };
@@ -61,7 +61,7 @@ public class TenantEntityConstraintsTests
             Name = "Tenant B",
             Edition = TenantEdition.Free,
             App = AppEnum.Faq,
-            ConnectionString = "Host=localhost;Database=b;Username=tenant;Password=tenant;",
+            ConnectionString = "Host=host.docker.internal;Database=b;Username=tenant;Password=tenant;",
             IsActive = true,
             UserId = userId
         };

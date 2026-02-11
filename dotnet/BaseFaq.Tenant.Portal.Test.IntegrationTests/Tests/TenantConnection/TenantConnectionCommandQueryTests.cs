@@ -22,7 +22,7 @@ public class TenantConnectionCommandQueryTests
         var request = new TenantConnectionsCreateTenantConnectionCommand
         {
             App = AppEnum.Tenant,
-            ConnectionString = "Host=localhost;Database=tenant;Username=tenant;Password=tenant;",
+            ConnectionString = "Host=host.docker.internal;Database=tenant;Username=tenant;Password=tenant;",
             IsCurrent = true
         };
 
@@ -46,7 +46,7 @@ public class TenantConnectionCommandQueryTests
         {
             Id = connection.Id,
             App = AppEnum.Tenant,
-            ConnectionString = "Host=localhost;Database=updated;Username=tenant;Password=tenant;",
+            ConnectionString = "Host=host.docker.internal;Database=updated;Username=tenant;Password=tenant;",
             IsCurrent = false
         };
 
@@ -68,7 +68,7 @@ public class TenantConnectionCommandQueryTests
         {
             Id = Guid.NewGuid(),
             App = AppEnum.Faq,
-            ConnectionString = "Host=localhost;Database=missing;Username=tenant;Password=tenant;",
+            ConnectionString = "Host=host.docker.internal;Database=missing;Username=tenant;Password=tenant;",
             IsCurrent = true
         };
 
@@ -203,14 +203,14 @@ public class TenantConnectionCommandQueryTests
         {
             Id = Guid.Parse("00000000-0000-0000-0000-000000000021"),
             App = AppEnum.Faq,
-            ConnectionString = "Host=localhost;Database=a;Username=tenant;Password=tenant;",
+            ConnectionString = "Host=host.docker.internal;Database=a;Username=tenant;Password=tenant;",
             IsCurrent = false
         };
         var connectionB = new BaseFaq.Common.EntityFramework.Tenant.Entities.TenantConnection
         {
             Id = Guid.Parse("00000000-0000-0000-0000-000000000022"),
             App = AppEnum.Faq,
-            ConnectionString = "Host=localhost;Database=b;Username=tenant;Password=tenant;",
+            ConnectionString = "Host=host.docker.internal;Database=b;Username=tenant;Password=tenant;",
             IsCurrent = true
         };
 

@@ -32,7 +32,7 @@ public class FaqDbContext(
 
     protected override IEnumerable<string> ConfigurationNamespaces =>
     [
-        "BaseFaq.Faq.FaqWeb.Persistence.FaqDb.Configurations"
+        "BaseFaq.Faq.Portal.Persistence.FaqDb.Configurations"
     ];
 
     protected override AppEnum SessionApp => AppEnum.Faq;

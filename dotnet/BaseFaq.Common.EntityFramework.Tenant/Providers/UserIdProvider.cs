@@ -1,8 +1,10 @@
+using System.Net;
+using BaseFaq.Common.EntityFramework.Tenant.Entities;
 using BaseFaq.Common.Infrastructure.ApiErrorHandling.Exception;
 using BaseFaq.Common.Infrastructure.Core.Abstractions;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
-using System.Net;
 
 namespace BaseFaq.Common.EntityFramework.Tenant.Providers;
 
@@ -21,10 +23,17 @@ public sealed class UserIdProvider(IServiceProvider serviceProvider) : IUserIdPr
                 errorCode: (int)HttpStatusCode.Unauthorized);
         }
 
+        var cacheKey = $"UserId:{externalUserId}";
         var tenantDbContext = serviceProvider.GetRequiredService<TenantDbContext>();
         var memoryCache = serviceProvider.GetRequiredService<IMemoryCache>();
 
-        var cacheKey = $"UserId:{externalUserId}";
+        //short‑circuit if it is already being created
+        if (TryResolvePendingUserId(tenantDbContext, externalUserId, out var pendingUserId))
+        {
+            memoryCache.Set(cacheKey, pendingUserId, UserIdCacheDuration);
+            return pendingUserId;
+        }
+
         var userId = memoryCache.GetOrCreate(
             cacheKey,
             entry =>
@@ -36,5 +45,21 @@ public sealed class UserIdProvider(IServiceProvider serviceProvider) : IUserIdPr
             });
 
         return userId;
+    }
+
+
+    private static bool TryResolvePendingUserId(
+        TenantDbContext tenantDbContext,
+        string externalUserId,
+        out Guid userId)
+    {
+        userId = tenantDbContext.ChangeTracker
+            .Entries<User>()
+            .FirstOrDefault(entry =>
+                entry.State == EntityState.Added &&
+                entry.Entity.ExternalId == externalUserId)
+            ?.Entity.Id ?? Guid.Empty;
+
+        return userId != Guid.Empty;
     }
 }

@@ -16,8 +16,8 @@ internal static class EfMigrationsRunner
         var projectPath = Path.Combine(
             solutionRoot,
             "dotnet",
-            "BaseFaq.Faq.FaqWeb.Persistence.FaqDb",
-            "BaseFaq.Faq.FaqWeb.Persistence.FaqDb.csproj");
+            "BaseFaq.Faq.Common.Persistence.FaqDb",
+            "BaseFaq.Faq.Common.Persistence.FaqDb.csproj");
 
         var startupProjectPath = Path.Combine(
             solutionRoot,
@@ -25,10 +25,23 @@ internal static class EfMigrationsRunner
             "BaseFaq.Migration",
             "BaseFaq.Migration.csproj");
 
+        if (!File.Exists(projectPath))
+        {
+            Console.Error.WriteLine($"Migration project not found: {projectPath}");
+            return 1;
+        }
+
+        if (!File.Exists(startupProjectPath))
+        {
+            Console.Error.WriteLine($"Startup project not found: {startupProjectPath}");
+            return 1;
+        }
+
         var processInfo = new ProcessStartInfo("dotnet")
         {
             RedirectStandardOutput = true,
-            RedirectStandardError = true
+            RedirectStandardError = true,
+            WorkingDirectory = solutionRoot
         };
 
         processInfo.ArgumentList.Add("ef");

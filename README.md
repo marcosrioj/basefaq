@@ -3,8 +3,8 @@
 Setup guide for a clean machine.
 
 ## What’s in this repo
-- FAQ Web API
-- Tenant Web API
+- FAQ Portal API
+- Tenant Portal API
 - Shared infrastructure libraries (Swagger/OpenAPI, Sentry, MediatR logging, API error handling)
 - Base services via Docker (PostgreSQL, RabbitMQ, Redis, SMTP4Dev)
 
@@ -44,24 +44,24 @@ Tenant DB (stores tenant records and each tenant's connection string):
 ```bash
 dotnet ef database update \
   --project dotnet/BaseFaq.Common.EntityFramework.Tenant \
-  --startup-project dotnet/BaseFaq.Tenant.TenantWeb.App
+  --startup-project dotnet/BaseFaq.Tenant.Portal.Api
 ```
 
 Connection strings live in:
-- `dotnet/BaseFaq.Tenant.TenantWeb.App/appsettings.json`
+- `dotnet/BaseFaq.Tenant.Portal.Api/appsettings.json`
 
 App DBs (run per tenant):
 
 Use the migrations console app and follow the prompts:
 
 ```bash
-dotnet run --project dotnet/BaseFaq.Common.EntityFramework.Migrations
+dotnet run --project dotnet/BaseFaq.Migration
 ```
 
 Notes:
 - The console app asks for the target `AppEnum` and whether to run `Migrations add` or `Database update`.
 - `Database update` applies migrations for **all** tenant connection strings in `Tenant.ConnectionString` filtered by the chosen app.
-- It reads the tenant DB connection string from `dotnet/BaseFaq.Tenant.TenantWeb.App/appsettings.json`
+- It reads the tenant DB connection string from `dotnet/BaseFaq.Tenant.Portal.Api/appsettings.json`
   (`ConnectionStrings:TenantDb`).
 
 ## Hostname that works on host + Docker
@@ -90,10 +90,10 @@ Host=host.docker.internal;Port=5432;Database=bf_faq_db;Username=postgres;Passwor
 ```
 
 ## 3) Run the API locally
-FAQ Web API:
+FAQ Portal API:
 
 ```bash
-dotnet run --project dotnet/BaseFaq.Faq.FaqWeb.App
+dotnet run --project dotnet/BaseFaq.Faq.Portal.Api
 ```
 
 Endpoints:
@@ -104,10 +104,10 @@ Swagger / OpenAPI (FAQ app, Development only):
 - Swagger JSON: `/swagger/v1/swagger.json`
 - OpenAPI JSON (minimal API): `/openapi/v1.json`
 
-Tenant Web API:
+Tenant Portal API:
 
 ```bash
-dotnet run --project dotnet/BaseFaq.Tenant.TenantWeb.App
+dotnet run --project dotnet/BaseFaq.Tenant.Portal.Api
 ```
 
 Endpoints:
@@ -124,8 +124,8 @@ docker compose -p bf_services -f docker/docker-compose.yml up -d --build
 
 This compose file:
 - Runs these services:
-  - `basefaq.faq.faqweb.app`
-  - `basefaq.tenant.tenantweb.app`
+  - `basefaq.faq.portal.app`
+  - `basefaq.tenant.portal.app`
 - Wires the service to the `bf-network` network created by the base services.
 - Uses the repo root as the build context, so run the command from the repo root.
 
@@ -144,15 +144,15 @@ Note: `./docker.sh` removes the BaseFaq Docker images and prunes Docker images a
 - SMTP4Dev UI: `http://localhost:4590` (SMTP on `1025`)
 - RabbitMQ UI: `http://localhost:15672` (AMQP on `5672`, auth disabled)
 - Redis: `localhost:6379`
-- FAQ Web API (Docker): `http://localhost:5010`
-- Tenant Web API (Docker): `http://localhost:5000`
+- FAQ Portal API (Docker): `http://localhost:5010`
+- Tenant Portal API (Docker): `http://localhost:5000`
 
 ## Tests
 Integration tests:
 
 ```bash
-dotnet test dotnet/BaseFaq.Faq.FaqWeb.Test.IntegrationTests/BaseFaq.Faq.FaqWeb.Test.IntegrationTests.csproj
-dotnet test dotnet/BaseFaq.Tenant.TenantWeb.Test.IntegrationTests/BaseFaq.Tenant.TenantWeb.Test.IntegrationTests.csproj
+dotnet test dotnet/BaseFaq.Faq.Portal.Test.IntegrationTests/BaseFaq.Faq.Portal.Test.IntegrationTests.csproj
+dotnet test dotnet/BaseFaq.Tenant.Portal.Test.IntegrationTests/BaseFaq.Tenant.Portal.Test.IntegrationTests.csproj
 ```
 
 ## Auth0 setup (step-by-step)
@@ -171,7 +171,7 @@ Create a Single Page Application:
 - In the app's **APIs** tab, authorize access to your API identifier (Audience)
 
 ### 3) Configure BaseFaq apps
-Edit `dotnet/BaseFaq.Faq.FaqWeb.App/appsettings.json` and `dotnet/BaseFaq.Tenant.TenantWeb.App/appsettings.json`:
+Edit `dotnet/BaseFaq.Faq.Portal.Api/appsettings.json` and `dotnet/BaseFaq.Tenant.Portal.Api/appsettings.json`:
 - `JwtAuthentication:Authority` = `https://<AUTH0_DOMAIN>/`
 - `JwtAuthentication:Audience` = `https://<API_IDENTIFIER>`
 - `Session:UserIdClaimType` = `sub`

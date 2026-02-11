@@ -42,7 +42,7 @@ public class TenantDbContextBusinessRulesTests
         using var context = TestContext.Create();
         var tenant = await TestDataFactory.SeedTenantAsync(
             context.DbContext,
-            connectionString: "Host=localhost;Database=tenant;Username=tenant;Password=tenant;",
+            connectionString: "Host=host.docker.internal;Database=tenant;Username=tenant;Password=tenant;",
             isActive: true);
 
         var result = await context.DbContext.GetTenantConnectionString(tenant.Id);

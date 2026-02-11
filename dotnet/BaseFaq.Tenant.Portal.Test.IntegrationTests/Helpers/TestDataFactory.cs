@@ -24,7 +24,8 @@ public static class TestDataFactory
             Name = name ?? "Default Tenant",
             Edition = edition,
             App = app,
-            ConnectionString = connectionString ?? "Host=localhost;Database=tenant;Username=tenant;Password=tenant;",
+            ConnectionString = connectionString ??
+                               "Host=host.docker.internal;Database=tenant;Username=tenant;Password=tenant;",
             IsActive = isActive,
             UserId = userId
         };
@@ -43,7 +44,8 @@ public static class TestDataFactory
         var tenantConnection = new TenantConnection
         {
             App = app,
-            ConnectionString = connectionString ?? "Host=localhost;Database=tenant;Username=tenant;Password=tenant;",
+            ConnectionString = connectionString ??
+                               "Host=host.docker.internal;Database=tenant;Username=tenant;Password=tenant;",
             IsCurrent = isCurrent
         };
 

@@ -1,9 +1,9 @@
 services:
-  basefaq.faq.faqweb.app:
-    image: basefaq.faq.faqweb.app
+  basefaq.faq.portal.app:
+    image: basefaq.faq.portal.app
     build:
       context: ..
-      dockerfile: dotnet/BaseFaq.Faq.FaqWeb.App/Dockerfile
+      dockerfile: dotnet/BaseFaq.Faq.Portal.Api/Dockerfile
     ports:
       - "5010:5010"
     environment:
@@ -13,11 +13,11 @@ services:
       - "host.docker.internal:host-gateway"
     networks:
       - bf-network
-  basefaq.tenant.tenantweb.app:
-    image: basefaq.tenant.tenantweb.app
+  basefaq.tenant.portal.app:
+    image: basefaq.tenant.portal.app
     build:
       context: ..
-      dockerfile: dotnet/BaseFaq.Tenant.TenantWeb.App/Dockerfile
+      dockerfile: dotnet/BaseFaq.Tenant.Portal.Api/Dockerfile
     ports:
       - "5000:5000"
     environment:

@@ -27,7 +27,7 @@ public class TenantCommandQueryTests
             Name = "Tenant One",
             Edition = TenantEdition.Free,
             App = AppEnum.Faq,
-            ConnectionString = "Host=localhost;Database=tenant;Username=tenant;Password=tenant;",
+            ConnectionString = "Host=host.docker.internal;Database=tenant;Username=tenant;Password=tenant;",
             IsActive = true
         };
 
@@ -56,7 +56,7 @@ public class TenantCommandQueryTests
             Slug = "new",
             Name = "New",
             Edition = TenantEdition.Enterprise,
-            ConnectionString = "Host=localhost;Database=updated;Username=tenant;Password=tenant;",
+            ConnectionString = "Host=host.docker.internal;Database=updated;Username=tenant;Password=tenant;",
             IsActive = false
         };
 
@@ -82,7 +82,7 @@ public class TenantCommandQueryTests
             Slug = "missing",
             Name = "Missing",
             Edition = TenantEdition.Free,
-            ConnectionString = "Host=localhost;Database=missing;Username=tenant;Password=tenant;",
+            ConnectionString = "Host=host.docker.internal;Database=missing;Username=tenant;Password=tenant;",
             IsActive = true
         };
 
@@ -218,7 +218,7 @@ public class TenantCommandQueryTests
             Name = "Same",
             Edition = TenantEdition.Free,
             App = AppEnum.Faq,
-            ConnectionString = "Host=localhost;Database=a;Username=tenant;Password=tenant;",
+            ConnectionString = "Host=host.docker.internal;Database=a;Username=tenant;Password=tenant;",
             IsActive = true
         };
         var tenantB = new BaseFaq.Common.EntityFramework.Tenant.Entities.Tenant
@@ -228,7 +228,7 @@ public class TenantCommandQueryTests
             Name = "Same",
             Edition = TenantEdition.Free,
             App = AppEnum.Faq,
-            ConnectionString = "Host=localhost;Database=b;Username=tenant;Password=tenant;",
+            ConnectionString = "Host=host.docker.internal;Database=b;Username=tenant;Password=tenant;",
             IsActive = true
         };
 
@@ -265,7 +265,7 @@ public class TenantCommandQueryTests
             Name = "Duplicate",
             Edition = TenantEdition.Free,
             App = AppEnum.Faq,
-            ConnectionString = "Host=localhost;Database=dup;Username=tenant;Password=tenant;",
+            ConnectionString = "Host=host.docker.internal;Database=dup;Username=tenant;Password=tenant;",
             IsActive = true
         };
 
