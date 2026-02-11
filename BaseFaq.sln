@@ -39,9 +39,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BaseFaq.Common.EntityFramew
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Business", "Business", "{E89390E1-6CB3-41FE-A9F3-79EC7D3CCC48}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "App", "App", "{C2244164-35B4-44F8-BE00-281DF3D46BDD}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Api", "Api", "{C2244164-35B4-44F8-BE00-281DF3D46BDD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BaseFaq.Faq.FaqWeb.Business.Faq", "dotnet\BaseFaq.Faq.FaqWeb.Business.Faq\BaseFaq.Faq.FaqWeb.Business.Faq.csproj", "{6BDE1BC3-5B51-43DA-A6AD-0830A57CC4A0}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BaseFaq.Faq.Portal.Business.Faq", "dotnet\BaseFaq.Faq.Portal.Business.Faq\BaseFaq.Faq.Portal.Business.Faq.csproj", "{6BDE1BC3-5B51-43DA-A6AD-0830A57CC4A0}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BaseFaq.Models.Tenant", "dotnet\BaseFaq.Models.Tenant\BaseFaq.Models.Tenant.csproj", "{42ADA3F8-6276-4356-8E33-C0E64CB5EBB8}"
 EndProject
@@ -53,9 +53,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "MediatR", "MediatR", "{3196
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BaseFaq.Common.Infrastructure.MediatR", "dotnet\BaseFaq.Common.Infrastructure.MediatR\BaseFaq.Common.Infrastructure.MediatR.csproj", "{4838B690-1FD5-4435-A2D3-C679D42ACACC}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "FaqWeb", "FaqWeb", "{CE802043-9F89-4D8C-AD58-6EFBCFE62A30}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Portal", "Portal", "{CE802043-9F89-4D8C-AD58-6EFBCFE62A30}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BaseFaq.Faq.FaqWeb.App", "dotnet\BaseFaq.Faq.FaqWeb.App\BaseFaq.Faq.FaqWeb.App.csproj", "{9ECE504D-86EC-4549-9A93-3A8B48E28D50}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BaseFaq.Faq.Portal.Api", "dotnet\BaseFaq.Faq.Portal.Api\BaseFaq.Faq.Portal.Api.csproj", "{9ECE504D-86EC-4549-9A93-3A8B48E28D50}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ApiErrorHandling", "ApiErrorHandling", "{7F666E35-BE7F-4418-A106-5CA38D06F2A6}"
 EndProject
@@ -67,41 +67,43 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BaseFaq.Common.Infrastructu
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tenant", "Tenant", "{110EEA56-646F-491F-A834-B87B474BBB6B}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "TenantWeb", "TenantWeb", "{9AAF9198-586C-4986-B2A2-EA87A44302F8}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Portal", "Portal", "{9AAF9198-586C-4986-B2A2-EA87A44302F8}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "App", "App", "{05B7DC7A-69AE-444D-A5EE-84199DAA26DF}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Api", "Api", "{05B7DC7A-69AE-444D-A5EE-84199DAA26DF}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Business", "Business", "{4600E701-4E95-4894-AAB7-AFFA8D04FC9F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BaseFaq.Tenant.TenantWeb.Business.Tenant", "dotnet\BaseFaq.Tenant.TenantWeb.Business.Tenant\BaseFaq.Tenant.TenantWeb.Business.Tenant.csproj", "{E42ABBE9-E919-4DD1-BF8F-F38E2DECEBF8}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BaseFaq.Tenant.Portal.Business.Tenant", "dotnet\BaseFaq.Tenant.Portal.Business.Tenant\BaseFaq.Tenant.Portal.Business.Tenant.csproj", "{E42ABBE9-E919-4DD1-BF8F-F38E2DECEBF8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BaseFaq.Tenant.TenantWeb.Business.User", "dotnet\BaseFaq.Tenant.TenantWeb.Business.User\BaseFaq.Tenant.TenantWeb.Business.User.csproj", "{E9D1849A-B772-4276-9107-14052361E586}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BaseFaq.Tenant.Portal.Business.User", "dotnet\BaseFaq.Tenant.Portal.Business.User\BaseFaq.Tenant.Portal.Business.User.csproj", "{E9D1849A-B772-4276-9107-14052361E586}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Mvc", "Mvc", "{68FC6E65-C7A1-4FFC-8E1F-87720BBFC80D}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BaseFaq.Common.Infrastructure.Mvc", "dotnet\BaseFaq.Common.Infrastructure.Mvc\BaseFaq.Common.Infrastructure.Mvc.csproj", "{AA1F2B69-8314-4334-9A06-D0C663765D76}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BaseFaq.Tenant.TenantWeb.App", "dotnet\BaseFaq.Tenant.TenantWeb.App\BaseFaq.Tenant.TenantWeb.App.csproj", "{46EEAAB3-6935-4565-A7AE-06ACE3E52B0B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BaseFaq.Tenant.Portal.Api", "dotnet\BaseFaq.Tenant.Portal.Api\BaseFaq.Tenant.Portal.Api.csproj", "{46EEAAB3-6935-4565-A7AE-06ACE3E52B0B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BaseFaq.Common.EntityFramework.Migrations", "dotnet\BaseFaq.Common.EntityFramework.Migrations\BaseFaq.Common.EntityFramework.Migrations.csproj", "{46C7682E-F313-466B-9739-242E66A5FC32}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BaseFaq.Migration", "dotnet\BaseFaq.Migration\BaseFaq.Migration.csproj", "{46C7682E-F313-466B-9739-242E66A5FC32}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BaseFaq.Faq.FaqWeb.Business.FaqItem", "dotnet\BaseFaq.Faq.FaqWeb.Business.FaqItem\BaseFaq.Faq.FaqWeb.Business.FaqItem.csproj", "{A7FCE4A5-EA11-4B16-9F94-E6CB990FF201}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BaseFaq.Faq.Portal.Business.FaqItem", "dotnet\BaseFaq.Faq.Portal.Business.FaqItem\BaseFaq.Faq.Portal.Business.FaqItem.csproj", "{A7FCE4A5-EA11-4B16-9F94-E6CB990FF201}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BaseFaq.Faq.FaqWeb.Business.Tag", "dotnet\BaseFaq.Faq.FaqWeb.Business.Tag\BaseFaq.Faq.FaqWeb.Business.Tag.csproj", "{73A82653-6341-4B75-BC6B-0CF261FB38B7}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BaseFaq.Faq.Portal.Business.Tag", "dotnet\BaseFaq.Faq.Portal.Business.Tag\BaseFaq.Faq.Portal.Business.Tag.csproj", "{73A82653-6341-4B75-BC6B-0CF261FB38B7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BaseFaq.Faq.FaqWeb.Business.Vote", "dotnet\BaseFaq.Faq.FaqWeb.Business.Vote\BaseFaq.Faq.FaqWeb.Business.Vote.csproj", "{B3CF1B48-D76A-4E49-A7F7-3E4C8C8A6588}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BaseFaq.Faq.Portal.Business.Vote", "dotnet\BaseFaq.Faq.Portal.Business.Vote\BaseFaq.Faq.Portal.Business.Vote.csproj", "{B3CF1B48-D76A-4E49-A7F7-3E4C8C8A6588}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BaseFaq.Faq.FaqWeb.Business.ContentRef", "dotnet\BaseFaq.Faq.FaqWeb.Business.ContentRef\BaseFaq.Faq.FaqWeb.Business.ContentRef.csproj", "{F13A4883-AC78-4989-9CF2-FFA299908A15}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BaseFaq.Faq.Portal.Business.ContentRef", "dotnet\BaseFaq.Faq.Portal.Business.ContentRef\BaseFaq.Faq.Portal.Business.ContentRef.csproj", "{F13A4883-AC78-4989-9CF2-FFA299908A15}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Test", "Test", "{76C190F6-6B0F-4254-8484-A5C08EDA9EA6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BaseFaq.Faq.FaqWeb.Test.IntegrationTests", "dotnet\BaseFaq.Faq.FaqWeb.Test.IntegrationTests\BaseFaq.Faq.FaqWeb.Test.IntegrationTests.csproj", "{B7036CF5-166B-4BD3-94EC-5197C7CD2262}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BaseFaq.Faq.Portal.Test.IntegrationTests", "dotnet\BaseFaq.Faq.Portal.Test.IntegrationTests\BaseFaq.Faq.Portal.Test.IntegrationTests.csproj", "{B7036CF5-166B-4BD3-94EC-5197C7CD2262}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Test", "Test", "{218F0E0E-4124-48BF-96AC-B6C41B09A666}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BaseFaq.Tenant.TenantWeb.Test.IntegrationTests", "dotnet\BaseFaq.Tenant.TenantWeb.Test.IntegrationTests\BaseFaq.Tenant.TenantWeb.Test.IntegrationTests.csproj", "{0385B3A7-6D65-41B2-9795-39AE4033AA7F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BaseFaq.Tenant.Portal.Test.IntegrationTests", "dotnet\BaseFaq.Tenant.Portal.Test.IntegrationTests\BaseFaq.Tenant.Portal.Test.IntegrationTests.csproj", "{0385B3A7-6D65-41B2-9795-39AE4033AA7F}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Common", "Common", "{279C49E4-209C-43D8-A2F5-B9B42D27676B}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Migration", "Migration", "{01B7FDA8-388B-47D9-9394-976D91A80566}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -245,7 +247,6 @@ Global
 		{68FC6E65-C7A1-4FFC-8E1F-87720BBFC80D} = {87130428-904D-44AB-82A8-9341EA677BAB}
 		{AA1F2B69-8314-4334-9A06-D0C663765D76} = {68FC6E65-C7A1-4FFC-8E1F-87720BBFC80D}
 		{46EEAAB3-6935-4565-A7AE-06ACE3E52B0B} = {05B7DC7A-69AE-444D-A5EE-84199DAA26DF}
-		{46C7682E-F313-466B-9739-242E66A5FC32} = {C6E08597-FAFA-433E-B087-7F0F2F27BEA4}
 		{A7FCE4A5-EA11-4B16-9F94-E6CB990FF201} = {E89390E1-6CB3-41FE-A9F3-79EC7D3CCC48}
 		{73A82653-6341-4B75-BC6B-0CF261FB38B7} = {E89390E1-6CB3-41FE-A9F3-79EC7D3CCC48}
 		{B3CF1B48-D76A-4E49-A7F7-3E4C8C8A6588} = {E89390E1-6CB3-41FE-A9F3-79EC7D3CCC48}
@@ -256,5 +257,6 @@ Global
 		{0385B3A7-6D65-41B2-9795-39AE4033AA7F} = {218F0E0E-4124-48BF-96AC-B6C41B09A666}
 		{279C49E4-209C-43D8-A2F5-B9B42D27676B} = {3CB44992-3CBF-4A43-9BAF-4EEA3BE6F769}
 		{FA22D355-D849-47BD-8698-4A822738F45B} = {279C49E4-209C-43D8-A2F5-B9B42D27676B}
+		{46C7682E-F313-466B-9739-242E66A5FC32} = {01B7FDA8-388B-47D9-9394-976D91A80566}
 	EndGlobalSection
 EndGlobal
