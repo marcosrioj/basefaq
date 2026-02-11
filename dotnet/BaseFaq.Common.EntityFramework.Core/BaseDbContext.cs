@@ -127,7 +127,7 @@ public abstract class BaseDbContext<TContext> : DbContext where TContext : DbCon
                 continue;
             }
 
-            modelBuilder.Entity(entityType.ClrType).HasQueryFilter(filter);
+            ApplyQueryFilter(modelBuilder, entityType.ClrType, filter);
         }
     }
 
@@ -141,7 +141,48 @@ public abstract class BaseDbContext<TContext> : DbContext where TContext : DbCon
                 continue;
             }
 
-            modelBuilder.Entity(entityType.ClrType).HasQueryFilter(filter);
+            ApplyQueryFilter(modelBuilder, entityType.ClrType, filter);
+        }
+    }
+
+    private static void ApplyQueryFilter(ModelBuilder modelBuilder, Type entityType, LambdaExpression filter)
+    {
+        var entity = modelBuilder.Entity(entityType);
+        var existingFilter = entity.Metadata.GetQueryFilter();
+
+        if (existingFilter is null)
+        {
+            entity.HasQueryFilter(filter);
+            return;
+        }
+
+        var parameter = Expression.Parameter(entityType, "e");
+        var left = ReplaceParameter(existingFilter, parameter);
+        var right = ReplaceParameter(filter, parameter);
+        var combined = Expression.Lambda(Expression.AndAlso(left, right), parameter);
+
+        entity.HasQueryFilter(combined);
+    }
+
+    private static Expression ReplaceParameter(LambdaExpression expression, ParameterExpression parameter)
+    {
+        return new ParameterReplaceVisitor(expression.Parameters[0], parameter).Visit(expression.Body)!;
+    }
+
+    private sealed class ParameterReplaceVisitor : ExpressionVisitor
+    {
+        private readonly ParameterExpression _from;
+        private readonly ParameterExpression _to;
+
+        public ParameterReplaceVisitor(ParameterExpression from, ParameterExpression to)
+        {
+            _from = from;
+            _to = to;
+        }
+
+        protected override Expression VisitParameter(ParameterExpression node)
+        {
+            return node == _from ? _to : base.VisitParameter(node);
         }
     }
 
@@ -245,8 +286,9 @@ public abstract class BaseDbContext<TContext> : DbContext where TContext : DbCon
                 continue;
             }
 
-            entry.State = EntityState.Modified;
             entry.Entity.IsDeleted = true;
+            entry.State = EntityState.Modified;
+            entry.Property(nameof(ISoftDelete.IsDeleted)).IsModified = true;
 
             if (entry.Entity is AuditableEntity auditableEntity)
             {

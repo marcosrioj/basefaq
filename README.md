@@ -147,6 +147,13 @@ Note: `./docker.sh` removes the BaseFaq Docker images and prunes Docker images a
 - FAQ Web API (Docker): `http://localhost:5010`
 - Tenant Web API (Docker): `http://localhost:5000`
 
+## Tests
+Integration tests:
+
+```bash
+dotnet test dotnet/BaseFaq.Faq.FaqWeb.Test.IntegrationTests/BaseFaq.Faq.FaqWeb.Test.IntegrationTests.csproj
+```
+
 ## Auth0 setup (step-by-step)
 You must use an external identity provider. This project expects Auth0 to issue JWTs.
 
