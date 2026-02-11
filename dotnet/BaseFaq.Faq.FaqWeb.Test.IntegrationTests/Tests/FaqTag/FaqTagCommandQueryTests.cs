@@ -5,6 +5,7 @@ using BaseFaq.Faq.FaqWeb.Business.Faq.Queries.GetFaqTag;
 using BaseFaq.Faq.FaqWeb.Business.Faq.Queries.GetFaqTagList;
 using BaseFaq.Faq.FaqWeb.Test.IntegrationTests.Helpers;
 using BaseFaq.Models.Faq.Dtos.FaqTag;
+using Microsoft.EntityFrameworkCore;
 using Xunit;
 
 namespace BaseFaq.Faq.FaqWeb.Test.IntegrationTests.Tests.FaqTag;
@@ -202,5 +203,20 @@ public class FaqTagCommandQueryTests
 
         Assert.Equal(2, result.TotalCount);
         Assert.Equal(2, result.Items.Count);
+    }
+
+    [Fact]
+    public async Task CreateFaqTag_ThrowsWhenDuplicatePair()
+    {
+        using var context = TestContext.Create();
+        var faq = await TestDataFactory.SeedFaqAsync(context.DbContext, context.SessionService.TenantId);
+        var tag = await TestDataFactory.SeedTagAsync(context.DbContext, context.SessionService.TenantId);
+
+        var handler = new FaqTagsCreateFaqTagCommandHandler(context.DbContext, context.SessionService);
+        var request = new FaqTagsCreateFaqTagCommand { FaqId = faq.Id, TagId = tag.Id };
+
+        await handler.Handle(request, CancellationToken.None);
+
+        await Assert.ThrowsAsync<DbUpdateException>(() => handler.Handle(request, CancellationToken.None));
     }
 }

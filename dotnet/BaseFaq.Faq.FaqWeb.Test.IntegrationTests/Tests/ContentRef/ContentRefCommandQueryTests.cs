@@ -126,4 +126,56 @@ public class ContentRefCommandQueryTests
         Assert.Equal(2, result.TotalCount);
         Assert.Equal(2, result.Items.Count);
     }
+
+    [Fact]
+    public async Task GetContentRefList_SortsByExplicitField()
+    {
+        using var context = TestContext.Create();
+        await TestDataFactory.SeedContentRefAsync(context.DbContext, context.SessionService.TenantId,
+            ContentRefKind.Web, "b-locator");
+        await TestDataFactory.SeedContentRefAsync(context.DbContext, context.SessionService.TenantId,
+            ContentRefKind.Web, "a-locator");
+
+        var handler = new ContentRefsGetContentRefListQueryHandler(context.DbContext);
+        var request = new ContentRefsGetContentRefListQuery
+        {
+            Request = new ContentRefGetAllRequestDto
+            {
+                SkipCount = 0,
+                MaxResultCount = 10,
+                Sorting = "locator DESC"
+            }
+        };
+
+        var result = await handler.Handle(request, CancellationToken.None);
+
+        Assert.Equal("b-locator", result.Items[0].Locator);
+        Assert.Equal("a-locator", result.Items[1].Locator);
+    }
+
+    [Fact]
+    public async Task GetContentRefList_FallsBackToLocatorWhenSortingInvalid()
+    {
+        using var context = TestContext.Create();
+        await TestDataFactory.SeedContentRefAsync(context.DbContext, context.SessionService.TenantId,
+            ContentRefKind.Web, "b-locator");
+        await TestDataFactory.SeedContentRefAsync(context.DbContext, context.SessionService.TenantId,
+            ContentRefKind.Web, "a-locator");
+
+        var handler = new ContentRefsGetContentRefListQueryHandler(context.DbContext);
+        var request = new ContentRefsGetContentRefListQuery
+        {
+            Request = new ContentRefGetAllRequestDto
+            {
+                SkipCount = 0,
+                MaxResultCount = 10,
+                Sorting = "unknown DESC"
+            }
+        };
+
+        var result = await handler.Handle(request, CancellationToken.None);
+
+        Assert.Equal("a-locator", result.Items[0].Locator);
+        Assert.Equal("b-locator", result.Items[1].Locator);
+    }
 }

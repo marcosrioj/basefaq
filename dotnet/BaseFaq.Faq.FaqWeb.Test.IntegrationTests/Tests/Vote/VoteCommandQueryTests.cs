@@ -265,4 +265,137 @@ public class VoteCommandQueryTests
         Assert.Equal(2, result.TotalCount);
         Assert.Equal(2, result.Items.Count);
     }
+
+    [Fact]
+    public async Task CreateVote_UsesForwardedForIpWhenProvided()
+    {
+        var httpContext = new DefaultHttpContext();
+        httpContext.Connection.RemoteIpAddress = IPAddress.Parse("10.0.0.10");
+        httpContext.Request.Headers.UserAgent = "ForwardAgent/1.0";
+        httpContext.Request.Headers["X-Forwarded-For"] = "203.0.113.8, 70.41.3.18";
+
+        using var context = TestContext.Create(httpContext: httpContext);
+        var faq = await TestDataFactory.SeedFaqAsync(context.DbContext, context.SessionService.TenantId);
+        var faqItem = await TestDataFactory.SeedFaqItemAsync(
+            context.DbContext,
+            context.SessionService.TenantId,
+            faq.Id);
+
+        var handler = new VotesCreateVoteCommandHandler(
+            context.DbContext,
+            context.SessionService,
+            context.HttpContextAccessor);
+        var request = new VotesCreateVoteCommand
+        {
+            Like = true,
+            UnLikeReason = null,
+            FaqItemId = faqItem.Id
+        };
+
+        var identity = VoteRequestContext.GetIdentity(context.SessionService, context.HttpContextAccessor);
+        var id = await handler.Handle(request, CancellationToken.None);
+
+        var vote = await context.DbContext.Votes.FindAsync(id);
+        Assert.NotNull(vote);
+        Assert.Equal("203.0.113.8", vote!.Ip);
+        Assert.Equal(identity.UserPrint, vote.UserPrint);
+    }
+
+    [Fact]
+    public async Task UpdateVote_ThrowsWhenHttpContextMissing()
+    {
+        using var context = TestContext.Create(httpContext: null);
+        var faq = await TestDataFactory.SeedFaqAsync(context.DbContext, context.SessionService.TenantId);
+        var faqItem = await TestDataFactory.SeedFaqItemAsync(
+            context.DbContext,
+            context.SessionService.TenantId,
+            faq.Id);
+        var vote = await TestDataFactory.SeedVoteAsync(
+            context.DbContext,
+            context.SessionService.TenantId,
+            faqItem.Id);
+
+        var handler = new VotesUpdateVoteCommandHandler(
+            context.DbContext,
+            context.SessionService,
+            context.HttpContextAccessor);
+        var request = new VotesUpdateVoteCommand
+        {
+            Id = vote.Id,
+            Like = true,
+            UnLikeReason = null,
+            FaqItemId = faqItem.Id
+        };
+
+        var exception =
+            await Assert.ThrowsAsync<ApiErrorException>(() => handler.Handle(request, CancellationToken.None));
+
+        Assert.Equal(401, exception.ErrorCode);
+    }
+
+    [Fact]
+    public async Task GetVoteList_SortsByExplicitField()
+    {
+        using var context = TestContext.Create();
+        var faq = await TestDataFactory.SeedFaqAsync(context.DbContext, context.SessionService.TenantId);
+        var faqItem = await TestDataFactory.SeedFaqItemAsync(
+            context.DbContext,
+            context.SessionService.TenantId,
+            faq.Id);
+        await TestDataFactory.SeedVoteAsync(context.DbContext, context.SessionService.TenantId, faqItem.Id,
+            like: false);
+        await TestDataFactory.SeedVoteAsync(context.DbContext, context.SessionService.TenantId, faqItem.Id, like: true);
+
+        var handler = new VotesGetVoteListQueryHandler(context.DbContext);
+        var request = new VotesGetVoteListQuery
+        {
+            Request = new VoteGetAllRequestDto
+            {
+                SkipCount = 0,
+                MaxResultCount = 10,
+                Sorting = "like DESC"
+            }
+        };
+
+        var result = await handler.Handle(request, CancellationToken.None);
+
+        Assert.True(result.Items[0].Like);
+        Assert.False(result.Items[1].Like);
+    }
+
+    [Fact]
+    public async Task GetVoteList_FallsBackToCreatedDateWhenSortingInvalid()
+    {
+        using var context = TestContext.Create();
+        var faq = await TestDataFactory.SeedFaqAsync(context.DbContext, context.SessionService.TenantId);
+        var faqItem = await TestDataFactory.SeedFaqItemAsync(
+            context.DbContext,
+            context.SessionService.TenantId,
+            faq.Id);
+        var first = await TestDataFactory.SeedVoteAsync(
+            context.DbContext,
+            context.SessionService.TenantId,
+            faqItem.Id);
+        await Task.Delay(5);
+        var second = await TestDataFactory.SeedVoteAsync(
+            context.DbContext,
+            context.SessionService.TenantId,
+            faqItem.Id);
+
+        var handler = new VotesGetVoteListQueryHandler(context.DbContext);
+        var request = new VotesGetVoteListQuery
+        {
+            Request = new VoteGetAllRequestDto
+            {
+                SkipCount = 0,
+                MaxResultCount = 10,
+                Sorting = "unknown DESC"
+            }
+        };
+
+        var result = await handler.Handle(request, CancellationToken.None);
+
+        Assert.Equal(first.Id, result.Items[0].Id);
+        Assert.Equal(second.Id, result.Items[1].Id);
+    }
 }

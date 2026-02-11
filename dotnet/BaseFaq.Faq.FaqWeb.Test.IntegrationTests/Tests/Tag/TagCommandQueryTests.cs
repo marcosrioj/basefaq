@@ -100,4 +100,52 @@ public class TagCommandQueryTests
         Assert.Equal(2, result.TotalCount);
         Assert.Equal(2, result.Items.Count);
     }
+
+    [Fact]
+    public async Task GetTagList_SortsByExplicitField()
+    {
+        using var context = TestContext.Create();
+        await TestDataFactory.SeedTagAsync(context.DbContext, context.SessionService.TenantId, "alpha");
+        await TestDataFactory.SeedTagAsync(context.DbContext, context.SessionService.TenantId, "beta");
+
+        var handler = new TagsGetTagListQueryHandler(context.DbContext);
+        var request = new TagsGetTagListQuery
+        {
+            Request = new TagGetAllRequestDto
+            {
+                SkipCount = 0,
+                MaxResultCount = 10,
+                Sorting = "value DESC"
+            }
+        };
+
+        var result = await handler.Handle(request, CancellationToken.None);
+
+        Assert.Equal("beta", result.Items[0].Value);
+        Assert.Equal("alpha", result.Items[1].Value);
+    }
+
+    [Fact]
+    public async Task GetTagList_FallsBackToValueWhenSortingInvalid()
+    {
+        using var context = TestContext.Create();
+        await TestDataFactory.SeedTagAsync(context.DbContext, context.SessionService.TenantId, "beta");
+        await TestDataFactory.SeedTagAsync(context.DbContext, context.SessionService.TenantId, "alpha");
+
+        var handler = new TagsGetTagListQueryHandler(context.DbContext);
+        var request = new TagsGetTagListQuery
+        {
+            Request = new TagGetAllRequestDto
+            {
+                SkipCount = 0,
+                MaxResultCount = 10,
+                Sorting = "unknown DESC"
+            }
+        };
+
+        var result = await handler.Handle(request, CancellationToken.None);
+
+        Assert.Equal("alpha", result.Items[0].Value);
+        Assert.Equal("beta", result.Items[1].Value);
+    }
 }

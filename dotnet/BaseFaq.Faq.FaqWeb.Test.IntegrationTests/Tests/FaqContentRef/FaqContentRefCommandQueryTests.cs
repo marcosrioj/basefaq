@@ -5,6 +5,7 @@ using BaseFaq.Faq.FaqWeb.Business.Faq.Queries.GetFaqContentRef;
 using BaseFaq.Faq.FaqWeb.Business.Faq.Queries.GetFaqContentRefList;
 using BaseFaq.Faq.FaqWeb.Test.IntegrationTests.Helpers;
 using BaseFaq.Models.Faq.Dtos.FaqContentRef;
+using Microsoft.EntityFrameworkCore;
 using Xunit;
 
 namespace BaseFaq.Faq.FaqWeb.Test.IntegrationTests.Tests.FaqContentRef;
@@ -233,5 +234,26 @@ public class FaqContentRefCommandQueryTests
 
         Assert.Equal(2, result.TotalCount);
         Assert.Equal(2, result.Items.Count);
+    }
+
+    [Fact]
+    public async Task CreateFaqContentRef_ThrowsWhenDuplicatePair()
+    {
+        using var context = TestContext.Create();
+        var faq = await TestDataFactory.SeedFaqAsync(context.DbContext, context.SessionService.TenantId);
+        var contentRef = await TestDataFactory.SeedContentRefAsync(context.DbContext, context.SessionService.TenantId);
+
+        var handler = new FaqContentRefsCreateFaqContentRefCommandHandler(
+            context.DbContext,
+            context.SessionService);
+        var request = new FaqContentRefsCreateFaqContentRefCommand
+        {
+            FaqId = faq.Id,
+            ContentRefId = contentRef.Id
+        };
+
+        await handler.Handle(request, CancellationToken.None);
+
+        await Assert.ThrowsAsync<DbUpdateException>(() => handler.Handle(request, CancellationToken.None));
     }
 }

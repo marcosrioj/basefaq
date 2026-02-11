@@ -170,4 +170,119 @@ public class FaqItemCommandQueryTests
         Assert.Equal(2, result.TotalCount);
         Assert.Equal(2, result.Items.Count);
     }
+
+    [Fact]
+    public async Task GetFaqItemList_SortsByExplicitField()
+    {
+        using var context = TestContext.Create();
+        var faq = await TestDataFactory.SeedFaqAsync(context.DbContext, context.SessionService.TenantId);
+
+        var first = new BaseFaq.Faq.FaqWeb.Persistence.FaqDb.Entities.FaqItem
+        {
+            Question = "B question",
+            ShortAnswer = "B short",
+            Answer = "B answer",
+            AdditionalInfo = "B info",
+            CtaTitle = "B cta",
+            CtaUrl = "https://example.test/b",
+            Sort = 1,
+            VoteScore = 0,
+            AiConfidenceScore = 0,
+            IsActive = true,
+            FaqId = faq.Id,
+            TenantId = context.SessionService.TenantId
+        };
+        var second = new BaseFaq.Faq.FaqWeb.Persistence.FaqDb.Entities.FaqItem
+        {
+            Question = "A question",
+            ShortAnswer = "A short",
+            Answer = "A answer",
+            AdditionalInfo = "A info",
+            CtaTitle = "A cta",
+            CtaUrl = "https://example.test/a",
+            Sort = 5,
+            VoteScore = 0,
+            AiConfidenceScore = 0,
+            IsActive = true,
+            FaqId = faq.Id,
+            TenantId = context.SessionService.TenantId
+        };
+
+        context.DbContext.FaqItems.AddRange(first, second);
+        await context.DbContext.SaveChangesAsync();
+
+        var handler = new FaqItemsGetFaqItemListQueryHandler(context.DbContext);
+        var request = new FaqItemsGetFaqItemListQuery
+        {
+            Request = new FaqItemGetAllRequestDto
+            {
+                SkipCount = 0,
+                MaxResultCount = 10,
+                Sorting = "sort DESC"
+            }
+        };
+
+        var result = await handler.Handle(request, CancellationToken.None);
+
+        Assert.Equal(2, result.TotalCount);
+        Assert.Equal(second.Id, result.Items[0].Id);
+        Assert.Equal(first.Id, result.Items[1].Id);
+    }
+
+    [Fact]
+    public async Task GetFaqItemList_FallsBackToQuestionWhenSortingInvalid()
+    {
+        using var context = TestContext.Create();
+        var faq = await TestDataFactory.SeedFaqAsync(context.DbContext, context.SessionService.TenantId);
+
+        var first = new BaseFaq.Faq.FaqWeb.Persistence.FaqDb.Entities.FaqItem
+        {
+            Question = "Bravo question",
+            ShortAnswer = "Bravo short",
+            Answer = "Bravo answer",
+            AdditionalInfo = "Bravo info",
+            CtaTitle = "Bravo cta",
+            CtaUrl = "https://example.test/bravo",
+            Sort = 1,
+            VoteScore = 0,
+            AiConfidenceScore = 0,
+            IsActive = true,
+            FaqId = faq.Id,
+            TenantId = context.SessionService.TenantId
+        };
+        var second = new BaseFaq.Faq.FaqWeb.Persistence.FaqDb.Entities.FaqItem
+        {
+            Question = "Alpha question",
+            ShortAnswer = "Alpha short",
+            Answer = "Alpha answer",
+            AdditionalInfo = "Alpha info",
+            CtaTitle = "Alpha cta",
+            CtaUrl = "https://example.test/alpha",
+            Sort = 1,
+            VoteScore = 0,
+            AiConfidenceScore = 0,
+            IsActive = true,
+            FaqId = faq.Id,
+            TenantId = context.SessionService.TenantId
+        };
+
+        context.DbContext.FaqItems.AddRange(first, second);
+        await context.DbContext.SaveChangesAsync();
+
+        var handler = new FaqItemsGetFaqItemListQueryHandler(context.DbContext);
+        var request = new FaqItemsGetFaqItemListQuery
+        {
+            Request = new FaqItemGetAllRequestDto
+            {
+                SkipCount = 0,
+                MaxResultCount = 10,
+                Sorting = "unknown DESC"
+            }
+        };
+
+        var result = await handler.Handle(request, CancellationToken.None);
+
+        Assert.Equal(second.Id, result.Items[0].Id);
+        Assert.Equal(first.Id, result.Items[1].Id);
+    }
 }
