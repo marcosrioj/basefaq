@@ -24,6 +24,9 @@ public class TenantConfiguration : BaseConfiguration<Entities.Tenant>
             .IsRequired()
             .HasMaxLength(Entities.Tenant.MaxConnectionStringLength);
 
+        builder.Property(p => p.ClientKey)
+            .HasMaxLength(Entities.Tenant.MaxClientKeyLength);
+
         builder.Property(p => p.Edition)
             .IsRequired();
 
@@ -40,5 +43,9 @@ public class TenantConfiguration : BaseConfiguration<Entities.Tenant>
         builder.HasIndex(p => p.UserId)
             .IsUnique()
             .HasDatabaseName("IX_Tenant_UserId");
+
+        builder.HasIndex(p => p.ClientKey)
+            .IsUnique()
+            .HasDatabaseName("IX_Tenant_ClientKey");
     }
 }

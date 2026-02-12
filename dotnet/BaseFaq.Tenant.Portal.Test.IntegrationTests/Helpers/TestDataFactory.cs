@@ -16,7 +16,8 @@ public static class TestDataFactory
         AppEnum app = AppEnum.Faq,
         string? connectionString = null,
         bool isActive = true,
-        Guid? userId = null)
+        Guid? userId = null,
+        string? clientKey = null)
     {
         var tenant = new Common.EntityFramework.Tenant.Entities.Tenant
         {
@@ -26,6 +27,7 @@ public static class TestDataFactory
             App = app,
             ConnectionString = connectionString ??
                                "Host=host.docker.internal;Database=tenant;Username=tenant;Password=tenant;",
+            ClientKey = clientKey,
             IsActive = isActive,
             UserId = userId ?? Guid.NewGuid()
         };

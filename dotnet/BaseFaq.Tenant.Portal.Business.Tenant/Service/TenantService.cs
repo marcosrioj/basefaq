@@ -1,7 +1,9 @@
 using BaseFaq.Models.Tenant.Dtos.Tenant;
 using BaseFaq.Tenant.Portal.Business.Tenant.Abstractions;
 using BaseFaq.Tenant.Portal.Business.Tenant.Commands.CreateOrUpdateTenants;
+using BaseFaq.Tenant.Portal.Business.Tenant.Commands.GenerateNewClientKey;
 using BaseFaq.Tenant.Portal.Business.Tenant.Queries.GetAllTenants;
+using BaseFaq.Tenant.Portal.Business.Tenant.Queries.GetClientKey;
 using MediatR;
 
 namespace BaseFaq.Tenant.Portal.Business.Tenant.Service;
@@ -25,5 +27,15 @@ public class TenantService(IMediator mediator) : ITenantService
         };
 
         return mediator.Send(command, token);
+    }
+
+    public Task<string?> GetClientKey(CancellationToken token)
+    {
+        return mediator.Send(new TenantsGetClientKeyQuery(), token);
+    }
+
+    public Task<string> GenerateNewClientKey(CancellationToken token)
+    {
+        return mediator.Send(new TenantsGenerateNewClientKeyCommand(), token);
     }
 }

@@ -27,4 +27,20 @@ public class TenantController(ITenantService tenantService) : ControllerBase
         var result = await tenantService.CreateOrUpdate(dto, token);
         return Ok(result);
     }
+
+    [HttpGet("GetClientKey")]
+    [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetClientKey(CancellationToken token)
+    {
+        var result = await tenantService.GetClientKey(token);
+        return Ok(result);
+    }
+
+    [HttpPost("GenerateNewClientKey")]
+    [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GenerateNewClientKey(CancellationToken token)
+    {
+        var result = await tenantService.GenerateNewClientKey(token);
+        return Ok(result);
+    }
 }

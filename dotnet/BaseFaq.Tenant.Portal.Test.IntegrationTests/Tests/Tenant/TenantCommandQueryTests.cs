@@ -1,7 +1,9 @@
 using BaseFaq.Models.Common.Enums;
 using BaseFaq.Models.Tenant.Enums;
 using BaseFaq.Tenant.Portal.Business.Tenant.Commands.CreateOrUpdateTenants;
+using BaseFaq.Tenant.Portal.Business.Tenant.Commands.GenerateNewClientKey;
 using BaseFaq.Tenant.Portal.Business.Tenant.Queries.GetAllTenants;
+using BaseFaq.Tenant.Portal.Business.Tenant.Queries.GetClientKey;
 using BaseFaq.Tenant.Portal.Test.IntegrationTests.Helpers;
 using Microsoft.EntityFrameworkCore;
 using Xunit;
@@ -194,5 +196,47 @@ public class TenantCommandQueryTests
                 Name = "Will Conflict",
                 Edition = TenantEdition.Free
             }, CancellationToken.None));
+    }
+
+    [Fact]
+    public async Task GetClientKey_ReturnsStoredClientKey()
+    {
+        var currentUserId = Guid.NewGuid();
+        using var context = TestContext.Create(userId: currentUserId);
+
+        await TestDataFactory.SeedTenantAsync(
+            context.DbContext,
+            app: AppEnum.Faq,
+            isActive: true,
+            userId: currentUserId,
+            clientKey: "my-client-key");
+
+        var handler = new TenantsGetClientKeyQueryHandler(context.DbContext, context.SessionService);
+        var result = await handler.Handle(new TenantsGetClientKeyQuery(), CancellationToken.None);
+
+        Assert.Equal("my-client-key", result);
+    }
+
+    [Fact]
+    public async Task GenerateNewClientKey_UpdatesTenantWithNewValue()
+    {
+        var currentUserId = Guid.NewGuid();
+        using var context = TestContext.Create(userId: currentUserId);
+
+        var tenant = await TestDataFactory.SeedTenantAsync(
+            context.DbContext,
+            app: AppEnum.Faq,
+            isActive: true,
+            userId: currentUserId);
+
+        var handler = new TenantsGenerateNewClientKeyCommandHandler(context.DbContext, context.SessionService);
+        var generatedKey = await handler.Handle(new TenantsGenerateNewClientKeyCommand(), CancellationToken.None);
+
+        Assert.False(string.IsNullOrWhiteSpace(generatedKey));
+        Assert.True(generatedKey.Length >= 40);
+
+        var updatedTenant = await context.DbContext.Tenants.FindAsync(tenant.Id);
+        Assert.NotNull(updatedTenant);
+        Assert.Equal(generatedKey, updatedTenant!.ClientKey);
     }
 }
