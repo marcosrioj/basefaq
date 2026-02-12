@@ -74,6 +74,8 @@ Notes:
 - `Database update` applies migrations for **all** tenant connection strings in `Tenant.ConnectionString` filtered by the chosen app.
 - It reads the tenant DB connection string from `dotnet/BaseFaq.Tenant.Portal.Api/appsettings.json`
   (`ConnectionStrings:TenantDb`).
+- When creating a new migration, make sure the current tenant connection is properly added.
+- Migrations run against all existing tenants for the selected app.
 
 ## Hostname that works on host + Docker
 If you want a single hostname that works both in Rider (host machine) and inside Docker,
