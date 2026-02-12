@@ -11,4 +11,5 @@ public class TenantCreateRequestDto
     public required AppEnum App { get; set; }
     public required string ConnectionString { get; set; }
     public required bool IsActive { get; set; }
+    public required Guid UserId { get; set; }
 }

@@ -21,6 +21,7 @@ public class TenantCommandQueryTests
         using var context = TestContext.Create();
 
         var handler = new TenantsCreateTenantCommandHandler(context.DbContext);
+        var userId = Guid.NewGuid();
         var request = new TenantsCreateTenantCommand
         {
             Slug = "tenant-one",
@@ -28,7 +29,8 @@ public class TenantCommandQueryTests
             Edition = TenantEdition.Free,
             App = AppEnum.Faq,
             ConnectionString = "Host=host.docker.internal;Database=tenant;Username=tenant;Password=tenant;",
-            IsActive = true
+            IsActive = true,
+            UserId = userId
         };
 
         var id = await handler.Handle(request, CancellationToken.None);
@@ -41,6 +43,7 @@ public class TenantCommandQueryTests
         Assert.Equal(AppEnum.Faq, tenant.App);
         Assert.Equal(request.ConnectionString, tenant.ConnectionString);
         Assert.True(tenant.IsActive);
+        Assert.Equal(userId, tenant.UserId);
     }
 
     [Fact]
@@ -50,6 +53,7 @@ public class TenantCommandQueryTests
         var tenant = await TestDataFactory.SeedTenantAsync(context.DbContext, slug: "old", name: "Old");
 
         var handler = new TenantsUpdateTenantCommandHandler(context.DbContext);
+        var updatedUserId = Guid.NewGuid();
         var request = new TenantsUpdateTenantCommand
         {
             Id = tenant.Id,
@@ -57,7 +61,8 @@ public class TenantCommandQueryTests
             Name = "New",
             Edition = TenantEdition.Enterprise,
             ConnectionString = "Host=host.docker.internal;Database=updated;Username=tenant;Password=tenant;",
-            IsActive = false
+            IsActive = false,
+            UserId = updatedUserId
         };
 
         await handler.Handle(request, CancellationToken.None);
@@ -69,6 +74,7 @@ public class TenantCommandQueryTests
         Assert.Equal(TenantEdition.Enterprise, updated.Edition);
         Assert.Equal(request.ConnectionString, updated.ConnectionString);
         Assert.False(updated.IsActive);
+        Assert.Equal(updatedUserId, updated.UserId);
     }
 
     [Fact]
@@ -83,7 +89,8 @@ public class TenantCommandQueryTests
             Name = "Missing",
             Edition = TenantEdition.Free,
             ConnectionString = "Host=host.docker.internal;Database=missing;Username=tenant;Password=tenant;",
-            IsActive = true
+            IsActive = true,
+            UserId = Guid.NewGuid()
         };
 
         var exception =
@@ -124,6 +131,7 @@ public class TenantCommandQueryTests
         Assert.Equal(tenant.App, result.App);
         Assert.Equal(string.Empty, result.ConnectionString);
         Assert.Equal(tenant.IsActive, result.IsActive);
+        Assert.Equal(tenant.UserId, result.UserId);
     }
 
     [Fact]
@@ -219,7 +227,8 @@ public class TenantCommandQueryTests
             Edition = TenantEdition.Free,
             App = AppEnum.Faq,
             ConnectionString = "Host=host.docker.internal;Database=a;Username=tenant;Password=tenant;",
-            IsActive = true
+            IsActive = true,
+            UserId = Guid.NewGuid()
         };
         var tenantB = new BaseFaq.Common.EntityFramework.Tenant.Entities.Tenant
         {
@@ -229,7 +238,8 @@ public class TenantCommandQueryTests
             Edition = TenantEdition.Free,
             App = AppEnum.Faq,
             ConnectionString = "Host=host.docker.internal;Database=b;Username=tenant;Password=tenant;",
-            IsActive = true
+            IsActive = true,
+            UserId = Guid.NewGuid()
         };
 
         context.DbContext.Tenants.AddRange(tenantA, tenantB);
@@ -266,7 +276,8 @@ public class TenantCommandQueryTests
             Edition = TenantEdition.Free,
             App = AppEnum.Faq,
             ConnectionString = "Host=host.docker.internal;Database=dup;Username=tenant;Password=tenant;",
-            IsActive = true
+            IsActive = true,
+            UserId = Guid.NewGuid()
         };
 
         await Assert.ThrowsAsync<DbUpdateException>(() => handler.Handle(request, CancellationToken.None));

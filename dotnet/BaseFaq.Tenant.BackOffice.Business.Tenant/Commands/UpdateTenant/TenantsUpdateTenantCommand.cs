@@ -11,4 +11,5 @@ public class TenantsUpdateTenantCommand : IRequest
     public required TenantEdition Edition { get; set; }
     public required string ConnectionString { get; set; }
     public required bool IsActive { get; set; }
+    public required Guid UserId { get; set; }
 }

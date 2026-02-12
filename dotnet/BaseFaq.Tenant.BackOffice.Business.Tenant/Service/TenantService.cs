@@ -25,7 +25,8 @@ public class TenantService(IMediator mediator) : ITenantService
             Edition = requestDto.Edition,
             App = requestDto.App,
             ConnectionString = requestDto.ConnectionString,
-            IsActive = requestDto.IsActive
+            IsActive = requestDto.IsActive,
+            UserId = requestDto.UserId
         };
 
         var id = await mediator.Send(command, token);
@@ -77,7 +78,8 @@ public class TenantService(IMediator mediator) : ITenantService
             Name = requestDto.Name,
             Edition = requestDto.Edition,
             ConnectionString = requestDto.ConnectionString,
-            IsActive = requestDto.IsActive
+            IsActive = requestDto.IsActive,
+            UserId = requestDto.UserId
         };
 
         await mediator.Send(command, token);

@@ -27,7 +27,8 @@ public class TenantsGetTenantQueryHandler(TenantDbContext dbContext)
             Edition = tenant.Edition,
             App = tenant.App,
             ConnectionString = string.Empty,
-            IsActive = tenant.IsActive
+            IsActive = tenant.IsActive,
+            UserId = tenant.UserId
         };
     }
 }

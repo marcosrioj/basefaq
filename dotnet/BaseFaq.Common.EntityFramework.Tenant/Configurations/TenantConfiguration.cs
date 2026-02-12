@@ -30,7 +30,8 @@ public class TenantConfiguration : BaseConfiguration<Entities.Tenant>
         builder.Property(p => p.IsActive)
             .IsRequired();
 
-        builder.Property(p => p.UserId);
+        builder.Property(p => p.UserId)
+            .IsRequired();
 
         builder.HasIndex(p => p.Slug)
             .IsUnique()

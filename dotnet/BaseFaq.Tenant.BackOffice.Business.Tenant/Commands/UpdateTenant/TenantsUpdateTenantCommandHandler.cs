@@ -24,6 +24,7 @@ public class TenantsUpdateTenantCommandHandler(TenantDbContext dbContext)
         tenant.Edition = request.Edition;
         tenant.ConnectionString = request.ConnectionString;
         tenant.IsActive = request.IsActive;
+        tenant.UserId = request.UserId;
 
         dbContext.Tenants.Update(tenant);
         await dbContext.SaveChangesAsync(cancellationToken);

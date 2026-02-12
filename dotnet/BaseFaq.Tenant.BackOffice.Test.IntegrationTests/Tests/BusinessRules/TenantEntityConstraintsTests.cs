@@ -20,7 +20,8 @@ public class TenantEntityConstraintsTests
             Edition = TenantEdition.Free,
             App = AppEnum.Faq,
             ConnectionString = "Host=host.docker.internal;Database=a;Username=tenant;Password=tenant;",
-            IsActive = true
+            IsActive = true,
+            UserId = Guid.NewGuid()
         };
         var tenantB = new BaseFaq.Common.EntityFramework.Tenant.Entities.Tenant
         {
@@ -29,7 +30,8 @@ public class TenantEntityConstraintsTests
             Edition = TenantEdition.Free,
             App = AppEnum.Faq,
             ConnectionString = "Host=host.docker.internal;Database=b;Username=tenant;Password=tenant;",
-            IsActive = true
+            IsActive = true,
+            UserId = Guid.NewGuid()
         };
 
         context.DbContext.Tenants.Add(tenantA);

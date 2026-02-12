@@ -16,6 +16,7 @@ public class TenantsCreateTenantCommandHandler(TenantDbContext dbContext)
             App = request.App,
             ConnectionString = request.ConnectionString,
             IsActive = request.IsActive,
+            UserId = request.UserId
         };
 
         await dbContext.Tenants.AddAsync(tenant, cancellationToken);

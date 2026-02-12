@@ -27,7 +27,7 @@ public static class TestDataFactory
             ConnectionString = connectionString ??
                                "Host=host.docker.internal;Database=tenant;Username=tenant;Password=tenant;",
             IsActive = isActive,
-            UserId = userId
+            UserId = userId ?? Guid.NewGuid()
         };
 
         dbContext.Tenants.Add(tenant);

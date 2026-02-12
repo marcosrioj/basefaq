@@ -77,7 +77,7 @@ public sealed class TenantSeedService : ITenantSeedService
         TenantSeedRequest request)
     {
         var slug = existingSlugs.Contains("tenant-001") ? $"tenant-{Guid.NewGuid():N}" : "tenant-001";
-        var userId = users.Count > 0 ? users[0].Id : (Guid?)null;
+        var userId = users.Count > 0 ? users[0].Id : Guid.Empty;
 
         return
         [
