@@ -1,0 +1,96 @@
+using BaseFaq.Faq.Common.Persistence.FaqDb;
+using BaseFaq.Models.Common.Dtos;
+using BaseFaq.Models.Faq.Dtos.FaqItem;
+using BaseFaq.Models.Faq.Enums;
+using MediatR;
+using Microsoft.EntityFrameworkCore;
+
+namespace BaseFaq.Faq.Public.Business.FaqItem.Queries.SearchFaqItem;
+
+public class FaqItemsSearchFaqItemQueryHandler(FaqDbContext dbContext)
+    : IRequestHandler<FaqItemsSearchFaqItemQuery, PagedResultDto<FaqItemDto>>
+{
+    public async Task<PagedResultDto<FaqItemDto>> Handle(
+        FaqItemsSearchFaqItemQuery request,
+        CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(request);
+        ArgumentNullException.ThrowIfNull(request.Request);
+
+        var query = dbContext.FaqItems.AsNoTracking();
+
+        if (request.Request.FaqIds is { Count: > 0 })
+        {
+            query = query.Where(item => request.Request.FaqIds!.Contains(item.FaqId));
+        }
+
+        if (!string.IsNullOrWhiteSpace(request.Request.Search))
+        {
+            var term = request.Request.Search.Trim();
+            query = query.Where(item =>
+                item.Question.Contains(term) ||
+                item.ShortAnswer.Contains(term) ||
+                (item.Answer != null && item.Answer.Contains(term)) ||
+                (item.AdditionalInfo != null && item.AdditionalInfo.Contains(term)));
+        }
+
+        var totalCount = await query.CountAsync(cancellationToken);
+
+        var groupByFaq = request.Request.FaqIds is { Count: > 1 };
+        query = ApplySortByFaqStrategy(query, groupByFaq);
+
+        var items = await query
+            .Skip(request.Request.SkipCount)
+            .Take(request.Request.MaxResultCount)
+            .Select(item => new FaqItemDto
+            {
+                Id = item.Id,
+                Question = item.Question,
+                ShortAnswer = item.ShortAnswer,
+                Answer = item.Answer,
+                AdditionalInfo = item.AdditionalInfo,
+                CtaTitle = item.CtaTitle,
+                CtaUrl = item.CtaUrl,
+                Sort = item.Sort,
+                VoteScore = item.VoteScore,
+                AiConfidenceScore = item.AiConfidenceScore,
+                IsActive = item.IsActive,
+                FaqId = item.FaqId,
+                ContentRefId = item.ContentRefId
+            })
+            .ToListAsync(cancellationToken);
+
+        return new PagedResultDto<FaqItemDto>(totalCount, items);
+    }
+
+    private static IQueryable<Common.Persistence.FaqDb.Entities.FaqItem> ApplySortByFaqStrategy(
+        IQueryable<Common.Persistence.FaqDb.Entities.FaqItem> query,
+        bool groupByFaq)
+    {
+        if (groupByFaq)
+        {
+            return query
+                .OrderBy(item => item.FaqId)
+                .ThenBy(item => item.Faq.SortStrategy == FaqSortStrategy.Sort ? item.Sort : int.MaxValue)
+                .ThenByDescending(item => item.Faq.SortStrategy == FaqSortStrategy.Vote ? item.VoteScore : int.MinValue)
+                .ThenByDescending(item => item.Faq.SortStrategy == FaqSortStrategy.Newest
+                    ? item.CreatedDate ?? DateTime.MinValue
+                    : DateTime.MinValue)
+                .ThenByDescending(item => item.Faq.SortStrategy == FaqSortStrategy.AiConfidence
+                    ? item.AiConfidenceScore
+                    : int.MinValue)
+                .ThenByDescending(item => item.UpdatedDate ?? DateTime.MinValue);
+        }
+
+        return query
+            .OrderBy(item => item.Faq.SortStrategy == FaqSortStrategy.Sort ? item.Sort : int.MaxValue)
+            .ThenByDescending(item => item.Faq.SortStrategy == FaqSortStrategy.Vote ? item.VoteScore : int.MinValue)
+            .ThenByDescending(item => item.Faq.SortStrategy == FaqSortStrategy.Newest
+                ? item.CreatedDate ?? DateTime.MinValue
+                : DateTime.MinValue)
+            .ThenByDescending(item => item.Faq.SortStrategy == FaqSortStrategy.AiConfidence
+                ? item.AiConfidenceScore
+                : int.MinValue)
+            .ThenByDescending(item => item.UpdatedDate ?? DateTime.MinValue);
+    }
+}

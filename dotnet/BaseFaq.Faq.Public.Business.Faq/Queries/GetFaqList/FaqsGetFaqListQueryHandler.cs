@@ -1,0 +1,202 @@
+using BaseFaq.Faq.Common.Persistence.FaqDb;
+using BaseFaq.Models.Common.Dtos;
+using BaseFaq.Models.Faq.Dtos.ContentRef;
+using BaseFaq.Models.Faq.Dtos.Faq;
+using BaseFaq.Models.Faq.Dtos.FaqItem;
+using BaseFaq.Models.Faq.Dtos.Tag;
+using MediatR;
+using Microsoft.EntityFrameworkCore;
+
+namespace BaseFaq.Faq.Public.Business.Faq.Queries.GetFaqList;
+
+public class FaqsGetFaqListQueryHandler(FaqDbContext dbContext)
+    : IRequestHandler<FaqsGetFaqListQuery, PagedResultDto<FaqDetailDto>>
+{
+    public async Task<PagedResultDto<FaqDetailDto>> Handle(FaqsGetFaqListQuery request,
+        CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(request);
+        ArgumentNullException.ThrowIfNull(request.Request);
+
+        var query = dbContext.Faqs.AsNoTracking();
+        if (request.Request.FaqIds is { Count: > 0 })
+        {
+            query = query.Where(faq => request.Request.FaqIds!.Contains(faq.Id));
+        }
+
+        query = ApplySorting(query, request.Request.Sorting);
+
+        var includeItems = request.Request.IncludeFaqItems;
+        var includeContentRefs = request.Request.IncludeContentRefs;
+        var includeTags = request.Request.IncludeTags;
+
+        if (includeItems)
+        {
+            query = query.Include(faq => faq.Items);
+        }
+
+        if (includeContentRefs)
+        {
+            query = query.Include(faq => faq.ContentRefs).ThenInclude(faqContentRef => faqContentRef.ContentRef);
+        }
+
+        if (includeTags)
+        {
+            query = query.Include(faq => faq.Tags).ThenInclude(faqTag => faqTag.Tag);
+        }
+
+        var totalCount = await query.CountAsync(cancellationToken);
+
+        var items = await query
+            .Skip(request.Request.SkipCount)
+            .Take(request.Request.MaxResultCount)
+            .Select(faq => new FaqDetailDto
+            {
+                Id = faq.Id,
+                Name = faq.Name,
+                Language = faq.Language,
+                Status = faq.Status,
+                SortStrategy = faq.SortStrategy,
+                CtaEnabled = faq.CtaEnabled,
+                CtaTarget = faq.CtaTarget,
+                TenantId = faq.TenantId,
+                Items = includeItems
+                    ? faq.Items.Select(item => new FaqItemDto
+                    {
+                        Id = item.Id,
+                        Question = item.Question,
+                        ShortAnswer = item.ShortAnswer,
+                        Answer = item.Answer,
+                        AdditionalInfo = item.AdditionalInfo,
+                        CtaTitle = item.CtaTitle,
+                        CtaUrl = item.CtaUrl,
+                        Sort = item.Sort,
+                        VoteScore = item.VoteScore,
+                        AiConfidenceScore = item.AiConfidenceScore,
+                        IsActive = item.IsActive,
+                        FaqId = item.FaqId,
+                        ContentRefId = item.ContentRefId
+                    }).ToList()
+                    : null,
+                ContentRefs = includeContentRefs
+                    ? faq.ContentRefs.Select(faqContentRef => new ContentRefDto
+                    {
+                        Id = faqContentRef.ContentRef.Id,
+                        Kind = faqContentRef.ContentRef.Kind,
+                        Locator = faqContentRef.ContentRef.Locator,
+                        Label = faqContentRef.ContentRef.Label,
+                        Scope = faqContentRef.ContentRef.Scope,
+                        TenantId = faqContentRef.ContentRef.TenantId
+                    }).ToList()
+                    : null,
+                Tags = includeTags
+                    ? faq.Tags.Select(faqTag => new TagDto
+                    {
+                        Id = faqTag.Tag.Id,
+                        Value = faqTag.Tag.Value,
+                        TenantId = faqTag.Tag.TenantId
+                    }).ToList()
+                    : null
+            })
+            .ToListAsync(cancellationToken);
+
+        return new PagedResultDto<FaqDetailDto>(totalCount, items);
+    }
+
+    private static IQueryable<Common.Persistence.FaqDb.Entities.Faq> ApplySorting(
+        IQueryable<Common.Persistence.FaqDb.Entities.Faq> query, string? sorting)
+    {
+        if (string.IsNullOrWhiteSpace(sorting))
+        {
+            return query.OrderByDescending(faq => faq.UpdatedDate);
+        }
+
+        IOrderedQueryable<Common.Persistence.FaqDb.Entities.Faq>? orderedQuery = null;
+        var fields = sorting.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+
+        foreach (var field in fields)
+        {
+            var parts = field.Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+            if (parts.Length == 0)
+            {
+                continue;
+            }
+
+            var fieldName = parts[0];
+            var desc = parts.Length > 1 && parts[1].Equals("DESC", StringComparison.OrdinalIgnoreCase);
+
+            orderedQuery = ApplyOrder(orderedQuery ?? query, fieldName, desc, orderedQuery is null);
+        }
+
+        return orderedQuery ?? query.OrderByDescending(faq => faq.UpdatedDate);
+    }
+
+    private static IOrderedQueryable<Common.Persistence.FaqDb.Entities.Faq> ApplyOrder(
+        IQueryable<Common.Persistence.FaqDb.Entities.Faq> query,
+        string fieldName,
+        bool desc,
+        bool isFirst)
+    {
+        return fieldName.ToLowerInvariant() switch
+        {
+            "name" => isFirst
+                ? (desc ? query.OrderByDescending(faq => faq.Name) : query.OrderBy(faq => faq.Name))
+                : (desc
+                    ? ((IOrderedQueryable<Common.Persistence.FaqDb.Entities.Faq>)query)
+                    .ThenByDescending(faq => faq.Name)
+                    : ((IOrderedQueryable<Common.Persistence.FaqDb.Entities.Faq>)query).ThenBy(faq => faq.Name)),
+            "language" => isFirst
+                ? (desc ? query.OrderByDescending(faq => faq.Language) : query.OrderBy(faq => faq.Language))
+                : (desc
+                    ? ((IOrderedQueryable<Common.Persistence.FaqDb.Entities.Faq>)query).ThenByDescending(faq =>
+                        faq.Language)
+                    : ((IOrderedQueryable<Common.Persistence.FaqDb.Entities.Faq>)query).ThenBy(faq => faq.Language)),
+            "status" => isFirst
+                ? (desc ? query.OrderByDescending(faq => faq.Status) : query.OrderBy(faq => faq.Status))
+                : (desc
+                    ? ((IOrderedQueryable<Common.Persistence.FaqDb.Entities.Faq>)query).ThenByDescending(faq =>
+                        faq.Status)
+                    : ((IOrderedQueryable<Common.Persistence.FaqDb.Entities.Faq>)query).ThenBy(faq => faq.Status)),
+            "sortstrategy" => isFirst
+                ? (desc ? query.OrderByDescending(faq => faq.SortStrategy) : query.OrderBy(faq => faq.SortStrategy))
+                : (desc
+                    ? ((IOrderedQueryable<Common.Persistence.FaqDb.Entities.Faq>)query).ThenByDescending(faq =>
+                        faq.SortStrategy)
+                    : ((IOrderedQueryable<Common.Persistence.FaqDb.Entities.Faq>)query).ThenBy(faq =>
+                        faq.SortStrategy)),
+            "ctaenabled" => isFirst
+                ? (desc ? query.OrderByDescending(faq => faq.CtaEnabled) : query.OrderBy(faq => faq.CtaEnabled))
+                : (desc
+                    ? ((IOrderedQueryable<Common.Persistence.FaqDb.Entities.Faq>)query)
+                    .ThenByDescending(faq => faq.CtaEnabled)
+                    : ((IOrderedQueryable<Common.Persistence.FaqDb.Entities.Faq>)query).ThenBy(faq => faq.CtaEnabled)),
+            "ctatarget" => isFirst
+                ? (desc ? query.OrderByDescending(faq => faq.CtaTarget) : query.OrderBy(faq => faq.CtaTarget))
+                : (desc
+                    ? ((IOrderedQueryable<Common.Persistence.FaqDb.Entities.Faq>)query)
+                    .ThenByDescending(faq => faq.CtaTarget)
+                    : ((IOrderedQueryable<Common.Persistence.FaqDb.Entities.Faq>)query).ThenBy(faq => faq.CtaTarget)),
+            "createddate" => isFirst
+                ? (desc ? query.OrderByDescending(faq => faq.CreatedDate) : query.OrderBy(faq => faq.CreatedDate))
+                : (desc
+                    ? ((IOrderedQueryable<Common.Persistence.FaqDb.Entities.Faq>)query)
+                    .ThenByDescending(faq => faq.CreatedDate)
+                    : ((IOrderedQueryable<Common.Persistence.FaqDb.Entities.Faq>)query).ThenBy(faq => faq.CreatedDate)),
+            "updateddate" => isFirst
+                ? (desc ? query.OrderByDescending(faq => faq.UpdatedDate) : query.OrderBy(faq => faq.UpdatedDate))
+                : (desc
+                    ? ((IOrderedQueryable<Common.Persistence.FaqDb.Entities.Faq>)query)
+                    .ThenByDescending(faq => faq.UpdatedDate)
+                    : ((IOrderedQueryable<Common.Persistence.FaqDb.Entities.Faq>)query).ThenBy(faq => faq.UpdatedDate)),
+            "id" => isFirst
+                ? (desc ? query.OrderByDescending(faq => faq.Id) : query.OrderBy(faq => faq.Id))
+                : (desc
+                    ? ((IOrderedQueryable<Common.Persistence.FaqDb.Entities.Faq>)query).ThenByDescending(faq => faq.Id)
+                    : ((IOrderedQueryable<Common.Persistence.FaqDb.Entities.Faq>)query).ThenBy(faq => faq.Id)),
+            _ => isFirst
+                ? query.OrderByDescending(faq => faq.UpdatedDate)
+                : ((IOrderedQueryable<Common.Persistence.FaqDb.Entities.Faq>)query)
+                .ThenByDescending(faq => faq.UpdatedDate)
+        };
+    }
+}

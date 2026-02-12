@@ -8,6 +8,7 @@ public enum ContentRefKind
     Document = 4,
     Video = 5,
     Repository = 6,
-    Internal = 7,
+    Faq = 7,
+    FaqItem = 8,
     Other = 99
 }

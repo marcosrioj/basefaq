@@ -1,10 +1,7 @@
-using BaseFaq.Models.Common.Dtos;
-
 namespace BaseFaq.Models.Faq.Dtos.Faq;
 
-public class FaqGetAllRequestDto : PagedAndSortedResultRequestDto
+public class FaqGetRequestDto
 {
-    public List<Guid>? FaqIds { get; set; }
     public bool IncludeFaqItems { get; set; }
     public bool IncludeContentRefs { get; set; }
     public bool IncludeTags { get; set; }
