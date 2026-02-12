@@ -73,15 +73,15 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Api", "Api", "{05B7DC7A-69A
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Business", "Business", "{4600E701-4E95-4894-AAB7-AFFA8D04FC9F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BaseFaq.Tenant.Portal.Business.Tenant", "dotnet\BaseFaq.Tenant.Portal.Business.Tenant\BaseFaq.Tenant.Portal.Business.Tenant.csproj", "{E42ABBE9-E919-4DD1-BF8F-F38E2DECEBF8}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BaseFaq.Tenant.BackOffice.Business.Tenant", "dotnet\BaseFaq.Tenant.BackOffice.Business.Tenant\BaseFaq.Tenant.BackOffice.Business.Tenant.csproj", "{E42ABBE9-E919-4DD1-BF8F-F38E2DECEBF8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BaseFaq.Tenant.Portal.Business.User", "dotnet\BaseFaq.Tenant.Portal.Business.User\BaseFaq.Tenant.Portal.Business.User.csproj", "{E9D1849A-B772-4276-9107-14052361E586}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BaseFaq.Tenant.BackOffice.Business.User", "dotnet\BaseFaq.Tenant.BackOffice.Business.User\BaseFaq.Tenant.BackOffice.Business.User.csproj", "{E9D1849A-B772-4276-9107-14052361E586}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Mvc", "Mvc", "{68FC6E65-C7A1-4FFC-8E1F-87720BBFC80D}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BaseFaq.Common.Infrastructure.Mvc", "dotnet\BaseFaq.Common.Infrastructure.Mvc\BaseFaq.Common.Infrastructure.Mvc.csproj", "{AA1F2B69-8314-4334-9A06-D0C663765D76}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BaseFaq.Tenant.Portal.Api", "dotnet\BaseFaq.Tenant.Portal.Api\BaseFaq.Tenant.Portal.Api.csproj", "{46EEAAB3-6935-4565-A7AE-06ACE3E52B0B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BaseFaq.Tenant.BackOffice.Api", "dotnet\BaseFaq.Tenant.BackOffice.Api\BaseFaq.Tenant.BackOffice.Api.csproj", "{46EEAAB3-6935-4565-A7AE-06ACE3E52B0B}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BaseFaq.Migration", "dotnet\BaseFaq.Migration\BaseFaq.Migration.csproj", "{46C7682E-F313-466B-9739-242E66A5FC32}"
 EndProject
@@ -99,7 +99,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BaseFaq.Faq.Portal.Test.Int
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Test", "Test", "{218F0E0E-4124-48BF-96AC-B6C41B09A666}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BaseFaq.Tenant.Portal.Test.IntegrationTests", "dotnet\BaseFaq.Tenant.Portal.Test.IntegrationTests\BaseFaq.Tenant.Portal.Test.IntegrationTests.csproj", "{0385B3A7-6D65-41B2-9795-39AE4033AA7F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BaseFaq.Tenant.BackOffice.Test.IntegrationTests", "dotnet\BaseFaq.Tenant.BackOffice.Test.IntegrationTests\BaseFaq.Tenant.BackOffice.Test.IntegrationTests.csproj", "{0385B3A7-6D65-41B2-9795-39AE4033AA7F}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Common", "Common", "{279C49E4-209C-43D8-A2F5-B9B42D27676B}"
 EndProject

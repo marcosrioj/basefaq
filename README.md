@@ -4,7 +4,7 @@ Setup guide for a clean machine.
 
 ## What’s in this repo
 - FAQ Portal API
-- Tenant Portal API
+- Tenant Back Office API
 - Shared infrastructure libraries (Swagger/OpenAPI, Sentry, MediatR logging, API error handling)
 - Base services via Docker (PostgreSQL, RabbitMQ, Redis, SMTP4Dev)
 
@@ -55,11 +55,11 @@ Tenant DB (stores tenant records and each tenant's connection string):
 ```bash
 dotnet ef database update \
   --project dotnet/BaseFaq.Common.EntityFramework.Tenant \
-  --startup-project dotnet/BaseFaq.Tenant.Portal.Api
+  --startup-project dotnet/BaseFaq.Tenant.BackOffice.Api
 ```
 
 Connection strings live in:
-- `dotnet/BaseFaq.Tenant.Portal.Api/appsettings.json`
+- `dotnet/BaseFaq.Tenant.BackOffice.Api/appsettings.json`
 
 App DBs (run per tenant):
 
@@ -72,7 +72,7 @@ dotnet run --project dotnet/BaseFaq.Migration
 Notes:
 - The console app asks for the target `AppEnum` and whether to run `Migrations add` or `Database update`.
 - `Database update` applies migrations for **all** tenant connection strings in `Tenant.ConnectionString` filtered by the chosen app.
-- It reads the tenant DB connection string from `dotnet/BaseFaq.Tenant.Portal.Api/appsettings.json`
+- It reads the tenant DB connection string from `dotnet/BaseFaq.Tenant.BackOffice.Api/appsettings.json`
   (`ConnectionStrings:TenantDb`).
 - When creating a new migration, make sure the current tenant connection is properly added.
 - Migrations run against all existing tenants for the selected app.
@@ -135,10 +135,10 @@ Swagger / OpenAPI (FAQ app, Development only):
 - Swagger JSON: `/swagger/v1/swagger.json`
 - OpenAPI JSON (minimal API): `/openapi/v1.json`
 
-Tenant Portal API:
+Tenant Back Office API:
 
 ```bash
-dotnet run --project dotnet/BaseFaq.Tenant.Portal.Api
+dotnet run --project dotnet/BaseFaq.Tenant.BackOffice.Api
 ```
 
 Endpoints:
@@ -156,7 +156,7 @@ docker compose -p bf_services -f docker/docker-compose.yml up -d --build
 This compose file:
 - Runs these services:
   - `basefaq.faq.portal.app`
-  - `basefaq.tenant.portal.app`
+  - `basefaq.tenant.backoffice.app`
 - Wires the service to the `bf-network` network created by the base services.
 - Uses the repo root as the build context, so run the command from the repo root.
 
@@ -184,7 +184,7 @@ Note: the script removes the BaseFaq Docker images and prunes dangling Docker im
 - RabbitMQ UI: `http://localhost:15672` (AMQP on `5672`, auth disabled)
 - Redis: `localhost:6379`
 - FAQ Portal API (Docker): `http://localhost:5010`
-- Tenant Portal API (Docker): `http://localhost:5000`
+- Tenant Back Office API (Docker): `http://localhost:5000`
 
 ## Redis cache
 Clear all Redis databases:
@@ -210,7 +210,7 @@ Integration tests:
 
 ```bash
 dotnet test dotnet/BaseFaq.Faq.Portal.Test.IntegrationTests/BaseFaq.Faq.Portal.Test.IntegrationTests.csproj
-dotnet test dotnet/BaseFaq.Tenant.Portal.Test.IntegrationTests/BaseFaq.Tenant.Portal.Test.IntegrationTests.csproj
+dotnet test dotnet/BaseFaq.Tenant.BackOffice.Test.IntegrationTests/BaseFaq.Tenant.BackOffice.Test.IntegrationTests.csproj
 ```
 
 ## Auth0 setup (step-by-step)
@@ -229,7 +229,7 @@ Create a Single Page Application:
 - In the app's **APIs** tab, authorize access to your API identifier (Audience)
 
 ### 3) Configure BaseFaq apps
-Edit `dotnet/BaseFaq.Faq.Portal.Api/appsettings.json` and `dotnet/BaseFaq.Tenant.Portal.Api/appsettings.json`:
+Edit `dotnet/BaseFaq.Faq.Portal.Api/appsettings.json` and `dotnet/BaseFaq.Tenant.BackOffice.Api/appsettings.json`:
 - `JwtAuthentication:Authority` = `https://<AUTH0_DOMAIN>/`
 - `JwtAuthentication:Audience` = `https://<API_IDENTIFIER>`
 - `Session:UserIdClaimType` = `sub`
