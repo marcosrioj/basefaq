@@ -1,5 +1,5 @@
+using BaseFaq.Models.Tenant.Dtos.Tenant;
 using BaseFaq.Tenant.Portal.Business.Tenant.Abstractions;
-using BaseFaq.Tenant.Portal.Business.Tenant.Dtos;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;

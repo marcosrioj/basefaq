@@ -1,4 +1,4 @@
-using BaseFaq.Tenant.Portal.Business.Tenant.Dtos;
+using BaseFaq.Models.Tenant.Dtos.Tenant;
 
 namespace BaseFaq.Tenant.Portal.Business.Tenant.Abstractions;
 

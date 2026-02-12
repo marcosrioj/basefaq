@@ -1,4 +1,4 @@
-namespace BaseFaq.Tenant.Portal.Business.User.Dtos;
+namespace BaseFaq.Models.User.Dtos.User;
 
 public class UserProfileDto
 {

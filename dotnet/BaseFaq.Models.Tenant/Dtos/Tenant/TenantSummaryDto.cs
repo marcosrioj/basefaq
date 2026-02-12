@@ -1,7 +1,7 @@
 using BaseFaq.Models.Common.Enums;
 using BaseFaq.Models.Tenant.Enums;
 
-namespace BaseFaq.Tenant.Portal.Business.Tenant.Dtos;
+namespace BaseFaq.Models.Tenant.Dtos.Tenant;
 
 public class TenantSummaryDto
 {

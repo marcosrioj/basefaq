@@ -1,6 +1,6 @@
 using BaseFaq.Common.EntityFramework.Tenant;
 using BaseFaq.Common.Infrastructure.Core.Abstractions;
-using BaseFaq.Tenant.Portal.Business.User.Dtos;
+using BaseFaq.Models.User.Dtos.User;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 

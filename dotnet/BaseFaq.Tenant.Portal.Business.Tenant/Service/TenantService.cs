@@ -1,6 +1,6 @@
+using BaseFaq.Models.Tenant.Dtos.Tenant;
 using BaseFaq.Tenant.Portal.Business.Tenant.Abstractions;
 using BaseFaq.Tenant.Portal.Business.Tenant.Commands.CreateOrUpdateTenants;
-using BaseFaq.Tenant.Portal.Business.Tenant.Dtos;
 using BaseFaq.Tenant.Portal.Business.Tenant.Queries.GetAllTenants;
 using MediatR;
 

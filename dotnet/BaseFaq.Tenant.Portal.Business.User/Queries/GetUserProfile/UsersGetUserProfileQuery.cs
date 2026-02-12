@@ -1,4 +1,4 @@
-using BaseFaq.Tenant.Portal.Business.User.Dtos;
+using BaseFaq.Models.User.Dtos.User;
 using MediatR;
 
 namespace BaseFaq.Tenant.Portal.Business.User.Queries.GetUserProfile;

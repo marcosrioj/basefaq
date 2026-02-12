@@ -1,10 +1,10 @@
+using System.Net;
 using BaseFaq.Common.Infrastructure.ApiErrorHandling.Exception;
+using BaseFaq.Models.User.Dtos.User;
 using BaseFaq.Tenant.Portal.Business.User.Abstractions;
 using BaseFaq.Tenant.Portal.Business.User.Commands.UpdateUserProfile;
-using BaseFaq.Tenant.Portal.Business.User.Dtos;
 using BaseFaq.Tenant.Portal.Business.User.Queries.GetUserProfile;
 using MediatR;
-using System.Net;
 
 namespace BaseFaq.Tenant.Portal.Business.User.Service;
 
