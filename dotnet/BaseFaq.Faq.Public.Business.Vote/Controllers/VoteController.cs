@@ -1,4 +1,5 @@
 using BaseFaq.Faq.Public.Business.Vote.Abstractions;
+using BaseFaq.Common.Infrastructure.Core.Attributes;
 using BaseFaq.Models.Faq.Dtos.Vote;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -6,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace BaseFaq.Faq.Public.Business.Vote.Controllers;
 
 [ApiController]
+[SkipTenantAccessValidation]
 [Route("api/faqs/vote")]
 public class VoteController(IVoteService voteService) : ControllerBase
 {

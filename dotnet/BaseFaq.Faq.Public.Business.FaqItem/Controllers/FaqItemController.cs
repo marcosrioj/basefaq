@@ -1,4 +1,5 @@
 using BaseFaq.Faq.Public.Business.FaqItem.Abstractions;
+using BaseFaq.Common.Infrastructure.Core.Attributes;
 using BaseFaq.Models.Common.Dtos;
 using BaseFaq.Models.Faq.Dtos.FaqItem;
 using Microsoft.AspNetCore.Http;
@@ -7,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace BaseFaq.Faq.Public.Business.FaqItem.Controllers;
 
 [ApiController]
+[SkipTenantAccessValidation]
 [Route("api/faqs/faq-item")]
 public class FaqItemController(IFaqItemService faqItemService) : ControllerBase
 {

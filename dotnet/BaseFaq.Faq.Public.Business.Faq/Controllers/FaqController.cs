@@ -1,4 +1,5 @@
 using BaseFaq.Faq.Public.Business.Faq.Abstractions;
+using BaseFaq.Common.Infrastructure.Core.Attributes;
 using BaseFaq.Models.Common.Dtos;
 using BaseFaq.Models.Faq.Dtos.Faq;
 using Microsoft.AspNetCore.Http;
@@ -7,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace BaseFaq.Faq.Public.Business.Faq.Controllers;
 
 [ApiController]
+[SkipTenantAccessValidation]
 [Route("api/faqs/faq")]
 public class FaqController(IFaqService faqService) : ControllerBase
 {

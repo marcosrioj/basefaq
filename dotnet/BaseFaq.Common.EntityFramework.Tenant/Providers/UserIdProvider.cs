@@ -1,7 +1,9 @@
 using System.Net;
 using BaseFaq.Common.EntityFramework.Tenant.Entities;
 using BaseFaq.Common.Infrastructure.ApiErrorHandling.Exception;
+using BaseFaq.Common.Infrastructure.Core.Attributes;
 using BaseFaq.Common.Infrastructure.Core.Abstractions;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
@@ -18,6 +20,13 @@ public sealed class UserIdProvider(IServiceProvider serviceProvider) : IUserIdPr
         var externalUserId = claimService.GetExternalUserId();
         if (string.IsNullOrWhiteSpace(externalUserId))
         {
+            var httpContextAccessor = serviceProvider.GetService<IHttpContextAccessor>();
+            var endpoint = httpContextAccessor?.HttpContext?.GetEndpoint();
+            if (endpoint?.Metadata.GetMetadata<SkipTenantAccessValidationAttribute>() is not null)
+            {
+                return Guid.Empty;
+            }
+
             throw new ApiErrorException(
                 "External user ID is missing from the current session.",
                 errorCode: (int)HttpStatusCode.Unauthorized);
