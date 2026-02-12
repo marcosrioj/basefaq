@@ -149,4 +149,56 @@ public class FaqCommandQueryTests
         Assert.Equal("Zulu", result.Items[0].Name);
         Assert.Equal("Alpha", result.Items[1].Name);
     }
+
+    [Fact]
+    public async Task GetFaqList_AppliesSortingAndPagination()
+    {
+        using var context = TestContext.Create();
+        await TestDataFactory.SeedFaqAsync(context.DbContext, context.SessionService.TenantId, "Zulu");
+        await TestDataFactory.SeedFaqAsync(context.DbContext, context.SessionService.TenantId, "Bravo");
+        await TestDataFactory.SeedFaqAsync(context.DbContext, context.SessionService.TenantId, "Alpha");
+
+        var handler = new FaqsGetFaqListQueryHandler(context.DbContext);
+        var request = new FaqsGetFaqListQuery
+        {
+            Request = new FaqGetAllRequestDto
+            {
+                SkipCount = 1,
+                MaxResultCount = 1,
+                Sorting = "name ASC"
+            }
+        };
+
+        var result = await handler.Handle(request, CancellationToken.None);
+
+        Assert.Equal(3, result.TotalCount);
+        Assert.Single(result.Items);
+        Assert.Equal("Bravo", result.Items[0].Name);
+    }
+
+    [Fact]
+    public async Task GetFaqList_FallsBackToUpdatedDateWhenSortingFieldIsInvalid()
+    {
+        using var context = TestContext.Create();
+        var first = await TestDataFactory.SeedFaqAsync(context.DbContext, context.SessionService.TenantId, "First");
+        await TestDataFactory.SeedFaqAsync(context.DbContext, context.SessionService.TenantId, "Second");
+        first.CtaEnabled = !first.CtaEnabled;
+        await context.DbContext.SaveChangesAsync();
+
+        var handler = new FaqsGetFaqListQueryHandler(context.DbContext);
+        var request = new FaqsGetFaqListQuery
+        {
+            Request = new FaqGetAllRequestDto
+            {
+                SkipCount = 0,
+                MaxResultCount = 10,
+                Sorting = "invalidField DESC"
+            }
+        };
+
+        var result = await handler.Handle(request, CancellationToken.None);
+
+        Assert.Equal(2, result.TotalCount);
+        Assert.Equal(first.Id, result.Items[0].Id);
+    }
 }

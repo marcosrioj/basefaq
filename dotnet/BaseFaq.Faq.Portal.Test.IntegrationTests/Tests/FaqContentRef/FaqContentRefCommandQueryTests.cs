@@ -233,6 +233,19 @@ public class FaqContentRefCommandQueryTests
     }
 
     [Fact]
+    public async Task GetFaqContentRef_ReturnsNullWhenMissing()
+    {
+        using var context = TestContext.Create();
+        var handler = new FaqContentRefsGetFaqContentRefQueryHandler(context.DbContext);
+
+        var result = await handler.Handle(
+            new FaqContentRefsGetFaqContentRefQuery { Id = Guid.NewGuid() },
+            CancellationToken.None);
+
+        Assert.Null(result);
+    }
+
+    [Fact]
     public async Task GetFaqContentRefList_ReturnsPagedItems()
     {
         using var context = TestContext.Create();
@@ -370,5 +383,94 @@ public class FaqContentRefCommandQueryTests
         Assert.Equal(ref2.Id, result.Items[0].Id);
         Assert.Equal(ref1.Id, result.Items[1].Id);
         Assert.Equal(ref3.Id, result.Items[2].Id);
+    }
+
+    [Fact]
+    public async Task GetFaqContentRefList_FallsBackToUpdatedDateWhenSortingInvalid()
+    {
+        using var context = TestContext.Create();
+        var faq = await TestDataFactory.SeedFaqAsync(context.DbContext, context.SessionService.TenantId);
+        var otherFaq =
+            await TestDataFactory.SeedFaqAsync(context.DbContext, context.SessionService.TenantId, "Other FAQ");
+        var contentRefA = await TestDataFactory.SeedContentRefAsync(
+            context.DbContext,
+            context.SessionService.TenantId,
+            locator: "ref-a");
+        var contentRefB = await TestDataFactory.SeedContentRefAsync(
+            context.DbContext,
+            context.SessionService.TenantId,
+            locator: "ref-b");
+
+        var first = await TestDataFactory.SeedFaqContentRefAsync(
+            context.DbContext,
+            context.SessionService.TenantId,
+            faq.Id,
+            contentRefA.Id);
+        await TestDataFactory.SeedFaqContentRefAsync(
+            context.DbContext,
+            context.SessionService.TenantId,
+            faq.Id,
+            contentRefB.Id);
+
+        first.FaqId = otherFaq.Id;
+        await context.DbContext.SaveChangesAsync();
+
+        var handler = new FaqContentRefsGetFaqContentRefListQueryHandler(context.DbContext);
+        var request = new FaqContentRefsGetFaqContentRefListQuery
+        {
+            Request = new FaqContentRefGetAllRequestDto
+            {
+                SkipCount = 0,
+                MaxResultCount = 10,
+                Sorting = "invalidField DESC"
+            }
+        };
+
+        var result = await handler.Handle(request, CancellationToken.None);
+
+        Assert.Equal(2, result.TotalCount);
+        Assert.Equal(first.Id, result.Items[0].Id);
+    }
+
+    [Fact]
+    public async Task GetFaqContentRefList_AppliesPaginationWindow()
+    {
+        using var context = TestContext.Create();
+        var faq = await TestDataFactory.SeedFaqAsync(context.DbContext, context.SessionService.TenantId);
+        var contentRefA = await TestDataFactory.SeedContentRefAsync(
+            context.DbContext,
+            context.SessionService.TenantId,
+            locator: "ref-a");
+        var contentRefB = await TestDataFactory.SeedContentRefAsync(
+            context.DbContext,
+            context.SessionService.TenantId,
+            locator: "ref-b");
+        var contentRefC = await TestDataFactory.SeedContentRefAsync(
+            context.DbContext,
+            context.SessionService.TenantId,
+            locator: "ref-c");
+
+        await TestDataFactory.SeedFaqContentRefAsync(context.DbContext, context.SessionService.TenantId, faq.Id,
+            contentRefA.Id);
+        await TestDataFactory.SeedFaqContentRefAsync(context.DbContext, context.SessionService.TenantId, faq.Id,
+            contentRefB.Id);
+        await TestDataFactory.SeedFaqContentRefAsync(context.DbContext, context.SessionService.TenantId, faq.Id,
+            contentRefC.Id);
+
+        var handler = new FaqContentRefsGetFaqContentRefListQueryHandler(context.DbContext);
+        var request = new FaqContentRefsGetFaqContentRefListQuery
+        {
+            Request = new FaqContentRefGetAllRequestDto
+            {
+                SkipCount = 1,
+                MaxResultCount = 1,
+                Sorting = "contentrefid ASC"
+            }
+        };
+
+        var result = await handler.Handle(request, CancellationToken.None);
+
+        Assert.Equal(3, result.TotalCount);
+        Assert.Single(result.Items);
     }
 }

@@ -101,4 +101,33 @@ public class UserProfileCommandQueryTests
 
         Assert.Equal(404, exception.ErrorCode);
     }
+
+    [Fact]
+    public async Task UpdateUserProfile_NormalizesNullPhoneNumberToEmpty()
+    {
+        var currentUserId = Guid.NewGuid();
+        using var context = TestContext.Create(userId: currentUserId);
+
+        await TestDataFactory.SeedUserAsync(
+            context.DbContext,
+            id: currentUserId,
+            givenName: "Before",
+            surName: "BeforeSur",
+            email: "before@example.test",
+            externalId: "ext-before",
+            phoneNumber: "555-0000",
+            role: UserRoleType.Member);
+
+        var handler = new UsersUpdateUserProfileCommandHandler(context.DbContext, context.SessionService);
+        await handler.Handle(new UsersUpdateUserProfileCommand
+        {
+            GivenName = "After",
+            SurName = "AfterSur",
+            PhoneNumber = null
+        }, CancellationToken.None);
+
+        var updated = await context.DbContext.Users.FindAsync(currentUserId);
+        Assert.NotNull(updated);
+        Assert.Equal(string.Empty, updated!.PhoneNumber);
+    }
 }

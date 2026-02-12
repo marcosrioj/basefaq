@@ -210,4 +210,30 @@ public class TagCommandQueryTests
         Assert.Equal(tagB.Id, result.Items[1].Id);
         Assert.Equal(tagC.Id, result.Items[2].Id);
     }
+
+    [Fact]
+    public async Task GetTagList_AppliesPaginationWindow()
+    {
+        using var context = TestContext.Create();
+        await TestDataFactory.SeedTagAsync(context.DbContext, context.SessionService.TenantId, "charlie");
+        await TestDataFactory.SeedTagAsync(context.DbContext, context.SessionService.TenantId, "alpha");
+        await TestDataFactory.SeedTagAsync(context.DbContext, context.SessionService.TenantId, "bravo");
+
+        var handler = new TagsGetTagListQueryHandler(context.DbContext);
+        var request = new TagsGetTagListQuery
+        {
+            Request = new TagGetAllRequestDto
+            {
+                SkipCount = 1,
+                MaxResultCount = 1,
+                Sorting = "value ASC"
+            }
+        };
+
+        var result = await handler.Handle(request, CancellationToken.None);
+
+        Assert.Equal(3, result.TotalCount);
+        Assert.Single(result.Items);
+        Assert.Equal("bravo", result.Items[0].Value);
+    }
 }

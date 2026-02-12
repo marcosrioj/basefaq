@@ -266,6 +266,32 @@ public class UserCommandQueryTests
     }
 
     [Fact]
+    public async Task GetUserList_AppliesPaginationWindow()
+    {
+        using var context = TestContext.Create();
+        await TestDataFactory.SeedUserAsync(context.DbContext, givenName: "Charlie", email: "charlie@example.test");
+        await TestDataFactory.SeedUserAsync(context.DbContext, givenName: "Alpha", email: "alpha@example.test");
+        await TestDataFactory.SeedUserAsync(context.DbContext, givenName: "Bravo", email: "bravo@example.test");
+
+        var handler = new UsersGetUserListQueryHandler(context.DbContext);
+        var request = new UsersGetUserListQuery
+        {
+            Request = new UserGetAllRequestDto
+            {
+                SkipCount = 1,
+                MaxResultCount = 1,
+                Sorting = "givenName ASC"
+            }
+        };
+
+        var result = await handler.Handle(request, CancellationToken.None);
+
+        Assert.Equal(3, result.TotalCount);
+        Assert.Single(result.Items);
+        Assert.Equal("Bravo", result.Items[0].GivenName);
+    }
+
+    [Fact]
     public async Task CreateUser_ThrowsWhenExternalIdDuplicated()
     {
         using var context = TestContext.Create();

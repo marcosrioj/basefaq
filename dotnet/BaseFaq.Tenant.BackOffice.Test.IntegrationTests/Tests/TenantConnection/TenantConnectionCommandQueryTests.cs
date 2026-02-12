@@ -233,4 +233,29 @@ public class TenantConnectionCommandQueryTests
         Assert.Equal(connectionB.Id, result.Items[0].Id);
         Assert.Equal(connectionA.Id, result.Items[1].Id);
     }
+
+    [Fact]
+    public async Task GetTenantConnectionList_AppliesPaginationWindow()
+    {
+        using var context = TestContext.Create();
+        await TestDataFactory.SeedTenantConnectionAsync(context.DbContext, app: AppEnum.Faq, isCurrent: false);
+        await TestDataFactory.SeedTenantConnectionAsync(context.DbContext, app: AppEnum.Tenant, isCurrent: true);
+        await TestDataFactory.SeedTenantConnectionAsync(context.DbContext, app: AppEnum.Faq, isCurrent: true);
+
+        var handler = new TenantConnectionsGetTenantConnectionListQueryHandler(context.DbContext);
+        var request = new TenantConnectionsGetTenantConnectionListQuery
+        {
+            Request = new TenantConnectionGetAllRequestDto
+            {
+                SkipCount = 1,
+                MaxResultCount = 1,
+                Sorting = "isCurrent DESC, app ASC"
+            }
+        };
+
+        var result = await handler.Handle(request, CancellationToken.None);
+
+        Assert.Equal(3, result.TotalCount);
+        Assert.Single(result.Items);
+    }
 }

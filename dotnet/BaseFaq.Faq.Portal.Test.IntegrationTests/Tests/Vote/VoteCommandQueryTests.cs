@@ -516,4 +516,34 @@ public class VoteCommandQueryTests
         Assert.Equal(string.Empty, vote!.Ip);
         Assert.Equal(string.Empty, vote.UserAgent);
     }
+
+    [Fact]
+    public async Task GetVoteList_AppliesPaginationWindow()
+    {
+        using var context = TestContext.Create();
+        var faq = await TestDataFactory.SeedFaqAsync(context.DbContext, context.SessionService.TenantId);
+        var faqItem =
+            await TestDataFactory.SeedFaqItemAsync(context.DbContext, context.SessionService.TenantId, faq.Id);
+
+        await TestDataFactory.SeedVoteAsync(context.DbContext, context.SessionService.TenantId, faqItem.Id, like: true);
+        await TestDataFactory.SeedVoteAsync(context.DbContext, context.SessionService.TenantId, faqItem.Id,
+            like: false);
+        await TestDataFactory.SeedVoteAsync(context.DbContext, context.SessionService.TenantId, faqItem.Id, like: true);
+
+        var handler = new VotesGetVoteListQueryHandler(context.DbContext);
+        var request = new VotesGetVoteListQuery
+        {
+            Request = new VoteGetAllRequestDto
+            {
+                SkipCount = 1,
+                MaxResultCount = 1,
+                Sorting = "id ASC"
+            }
+        };
+
+        var result = await handler.Handle(request, CancellationToken.None);
+
+        Assert.Equal(3, result.TotalCount);
+        Assert.Single(result.Items);
+    }
 }

@@ -127,4 +127,195 @@ public class FaqItemCommandQueryTests
         Assert.Equal(1, result.TotalCount);
         Assert.Equal(faq.Id, result.Items[0].FaqId);
     }
+
+    [Fact]
+    public async Task SearchFaqItems_FiltersBySearchTermInQuestion()
+    {
+        using var context = TestContext.Create();
+        var faq = await TestDataFactory.SeedFaqAsync(context.DbContext, context.SessionService.TenantId);
+
+        context.DbContext.FaqItems.AddRange(
+            new Common.Persistence.FaqDb.Entities.FaqItem
+            {
+                Question = "How to reset MFA?",
+                ShortAnswer = "Use security page",
+                Answer = "Go to security settings",
+                AdditionalInfo = "Contact support if locked out",
+                CtaTitle = "Security",
+                CtaUrl = "https://example.test/security",
+                Sort = 1,
+                VoteScore = 0,
+                AiConfidenceScore = 0,
+                IsActive = true,
+                FaqId = faq.Id,
+                TenantId = context.SessionService.TenantId
+            },
+            new Common.Persistence.FaqDb.Entities.FaqItem
+            {
+                Question = "How to change billing address?",
+                ShortAnswer = "Use billing page",
+                Answer = "Open billing settings",
+                AdditionalInfo = "Requires owner role",
+                CtaTitle = "Billing",
+                CtaUrl = "https://example.test/billing",
+                Sort = 2,
+                VoteScore = 0,
+                AiConfidenceScore = 0,
+                IsActive = true,
+                FaqId = faq.Id,
+                TenantId = context.SessionService.TenantId
+            });
+        await context.DbContext.SaveChangesAsync();
+
+        var handler = new FaqItemsSearchFaqItemQueryHandler(context.DbContext);
+        var request = new FaqItemsSearchFaqItemQuery
+        {
+            Request = new FaqItemSearchRequestDto
+            {
+                SkipCount = 0,
+                MaxResultCount = 10,
+                Search = "reset",
+                FaqIds = [faq.Id]
+            }
+        };
+
+        var result = await handler.Handle(request, CancellationToken.None);
+
+        Assert.Equal(1, result.TotalCount);
+        Assert.Single(result.Items);
+        Assert.Contains("reset", result.Items[0].Question, StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
+    public async Task SearchFaqItems_AppliesPaginationAfterSort()
+    {
+        using var context = TestContext.Create();
+        var faq = await TestDataFactory.SeedFaqAsync(
+            context.DbContext,
+            context.SessionService.TenantId,
+            sortStrategy: FaqSortStrategy.Sort);
+
+        context.DbContext.FaqItems.AddRange(
+            new Common.Persistence.FaqDb.Entities.FaqItem
+            {
+                Question = "Q1",
+                ShortAnswer = "A1",
+                Answer = "A1",
+                AdditionalInfo = "I1",
+                CtaTitle = "C1",
+                CtaUrl = "https://example.test/1",
+                Sort = 1,
+                VoteScore = 0,
+                AiConfidenceScore = 0,
+                IsActive = true,
+                FaqId = faq.Id,
+                TenantId = context.SessionService.TenantId
+            },
+            new Common.Persistence.FaqDb.Entities.FaqItem
+            {
+                Question = "Q2",
+                ShortAnswer = "A2",
+                Answer = "A2",
+                AdditionalInfo = "I2",
+                CtaTitle = "C2",
+                CtaUrl = "https://example.test/2",
+                Sort = 2,
+                VoteScore = 0,
+                AiConfidenceScore = 0,
+                IsActive = true,
+                FaqId = faq.Id,
+                TenantId = context.SessionService.TenantId
+            },
+            new Common.Persistence.FaqDb.Entities.FaqItem
+            {
+                Question = "Q3",
+                ShortAnswer = "A3",
+                Answer = "A3",
+                AdditionalInfo = "I3",
+                CtaTitle = "C3",
+                CtaUrl = "https://example.test/3",
+                Sort = 3,
+                VoteScore = 0,
+                AiConfidenceScore = 0,
+                IsActive = true,
+                FaqId = faq.Id,
+                TenantId = context.SessionService.TenantId
+            });
+        await context.DbContext.SaveChangesAsync();
+
+        var handler = new FaqItemsSearchFaqItemQueryHandler(context.DbContext);
+        var request = new FaqItemsSearchFaqItemQuery
+        {
+            Request = new FaqItemSearchRequestDto
+            {
+                SkipCount = 1,
+                MaxResultCount = 1,
+                FaqIds = [faq.Id]
+            }
+        };
+
+        var result = await handler.Handle(request, CancellationToken.None);
+
+        Assert.Equal(3, result.TotalCount);
+        Assert.Single(result.Items);
+        Assert.Equal("Q2", result.Items[0].Question);
+    }
+
+    [Fact]
+    public async Task SearchFaqItems_FiltersBySearchTermInAdditionalInfo()
+    {
+        using var context = TestContext.Create();
+        var faq = await TestDataFactory.SeedFaqAsync(context.DbContext, context.SessionService.TenantId);
+
+        context.DbContext.FaqItems.AddRange(
+            new Common.Persistence.FaqDb.Entities.FaqItem
+            {
+                Question = "General question",
+                ShortAnswer = "General short",
+                Answer = "General answer",
+                AdditionalInfo = "Contains custom token: bluebird",
+                CtaTitle = "General",
+                CtaUrl = "https://example.test/general",
+                Sort = 1,
+                VoteScore = 0,
+                AiConfidenceScore = 0,
+                IsActive = true,
+                FaqId = faq.Id,
+                TenantId = context.SessionService.TenantId
+            },
+            new Common.Persistence.FaqDb.Entities.FaqItem
+            {
+                Question = "Another question",
+                ShortAnswer = "Another short",
+                Answer = "Another answer",
+                AdditionalInfo = "No token here",
+                CtaTitle = "Another",
+                CtaUrl = "https://example.test/another",
+                Sort = 2,
+                VoteScore = 0,
+                AiConfidenceScore = 0,
+                IsActive = true,
+                FaqId = faq.Id,
+                TenantId = context.SessionService.TenantId
+            });
+        await context.DbContext.SaveChangesAsync();
+
+        var handler = new FaqItemsSearchFaqItemQueryHandler(context.DbContext);
+        var request = new FaqItemsSearchFaqItemQuery
+        {
+            Request = new FaqItemSearchRequestDto
+            {
+                SkipCount = 0,
+                MaxResultCount = 10,
+                Search = "bluebird",
+                FaqIds = [faq.Id]
+            }
+        };
+
+        var result = await handler.Handle(request, CancellationToken.None);
+
+        Assert.Equal(1, result.TotalCount);
+        Assert.Single(result.Items);
+        Assert.Contains("bluebird", result.Items[0].AdditionalInfo, StringComparison.OrdinalIgnoreCase);
+    }
 }

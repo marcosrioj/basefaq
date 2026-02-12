@@ -282,4 +282,30 @@ public class TenantCommandQueryTests
 
         await Assert.ThrowsAsync<DbUpdateException>(() => handler.Handle(request, CancellationToken.None));
     }
+
+    [Fact]
+    public async Task GetTenantList_AppliesPaginationWindow()
+    {
+        using var context = TestContext.Create();
+        await TestDataFactory.SeedTenantAsync(context.DbContext, name: "Charlie", slug: "charlie");
+        await TestDataFactory.SeedTenantAsync(context.DbContext, name: "Alpha", slug: "alpha");
+        await TestDataFactory.SeedTenantAsync(context.DbContext, name: "Bravo", slug: "bravo");
+
+        var handler = new TenantsGetTenantListQueryHandler(context.DbContext);
+        var request = new TenantsGetTenantListQuery
+        {
+            Request = new TenantGetAllRequestDto
+            {
+                SkipCount = 1,
+                MaxResultCount = 1,
+                Sorting = "name ASC"
+            }
+        };
+
+        var result = await handler.Handle(request, CancellationToken.None);
+
+        Assert.Equal(3, result.TotalCount);
+        Assert.Single(result.Items);
+        Assert.Equal("Bravo", result.Items[0].Name);
+    }
 }

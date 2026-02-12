@@ -142,4 +142,112 @@ public class VoteCommandQueryTests
         Assert.NotNull(updatedFaqItem);
         Assert.Equal(-1, updatedFaqItem!.VoteScore);
     }
+
+    [Fact]
+    public async Task CreateVote_ThrowsWhenFaqItemDoesNotExist()
+    {
+        using var context = TestContext.Create(httpContext: new DefaultHttpContext());
+        var handler = new VotesCreateVoteCommandHandler(
+            context.DbContext,
+            context.SessionService,
+            context.HttpContextAccessor);
+        var request = new VotesCreateVoteCommand
+        {
+            Like = true,
+            FaqItemId = Guid.NewGuid()
+        };
+
+        var exception =
+            await Assert.ThrowsAsync<ApiErrorException>(() => handler.Handle(request, CancellationToken.None));
+
+        Assert.Equal(404, exception.ErrorCode);
+    }
+
+    [Fact]
+    public async Task CreateVote_AllowsDifferentUsersToVoteOnSameFaqItem()
+    {
+        var httpContextA = new DefaultHttpContext();
+        httpContextA.Connection.RemoteIpAddress = IPAddress.Parse("198.51.100.20");
+        httpContextA.Request.Headers.UserAgent = "VoteAgentA/1.0";
+
+        using var database =
+            global::BaseFaq.Faq.Public.Test.IntegrationTests.Helpers.Infrastructure.TestDatabase.Create();
+        using var contextA = TestContext.CreateForDatabase(
+            database.ConnectionString,
+            database.AdminConnectionString,
+            database.DatabaseName,
+            httpContext: httpContextA);
+        var faq = await TestDataFactory.SeedFaqAsync(contextA.DbContext, contextA.SessionService.TenantId);
+        var faqItem =
+            await TestDataFactory.SeedFaqItemAsync(contextA.DbContext, contextA.SessionService.TenantId, faq.Id);
+
+        var handlerA = new VotesCreateVoteCommandHandler(
+            contextA.DbContext,
+            contextA.SessionService,
+            contextA.HttpContextAccessor);
+        await handlerA.Handle(new VotesCreateVoteCommand
+        {
+            Like = true,
+            FaqItemId = faqItem.Id
+        }, CancellationToken.None);
+
+        var httpContextB = new DefaultHttpContext();
+        httpContextB.Connection.RemoteIpAddress = IPAddress.Parse("198.51.100.21");
+        httpContextB.Request.Headers.UserAgent = "VoteAgentB/1.0";
+
+        using var contextB = TestContext.CreateForDatabase(
+            database.ConnectionString,
+            database.AdminConnectionString,
+            database.DatabaseName,
+            tenantId: contextA.SessionService.TenantId,
+            httpContext: httpContextB);
+        var handlerB = new VotesCreateVoteCommandHandler(
+            contextB.DbContext,
+            contextB.SessionService,
+            contextB.HttpContextAccessor);
+        await handlerB.Handle(new VotesCreateVoteCommand
+        {
+            Like = true,
+            FaqItemId = faqItem.Id
+        }, CancellationToken.None);
+
+        var votes = contextB.DbContext.Votes.Where(v => v.FaqItemId == faqItem.Id).ToList();
+        var updatedFaqItem = await contextB.DbContext.FaqItems.FindAsync(faqItem.Id);
+        Assert.Equal(2, votes.Count);
+        Assert.NotNull(updatedFaqItem);
+        Assert.Equal(2, updatedFaqItem!.VoteScore);
+    }
+
+    [Fact]
+    public async Task CreateVote_UsesForwardedForIpWhenProvided()
+    {
+        var httpContext = new DefaultHttpContext();
+        httpContext.Connection.RemoteIpAddress = IPAddress.Parse("10.0.0.10");
+        httpContext.Request.Headers.UserAgent = "ForwardAgent/1.0";
+        httpContext.Request.Headers["X-Forwarded-For"] = "203.0.113.9, 70.41.3.18";
+
+        using var context = TestContext.Create(httpContext: httpContext);
+        var faq = await TestDataFactory.SeedFaqAsync(context.DbContext, context.SessionService.TenantId);
+        var faqItem = await TestDataFactory.SeedFaqItemAsync(
+            context.DbContext,
+            context.SessionService.TenantId,
+            faq.Id);
+
+        var handler = new VotesCreateVoteCommandHandler(
+            context.DbContext,
+            context.SessionService,
+            context.HttpContextAccessor);
+        var request = new VotesCreateVoteCommand
+        {
+            Like = true,
+            UnLikeReason = null,
+            FaqItemId = faqItem.Id
+        };
+
+        var id = await handler.Handle(request, CancellationToken.None);
+        var vote = await context.DbContext.Votes.FindAsync(id);
+
+        Assert.NotNull(vote);
+        Assert.Equal("203.0.113.9", vote!.Ip);
+    }
 }

@@ -206,6 +206,17 @@ public class FaqTagCommandQueryTests
     }
 
     [Fact]
+    public async Task GetFaqTag_ReturnsNullWhenMissing()
+    {
+        using var context = TestContext.Create();
+        var handler = new FaqTagsGetFaqTagQueryHandler(context.DbContext);
+
+        var result = await handler.Handle(new FaqTagsGetFaqTagQuery { Id = Guid.NewGuid() }, CancellationToken.None);
+
+        Assert.Null(result);
+    }
+
+    [Fact]
     public async Task GetFaqTagList_ReturnsPagedItems()
     {
         using var context = TestContext.Create();
@@ -325,5 +336,68 @@ public class FaqTagCommandQueryTests
         Assert.Equal(faqTag2.Id, result.Items[0].Id);
         Assert.Equal(faqTag1.Id, result.Items[1].Id);
         Assert.Equal(faqTag3.Id, result.Items[2].Id);
+    }
+
+    [Fact]
+    public async Task GetFaqTagList_FallsBackToUpdatedDateWhenSortingInvalid()
+    {
+        using var context = TestContext.Create();
+        var faq = await TestDataFactory.SeedFaqAsync(context.DbContext, context.SessionService.TenantId);
+        var otherFaq =
+            await TestDataFactory.SeedFaqAsync(context.DbContext, context.SessionService.TenantId, "Other FAQ");
+        var tagA = await TestDataFactory.SeedTagAsync(context.DbContext, context.SessionService.TenantId, "tag-a");
+        var tagB = await TestDataFactory.SeedTagAsync(context.DbContext, context.SessionService.TenantId, "tag-b");
+        var first = await TestDataFactory.SeedFaqTagAsync(context.DbContext, context.SessionService.TenantId, faq.Id,
+            tagA.Id);
+        await TestDataFactory.SeedFaqTagAsync(context.DbContext, context.SessionService.TenantId, faq.Id, tagB.Id);
+
+        first.FaqId = otherFaq.Id;
+        await context.DbContext.SaveChangesAsync();
+
+        var handler = new FaqTagsGetFaqTagListQueryHandler(context.DbContext);
+        var request = new FaqTagsGetFaqTagListQuery
+        {
+            Request = new FaqTagGetAllRequestDto
+            {
+                SkipCount = 0,
+                MaxResultCount = 10,
+                Sorting = "invalidField DESC"
+            }
+        };
+
+        var result = await handler.Handle(request, CancellationToken.None);
+
+        Assert.Equal(2, result.TotalCount);
+        Assert.Equal(first.Id, result.Items[0].Id);
+    }
+
+    [Fact]
+    public async Task GetFaqTagList_AppliesPaginationWindow()
+    {
+        using var context = TestContext.Create();
+        var faq = await TestDataFactory.SeedFaqAsync(context.DbContext, context.SessionService.TenantId);
+        var tagA = await TestDataFactory.SeedTagAsync(context.DbContext, context.SessionService.TenantId, "tag-a");
+        var tagB = await TestDataFactory.SeedTagAsync(context.DbContext, context.SessionService.TenantId, "tag-b");
+        var tagC = await TestDataFactory.SeedTagAsync(context.DbContext, context.SessionService.TenantId, "tag-c");
+
+        await TestDataFactory.SeedFaqTagAsync(context.DbContext, context.SessionService.TenantId, faq.Id, tagA.Id);
+        await TestDataFactory.SeedFaqTagAsync(context.DbContext, context.SessionService.TenantId, faq.Id, tagB.Id);
+        await TestDataFactory.SeedFaqTagAsync(context.DbContext, context.SessionService.TenantId, faq.Id, tagC.Id);
+
+        var handler = new FaqTagsGetFaqTagListQueryHandler(context.DbContext);
+        var request = new FaqTagsGetFaqTagListQuery
+        {
+            Request = new FaqTagGetAllRequestDto
+            {
+                SkipCount = 1,
+                MaxResultCount = 1,
+                Sorting = "tagid ASC"
+            }
+        };
+
+        var result = await handler.Handle(request, CancellationToken.None);
+
+        Assert.Equal(3, result.TotalCount);
+        Assert.Single(result.Items);
     }
 }

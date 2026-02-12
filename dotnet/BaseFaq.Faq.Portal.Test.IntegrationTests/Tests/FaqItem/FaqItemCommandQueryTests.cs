@@ -380,4 +380,76 @@ public class FaqItemCommandQueryTests
         Assert.Equal(first.Id, result.Items[1].Id);
         Assert.Equal(third.Id, result.Items[2].Id);
     }
+
+    [Fact]
+    public async Task GetFaqItemList_AppliesPaginationWindow()
+    {
+        using var context = TestContext.Create();
+        var faq = await TestDataFactory.SeedFaqAsync(context.DbContext, context.SessionService.TenantId);
+
+        context.DbContext.FaqItems.AddRange(
+            new Common.Persistence.FaqDb.Entities.FaqItem
+            {
+                Question = "Charlie",
+                ShortAnswer = "S",
+                Answer = "A",
+                AdditionalInfo = "I",
+                CtaTitle = "C",
+                CtaUrl = "https://example.test/c",
+                Sort = 1,
+                VoteScore = 0,
+                AiConfidenceScore = 0,
+                IsActive = true,
+                FaqId = faq.Id,
+                TenantId = context.SessionService.TenantId
+            },
+            new Common.Persistence.FaqDb.Entities.FaqItem
+            {
+                Question = "Alpha",
+                ShortAnswer = "S",
+                Answer = "A",
+                AdditionalInfo = "I",
+                CtaTitle = "C",
+                CtaUrl = "https://example.test/a",
+                Sort = 1,
+                VoteScore = 0,
+                AiConfidenceScore = 0,
+                IsActive = true,
+                FaqId = faq.Id,
+                TenantId = context.SessionService.TenantId
+            },
+            new Common.Persistence.FaqDb.Entities.FaqItem
+            {
+                Question = "Bravo",
+                ShortAnswer = "S",
+                Answer = "A",
+                AdditionalInfo = "I",
+                CtaTitle = "C",
+                CtaUrl = "https://example.test/b",
+                Sort = 1,
+                VoteScore = 0,
+                AiConfidenceScore = 0,
+                IsActive = true,
+                FaqId = faq.Id,
+                TenantId = context.SessionService.TenantId
+            });
+        await context.DbContext.SaveChangesAsync();
+
+        var handler = new FaqItemsGetFaqItemListQueryHandler(context.DbContext);
+        var request = new FaqItemsGetFaqItemListQuery
+        {
+            Request = new FaqItemGetAllRequestDto
+            {
+                SkipCount = 1,
+                MaxResultCount = 1,
+                Sorting = "question ASC"
+            }
+        };
+
+        var result = await handler.Handle(request, CancellationToken.None);
+
+        Assert.Equal(3, result.TotalCount);
+        Assert.Single(result.Items);
+        Assert.Equal("Bravo", result.Items[0].Question);
+    }
 }

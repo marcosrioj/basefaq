@@ -140,4 +140,59 @@ public class TenantCommandQueryTests
         var tenantCount = await context.DbContext.Tenants.CountAsync(item => item.UserId == currentUserId);
         Assert.Equal(0, tenantCount);
     }
+
+    [Fact]
+    public async Task GetAllTenants_ExcludesInactiveTenantsForCurrentUser()
+    {
+        var currentUserId = Guid.NewGuid();
+        using var context = TestContext.Create(userId: currentUserId);
+
+        await TestDataFactory.SeedTenantAsync(
+            context.DbContext,
+            name: "Inactive Current User Tenant",
+            app: AppEnum.Faq,
+            isActive: false,
+            userId: currentUserId);
+
+        await TestDataFactory.SeedTenantAsync(
+            context.DbContext,
+            name: "Active Other User Tenant",
+            app: AppEnum.Faq,
+            isActive: true,
+            userId: Guid.NewGuid());
+
+        var handler = new TenantsGetAllTenantsQueryHandler(context.DbContext, context.SessionService);
+        var result = await handler.Handle(new TenantsGetAllTenantsQuery(), CancellationToken.None);
+
+        Assert.Empty(result);
+    }
+
+    [Fact]
+    public async Task CreateOrUpdateTenants_ThrowsWhenInactiveTenantAlreadyExistsForCurrentUser()
+    {
+        var currentUserId = Guid.NewGuid();
+        using var context = TestContext.Create(userId: currentUserId);
+
+        await TestDataFactory.SeedTenantConnectionAsync(
+            context.DbContext,
+            app: AppEnum.Faq,
+            connectionString: "Host=host.docker.internal;Database=faqdb;Username=tenant;Password=tenant;",
+            isCurrent: true);
+
+        await TestDataFactory.SeedTenantAsync(
+            context.DbContext,
+            name: "Inactive Existing",
+            app: AppEnum.Faq,
+            isActive: false,
+            userId: currentUserId);
+
+        var handler = new TenantsCreateOrUpdateTenantsCommandHandler(context.DbContext, context.SessionService);
+
+        await Assert.ThrowsAsync<DbUpdateException>(() =>
+            handler.Handle(new TenantsCreateOrUpdateTenantsCommand
+            {
+                Name = "Will Conflict",
+                Edition = TenantEdition.Free
+            }, CancellationToken.None));
+    }
 }
