@@ -13,8 +13,27 @@ Setup guide for a clean machine.
 - Docker Engine + Docker Compose v2
 - .NET SDK `10.0.100` (see `global.json`)
 - Optional: `dotnet-ef` tool if you want to apply migrations manually
-- If you want a non-default Redis password, set `REDIS_PASSWORD` in your shell/PowerShell
+- Helper scripts default `REDIS_PASSWORD` to `RedisTempPassword`
+- If you run Docker Compose manually, export/set `REDIS_PASSWORD` first
   (must match `Redis:Password` in `appsettings.json`)
+
+## Quick start (clean machine)
+
+```bash
+dotnet restore BaseFaq.sln
+./docker-base.sh
+dotnet run --project dotnet/BaseFaq.Faq.Common.Persistence.Seed
+dotnet run --project dotnet/BaseFaq.Faq.Portal.Api
+```
+
+For Windows PowerShell, use `.\docker-base.ps1`.
+
+## 0) Restore and build
+
+```bash
+dotnet restore BaseFaq.sln
+dotnet build BaseFaq.sln
+```
 
 ## 1) Start base services (PostgreSQL, RabbitMQ, Redis, SMTP)
 From the repo root:
@@ -41,6 +60,7 @@ Notes:
 If you prefer to run Docker Compose manually:
 
 ```bash
+export REDIS_PASSWORD=RedisTempPassword
 docker compose -p bf_baseservices -f docker/docker-compose.baseservices.yml up -d --wait
 ```
 
@@ -130,6 +150,7 @@ dotnet run --project dotnet/BaseFaq.Faq.Portal.Api
 
 Endpoints:
 - HTTP: `http://localhost:5010`
+- HTTPS: `https://localhost:5011`
 
 Swagger / OpenAPI (FAQ app, Development only):
 - Swagger UI: `/swagger`
@@ -144,6 +165,7 @@ dotnet run --project dotnet/BaseFaq.Tenant.BackOffice.Api
 
 Endpoints:
 - HTTP: `http://localhost:5000`
+- HTTPS: `https://localhost:5001`
 
 Tenant Portal API:
 
@@ -154,6 +176,16 @@ dotnet run --project dotnet/BaseFaq.Tenant.Portal.Api
 Endpoints:
 - HTTP: `http://localhost:5002`
 - HTTPS: `https://localhost:5003`
+
+FAQ Public API:
+
+```bash
+dotnet run --project dotnet/BaseFaq.Faq.Public.Api
+```
+
+Endpoints:
+- HTTP: `http://localhost:5020`
+- HTTPS: `https://localhost:5021`
 
 ## 4) (Optional) Run API in Docker
 APIs (Docker):
@@ -215,7 +247,7 @@ redis-cli FLUSHDB
 If you need host/port/auth:
 
 ```bash
-redis-cli -h <host> -p <porta> -a <senha> FLUSHALL
+redis-cli -h <host> -p <port> -a <password> FLUSHALL
 ```
 
 ## Tests
@@ -223,6 +255,7 @@ Integration tests:
 
 ```bash
 dotnet test dotnet/BaseFaq.Faq.Portal.Test.IntegrationTests/BaseFaq.Faq.Portal.Test.IntegrationTests.csproj
+dotnet test dotnet/BaseFaq.Faq.Public.Test.IntegrationTests/BaseFaq.Faq.Public.Test.IntegrationTests.csproj
 dotnet test dotnet/BaseFaq.Tenant.BackOffice.Test.IntegrationTests/BaseFaq.Tenant.BackOffice.Test.IntegrationTests.csproj
 dotnet test dotnet/BaseFaq.Tenant.Portal.Test.IntegrationTests/BaseFaq.Tenant.Portal.Test.IntegrationTests.csproj
 ```
@@ -272,9 +305,20 @@ exports.onExecutePostLogin = async (event, api) => {
 ```
 
 ### 5) Call the API
-All requests must include:
-- `Authorization: Bearer <access_token>`
-- `X-Tenant-Id: <tenant-guid>`
+- Protected APIs require:
+  - `Authorization: Bearer <access_token>`
+  - APIs: FAQ Portal, Tenant Back Office, Tenant Portal
+- FAQ APIs require tenant context header:
+  - `X-Tenant-Id: <tenant-guid>`
+  - APIs: FAQ Portal, FAQ Public
+
+## Troubleshooting
+- `network bf-network declared as external, but could not be found`:
+  run base services first (`./docker-base.sh` or `.\docker-base.ps1`) before `docker/docker-compose.yml`.
+- `set REDIS_PASSWORD` error during base services startup:
+  use the helper script, or set `REDIS_PASSWORD` manually before `docker compose`.
+- HTTPS local cert warning/failure:
+  run `dotnet dev-certs https --trust` once on your machine.
 
 ## Stop services
 
