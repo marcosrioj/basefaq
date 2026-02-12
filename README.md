@@ -1,6 +1,6 @@
 # BaseFaq
 
-Setup guide for a clean machine.
+BaseFaq is a multi-tenant FAQ platform with APIs for tenant administration, authenticated portal workflows, and public FAQ access. It uses shared infrastructure components and local Docker services to run the full stack in development.
 
 ## What’s in this repo
 - FAQ Portal API
