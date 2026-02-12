@@ -4,7 +4,7 @@ printf "\e[32m%s\e[0m\n" "Removing Docker Containers..."
 printf "\e[32m%s\e[0m\n" "======================================================================="
 echo ""
 
-docker compose -p bf_services -f ./docker/docker-compose.yml down
+docker compose -p bf_services -f ./docker/docker-compose.yml down --remove-orphans
 
 echo ""
 printf "\e[32m%s\e[0m\n" "======================================================================="
@@ -20,7 +20,7 @@ printf "\e[32m%s\e[0m\n" "Starting Docker Containers..."
 printf "\e[32m%s\e[0m\n" "======================================================================="
 echo ""
 
-  docker compose -p bf_services -f ./docker/docker-compose.yml up -d --build
+docker compose -p bf_services -f ./docker/docker-compose.yml up -d --build
 
 echo ""
 printf "\e[32m%s\e[0m\n" "Started services: basefaq.faq.portal.app, basefaq.tenant.portal.app"
@@ -31,4 +31,4 @@ printf "\e[32m%s\e[0m\n" "Cleaning Docker..."
 printf "\e[32m%s\e[0m\n" "======================================================================="
 echo ""
 
-docker image prune -af
+docker image prune -f

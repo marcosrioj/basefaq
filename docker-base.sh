@@ -1,28 +1,26 @@
 #!/usr/bin/env bash
 set -e
 
-export REDIS_PASSWORD=RedisTempPassword
+export REDIS_PASSWORD="${REDIS_PASSWORD:-RedisTempPassword}"
 
-# Step 1: Stop all running containers
-if [ -n "$(docker ps -q)" ]; then
-  docker stop $(docker ps -q)
-fi
+echo ""
+printf "\e[32m%s\e[0m\n" "======================================================================="
+printf "\e[32m%s\e[0m\n" "Stopping BaseFaq base services (project only)..."
+printf "\e[32m%s\e[0m\n" "======================================================================="
+echo ""
 
-# Step 2: Remove all containers (running or stopped)
-if [ -n "$(docker ps -aq)" ]; then
-  docker rm -f $(docker ps -aq)
-fi
+docker compose -p bf_baseservices -f ./docker/docker-compose.baseservices.yml down --remove-orphans
 
-docker builder prune -f
-docker system prune -f
+echo ""
+printf "\e[32m%s\e[0m\n" "======================================================================="
+printf "\e[32m%s\e[0m\n" "Starting base services..."
+printf "\e[32m%s\e[0m\n" "======================================================================="
+echo ""
 
-
-# Step 3: Start core services with docker compose
 docker compose -p bf_baseservices -f ./docker/docker-compose.baseservices.yml up -d --force-recreate --no-build --remove-orphans --wait
 
 username="postgres"
 password="Pass123$"
-
 command="PGPASSWORD=$password psql -U $username -d postgres -f /docker-entrypoint-initdb.d/create_databases.sql"
 
 docker exec -i postgres sh -c "$command"

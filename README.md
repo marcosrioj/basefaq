@@ -12,19 +12,30 @@ Setup guide for a clean machine.
 - Docker Engine + Docker Compose v2
 - .NET SDK `10.0.100` (see `global.json`)
 - Optional: `dotnet-ef` tool if you want to apply migrations manually
-- Set `REDIS_PASSWORD` in docker-base.sh (must match `Redis:Password` in `appsettings.json`)
+- If you want a non-default Redis password, set `REDIS_PASSWORD` in your shell/PowerShell
+  (must match `Redis:Password` in `appsettings.json`)
 
 ## 1) Start base services (PostgreSQL, RabbitMQ, Redis, SMTP)
 From the repo root:
+
+macOS / Linux:
 
 ```bash
 ./docker-base.sh
 ```
 
+Windows (PowerShell):
+
+```powershell
+.\docker-base.ps1
+```
+
 Notes:
-- The script stops and removes **all** running Docker containers, then prunes Docker state. Use with care.
+- The script only stops/removes containers in the `bf_baseservices` compose project.
 - It starts the base services using `docker/docker-compose.baseservices.yml` and creates the `bf_tenant_db` and `bf_faq_db` databases.
 - PostgreSQL password is `Pass123$` (the compose file uses `$$` to escape `$`).
+- If PowerShell blocks script execution, run:
+  `Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser`
 
 If you prefer to run Docker Compose manually:
 
@@ -68,7 +79,7 @@ Notes:
 If you want a single hostname that works both in Rider (host machine) and inside Docker,
 use `host.docker.internal`.
 
-Linux needs two small steps:
+Linux needs two small steps (Windows/macOS already provide this name):
 
 1) Add the host alias for Docker containers (already included in `docker/docker-compose.yml`):
 
@@ -133,11 +144,19 @@ If you run APIs in Docker, this repo defaults to `host.docker.internal` in `apps
 
 You can also use the helper script:
 
+macOS / Linux:
+
 ```bash
 ./docker.sh
 ```
 
-Note: `./docker.sh` removes the BaseFaq Docker images and prunes Docker images after it brings the stack up.
+Windows (PowerShell):
+
+```powershell
+.\docker.ps1
+```
+
+Note: the script removes the BaseFaq Docker images and prunes dangling Docker images after it brings the stack up.
 
 ## Service Ports
 - PostgreSQL: `localhost:5432` (databases `bf_tenant_db`, `bf_faq_db`)
