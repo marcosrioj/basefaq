@@ -48,14 +48,17 @@ namespace BaseFaq.Faq.Common.Persistence.FaqDb.Migrations
                         .HasColumnType("integer");
 
                     b.Property<string>("Label")
-                        .HasColumnType("text");
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
 
                     b.Property<string>("Locator")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
 
                     b.Property<string>("Scope")
-                        .HasColumnType("text");
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
 
                     b.Property<Guid>("TenantId")
                         .HasColumnType("uuid");
@@ -68,10 +71,16 @@ namespace BaseFaq.Faq.Common.Persistence.FaqDb.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("IsDeleted")
+                        .HasDatabaseName("IX_ContentRef_IsDeleted");
+
+                    b.HasIndex("Kind")
+                        .HasDatabaseName("IX_ContentRef_Kind");
+
                     b.HasIndex("TenantId")
                         .HasDatabaseName("IX_ContentRef_TenantId");
 
-                    b.ToTable("ContentRefs");
+                    b.ToTable("ContentRefs", (string)null);
                 });
 
             modelBuilder.Entity("BaseFaq.Faq.Common.Persistence.FaqDb.Entities.Faq", b =>
@@ -103,11 +112,13 @@ namespace BaseFaq.Faq.Common.Persistence.FaqDb.Migrations
 
                     b.Property<string>("Language")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
 
                     b.Property<int>("SortStrategy")
                         .HasColumnType("integer");
@@ -126,10 +137,13 @@ namespace BaseFaq.Faq.Common.Persistence.FaqDb.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("IsDeleted")
+                        .HasDatabaseName("IX_Faq_IsDeleted");
+
                     b.HasIndex("TenantId")
                         .HasDatabaseName("IX_Faq_TenantId");
 
-                    b.ToTable("Faqs");
+                    b.ToTable("Faqs", (string)null);
                 });
 
             modelBuilder.Entity("BaseFaq.Faq.Common.Persistence.FaqDb.Entities.FaqContentRef", b =>
@@ -172,12 +186,17 @@ namespace BaseFaq.Faq.Common.Persistence.FaqDb.Migrations
 
                     b.HasIndex("ContentRefId");
 
-                    b.HasIndex("FaqId");
+                    b.HasIndex("IsDeleted")
+                        .HasDatabaseName("IX_FaqContentRef_IsDeleted");
 
                     b.HasIndex("TenantId")
                         .HasDatabaseName("IX_FaqContentRef_TenantId");
 
-                    b.ToTable("FaqContentRefs");
+                    b.HasIndex("FaqId", "ContentRefId")
+                        .IsUnique()
+                        .HasDatabaseName("IX_FaqContentRef_FaqId_ContentRefId");
+
+                    b.ToTable("FaqContentRefs", (string)null);
                 });
 
             modelBuilder.Entity("BaseFaq.Faq.Common.Persistence.FaqDb.Entities.FaqItem", b =>
@@ -187,13 +206,15 @@ namespace BaseFaq.Faq.Common.Persistence.FaqDb.Migrations
                         .HasColumnType("uuid");
 
                     b.Property<string>("AdditionalInfo")
-                        .HasColumnType("text");
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
 
                     b.Property<int>("AiConfidenceScore")
                         .HasColumnType("integer");
 
                     b.Property<string>("Answer")
-                        .HasColumnType("text");
+                        .HasMaxLength(5000)
+                        .HasColumnType("character varying(5000)");
 
                     b.Property<Guid?>("ContentRefId")
                         .HasColumnType("uuid");
@@ -205,10 +226,12 @@ namespace BaseFaq.Faq.Common.Persistence.FaqDb.Migrations
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("CtaTitle")
-                        .HasColumnType("text");
+                        .HasMaxLength(250)
+                        .HasColumnType("character varying(250)");
 
                     b.Property<string>("CtaUrl")
-                        .HasColumnType("text");
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
 
                     b.Property<string>("DeletedBy")
                         .HasColumnType("text");
@@ -227,11 +250,13 @@ namespace BaseFaq.Faq.Common.Persistence.FaqDb.Migrations
 
                     b.Property<string>("Question")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
 
                     b.Property<string>("ShortAnswer")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(250)
+                        .HasColumnType("character varying(250)");
 
                     b.Property<int>("Sort")
                         .HasColumnType("integer");
@@ -252,12 +277,16 @@ namespace BaseFaq.Faq.Common.Persistence.FaqDb.Migrations
 
                     b.HasIndex("ContentRefId");
 
-                    b.HasIndex("FaqId");
+                    b.HasIndex("FaqId")
+                        .HasDatabaseName("IX_FaqItem_FaqId");
+
+                    b.HasIndex("IsDeleted")
+                        .HasDatabaseName("IX_FaqItem_IsDeleted");
 
                     b.HasIndex("TenantId")
                         .HasDatabaseName("IX_FaqItem_TenantId");
 
-                    b.ToTable("FaqItems");
+                    b.ToTable("FaqItems", (string)null);
                 });
 
             modelBuilder.Entity("BaseFaq.Faq.Common.Persistence.FaqDb.Entities.FaqTag", b =>
@@ -298,14 +327,19 @@ namespace BaseFaq.Faq.Common.Persistence.FaqDb.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("FaqId");
+                    b.HasIndex("IsDeleted")
+                        .HasDatabaseName("IX_FaqTag_IsDeleted");
 
                     b.HasIndex("TagId");
 
                     b.HasIndex("TenantId")
                         .HasDatabaseName("IX_FaqTag_TenantId");
 
-                    b.ToTable("FaqTags");
+                    b.HasIndex("FaqId", "TagId")
+                        .IsUnique()
+                        .HasDatabaseName("IX_FaqTag_FaqId_TagId");
+
+                    b.ToTable("FaqTags", (string)null);
                 });
 
             modelBuilder.Entity("BaseFaq.Faq.Common.Persistence.FaqDb.Entities.Tag", b =>
@@ -340,14 +374,21 @@ namespace BaseFaq.Faq.Common.Persistence.FaqDb.Migrations
 
                     b.Property<string>("Value")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("IsDeleted")
+                        .HasDatabaseName("IX_Tag_IsDeleted");
 
                     b.HasIndex("TenantId")
                         .HasDatabaseName("IX_Tag_TenantId");
 
-                    b.ToTable("Tags");
+                    b.HasIndex("Value")
+                        .HasDatabaseName("IX_Tag_Value");
+
+                    b.ToTable("Tags", (string)null);
                 });
 
             modelBuilder.Entity("BaseFaq.Faq.Common.Persistence.FaqDb.Entities.Vote", b =>
@@ -373,7 +414,8 @@ namespace BaseFaq.Faq.Common.Persistence.FaqDb.Migrations
 
                     b.Property<string>("Ip")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
@@ -395,20 +437,26 @@ namespace BaseFaq.Faq.Common.Persistence.FaqDb.Migrations
 
                     b.Property<string>("UserAgent")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
 
                     b.Property<string>("UserPrint")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(250)
+                        .HasColumnType("character varying(250)");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("FaqItemId");
+                    b.HasIndex("FaqItemId")
+                        .HasDatabaseName("IX_Vote_FaqItemId");
+
+                    b.HasIndex("IsDeleted")
+                        .HasDatabaseName("IX_Vote_IsDeleted");
 
                     b.HasIndex("TenantId")
                         .HasDatabaseName("IX_Vote_TenantId");
 
-                    b.ToTable("Votes");
+                    b.ToTable("Votes", (string)null);
                 });
 
             modelBuilder.Entity("BaseFaq.Faq.Common.Persistence.FaqDb.Entities.FaqContentRef", b =>

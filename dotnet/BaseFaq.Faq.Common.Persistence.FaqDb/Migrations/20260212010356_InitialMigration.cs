@@ -17,9 +17,9 @@ namespace BaseFaq.Faq.Common.Persistence.FaqDb.Migrations
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
                     Kind = table.Column<int>(type: "integer", nullable: false),
-                    Locator = table.Column<string>(type: "text", nullable: false),
-                    Label = table.Column<string>(type: "text", nullable: true),
-                    Scope = table.Column<string>(type: "text", nullable: true),
+                    Locator = table.Column<string>(type: "character varying(1000)", maxLength: 1000, nullable: false),
+                    Label = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: true),
+                    Scope = table.Column<string>(type: "character varying(1000)", maxLength: 1000, nullable: true),
                     TenantId = table.Column<Guid>(type: "uuid", nullable: false),
                     CreatedDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     CreatedBy = table.Column<string>(type: "text", nullable: true),
@@ -39,8 +39,8 @@ namespace BaseFaq.Faq.Common.Persistence.FaqDb.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    Name = table.Column<string>(type: "text", nullable: false),
-                    Language = table.Column<string>(type: "text", nullable: false),
+                    Name = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
+                    Language = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
                     Status = table.Column<int>(type: "integer", nullable: false),
                     SortStrategy = table.Column<int>(type: "integer", nullable: false),
                     CtaEnabled = table.Column<bool>(type: "boolean", nullable: false),
@@ -64,7 +64,7 @@ namespace BaseFaq.Faq.Common.Persistence.FaqDb.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    Value = table.Column<string>(type: "text", nullable: false),
+                    Value = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
                     TenantId = table.Column<Guid>(type: "uuid", nullable: false),
                     CreatedDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     CreatedBy = table.Column<string>(type: "text", nullable: true),
@@ -117,12 +117,12 @@ namespace BaseFaq.Faq.Common.Persistence.FaqDb.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    Question = table.Column<string>(type: "text", nullable: false),
-                    ShortAnswer = table.Column<string>(type: "text", nullable: false),
-                    Answer = table.Column<string>(type: "text", nullable: true),
-                    AdditionalInfo = table.Column<string>(type: "text", nullable: true),
-                    CtaTitle = table.Column<string>(type: "text", nullable: true),
-                    CtaUrl = table.Column<string>(type: "text", nullable: true),
+                    Question = table.Column<string>(type: "character varying(1000)", maxLength: 1000, nullable: false),
+                    ShortAnswer = table.Column<string>(type: "character varying(250)", maxLength: 250, nullable: false),
+                    Answer = table.Column<string>(type: "character varying(5000)", maxLength: 5000, nullable: true),
+                    AdditionalInfo = table.Column<string>(type: "character varying(2000)", maxLength: 2000, nullable: true),
+                    CtaTitle = table.Column<string>(type: "character varying(250)", maxLength: 250, nullable: true),
+                    CtaUrl = table.Column<string>(type: "character varying(1000)", maxLength: 1000, nullable: true),
                     Sort = table.Column<int>(type: "integer", nullable: false),
                     VoteScore = table.Column<int>(type: "integer", nullable: false),
                     AiConfidenceScore = table.Column<int>(type: "integer", nullable: false),
@@ -193,9 +193,9 @@ namespace BaseFaq.Faq.Common.Persistence.FaqDb.Migrations
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
                     Like = table.Column<bool>(type: "boolean", nullable: false),
-                    UserPrint = table.Column<string>(type: "text", nullable: false),
-                    Ip = table.Column<string>(type: "text", nullable: false),
-                    UserAgent = table.Column<string>(type: "text", nullable: false),
+                    UserPrint = table.Column<string>(type: "character varying(250)", maxLength: 250, nullable: false),
+                    Ip = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    UserAgent = table.Column<string>(type: "character varying(1000)", maxLength: 1000, nullable: false),
                     UnLikeReason = table.Column<int>(type: "integer", nullable: true),
                     TenantId = table.Column<Guid>(type: "uuid", nullable: false),
                     FaqItemId = table.Column<Guid>(type: "uuid", nullable: false),
@@ -219,9 +219,30 @@ namespace BaseFaq.Faq.Common.Persistence.FaqDb.Migrations
                 });
 
             migrationBuilder.CreateIndex(
+                name: "IX_ContentRef_IsDeleted",
+                table: "ContentRefs",
+                column: "IsDeleted");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ContentRef_Kind",
+                table: "ContentRefs",
+                column: "Kind");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_ContentRef_TenantId",
                 table: "ContentRefs",
                 column: "TenantId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_FaqContentRef_FaqId_ContentRefId",
+                table: "FaqContentRefs",
+                columns: new[] { "FaqId", "ContentRefId" },
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_FaqContentRef_IsDeleted",
+                table: "FaqContentRefs",
+                column: "IsDeleted");
 
             migrationBuilder.CreateIndex(
                 name: "IX_FaqContentRef_TenantId",
@@ -234,9 +255,14 @@ namespace BaseFaq.Faq.Common.Persistence.FaqDb.Migrations
                 column: "ContentRefId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_FaqContentRefs_FaqId",
-                table: "FaqContentRefs",
+                name: "IX_FaqItem_FaqId",
+                table: "FaqItems",
                 column: "FaqId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_FaqItem_IsDeleted",
+                table: "FaqItems",
+                column: "IsDeleted");
 
             migrationBuilder.CreateIndex(
                 name: "IX_FaqItem_TenantId",
@@ -249,9 +275,9 @@ namespace BaseFaq.Faq.Common.Persistence.FaqDb.Migrations
                 column: "ContentRefId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_FaqItems_FaqId",
-                table: "FaqItems",
-                column: "FaqId");
+                name: "IX_Faq_IsDeleted",
+                table: "Faqs",
+                column: "IsDeleted");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Faq_TenantId",
@@ -259,14 +285,20 @@ namespace BaseFaq.Faq.Common.Persistence.FaqDb.Migrations
                 column: "TenantId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_FaqTag_FaqId_TagId",
+                table: "FaqTags",
+                columns: new[] { "FaqId", "TagId" },
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_FaqTag_IsDeleted",
+                table: "FaqTags",
+                column: "IsDeleted");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_FaqTag_TenantId",
                 table: "FaqTags",
                 column: "TenantId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_FaqTags_FaqId",
-                table: "FaqTags",
-                column: "FaqId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_FaqTags_TagId",
@@ -274,19 +306,34 @@ namespace BaseFaq.Faq.Common.Persistence.FaqDb.Migrations
                 column: "TagId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Tag_IsDeleted",
+                table: "Tags",
+                column: "IsDeleted");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Tag_TenantId",
                 table: "Tags",
                 column: "TenantId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Tag_Value",
+                table: "Tags",
+                column: "Value");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Vote_FaqItemId",
+                table: "Votes",
+                column: "FaqItemId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Vote_IsDeleted",
+                table: "Votes",
+                column: "IsDeleted");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Vote_TenantId",
                 table: "Votes",
                 column: "TenantId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Votes_FaqItemId",
-                table: "Votes",
-                column: "FaqItemId");
         }
 
         /// <inheritdoc />
