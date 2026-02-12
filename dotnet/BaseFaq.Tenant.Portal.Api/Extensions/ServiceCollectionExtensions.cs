@@ -1,0 +1,13 @@
+using BaseFaq.Tenant.Portal.Business.Tenant.Extensions;
+using BaseFaq.Tenant.Portal.Business.User.Extensions;
+
+namespace BaseFaq.Tenant.Portal.Api.Extensions;
+
+public static class ServiceCollectionExtensions
+{
+    public static void AddFeatures(this IServiceCollection services, IConfiguration configuration)
+    {
+        services.AddTenantBusiness();
+        services.AddUserBusiness();
+    }
+}

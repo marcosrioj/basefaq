@@ -1,0 +1,143 @@
+using BaseFaq.Models.Common.Enums;
+using BaseFaq.Models.Tenant.Enums;
+using BaseFaq.Tenant.Portal.Business.Tenant.Commands.CreateOrUpdateTenants;
+using BaseFaq.Tenant.Portal.Business.Tenant.Queries.GetAllTenants;
+using BaseFaq.Tenant.Portal.Test.IntegrationTests.Helpers;
+using Microsoft.EntityFrameworkCore;
+using Xunit;
+
+namespace BaseFaq.Tenant.Portal.Test.IntegrationTests.Tests.Tenant;
+
+public class TenantCommandQueryTests
+{
+    [Fact]
+    public async Task GetAllTenants_ReturnsOnlyActiveTenantsForCurrentUser()
+    {
+        var currentUserId = Guid.NewGuid();
+        using var context = TestContext.Create(userId: currentUserId);
+
+        await TestDataFactory.SeedTenantAsync(
+            context.DbContext,
+            name: "Current User Tenant",
+            app: AppEnum.Faq,
+            isActive: true,
+            userId: currentUserId);
+
+        await TestDataFactory.SeedTenantAsync(
+            context.DbContext,
+            name: "Other User Tenant",
+            app: AppEnum.Faq,
+            isActive: true,
+            userId: Guid.NewGuid());
+
+        var handler = new TenantsGetAllTenantsQueryHandler(context.DbContext, context.SessionService);
+        var result = await handler.Handle(new TenantsGetAllTenantsQuery(), CancellationToken.None);
+
+        Assert.Single(result);
+        Assert.Equal("Current User Tenant", result[0].Name);
+        Assert.Equal(AppEnum.Faq, result[0].App);
+        Assert.True(result[0].IsActive);
+    }
+
+    [Fact]
+    public async Task CreateOrUpdateTenants_CreatesTenantUsingCurrentConnection()
+    {
+        var currentUserId = Guid.NewGuid();
+        using var context = TestContext.Create(userId: currentUserId);
+
+        await TestDataFactory.SeedTenantConnectionAsync(
+            context.DbContext,
+            app: AppEnum.Faq,
+            connectionString: "Host=host.docker.internal;Database=faqdb;Username=tenant;Password=tenant;",
+            isCurrent: true);
+
+        var handler = new TenantsCreateOrUpdateTenantsCommandHandler(context.DbContext, context.SessionService);
+        var request = new TenantsCreateOrUpdateTenantsCommand
+        {
+            Name = "Portal Tenant",
+            Edition = TenantEdition.Free
+        };
+
+        var result = await handler.Handle(request, CancellationToken.None);
+
+        Assert.Single(result);
+        var tenant = await context.DbContext.Tenants.FirstOrDefaultAsync(item => item.UserId == currentUserId);
+        Assert.NotNull(tenant);
+        Assert.Equal("Portal Tenant", tenant!.Name);
+        Assert.Equal(TenantEdition.Free, tenant.Edition);
+        Assert.Equal(AppEnum.Faq, tenant.App);
+        Assert.Equal("Host=host.docker.internal;Database=faqdb;Username=tenant;Password=tenant;",
+            tenant.ConnectionString);
+        Assert.True(tenant.IsActive);
+        Assert.Equal("portaltenantfaq", tenant.Slug);
+    }
+
+    [Fact]
+    public async Task CreateOrUpdateTenants_UpdatesExistingActiveTenant()
+    {
+        var currentUserId = Guid.NewGuid();
+        using var context = TestContext.Create(userId: currentUserId);
+
+        await TestDataFactory.SeedTenantConnectionAsync(
+            context.DbContext,
+            app: AppEnum.Faq,
+            connectionString: "Host=host.docker.internal;Database=newdb;Username=tenant;Password=tenant;",
+            isCurrent: true);
+
+        var existing = await TestDataFactory.SeedTenantAsync(
+            context.DbContext,
+            slug: "old-slug",
+            name: "Old Name",
+            edition: TenantEdition.Free,
+            app: AppEnum.Faq,
+            connectionString: "Host=host.docker.internal;Database=olddb;Username=tenant;Password=tenant;",
+            isActive: true,
+            userId: currentUserId);
+
+        var handler = new TenantsCreateOrUpdateTenantsCommandHandler(context.DbContext, context.SessionService);
+        var request = new TenantsCreateOrUpdateTenantsCommand
+        {
+            Name = "New Name",
+            Edition = TenantEdition.Enterprise
+        };
+
+        var result = await handler.Handle(request, CancellationToken.None);
+
+        Assert.Single(result);
+        var updated = await context.DbContext.Tenants.FindAsync(existing.Id);
+        Assert.NotNull(updated);
+        Assert.Equal(existing.Id, updated!.Id);
+        Assert.Equal("newnamefaq", updated.Slug);
+        Assert.Equal("New Name", updated.Name);
+        Assert.Equal(TenantEdition.Enterprise, updated.Edition);
+        Assert.Equal("Host=host.docker.internal;Database=newdb;Username=tenant;Password=tenant;",
+            updated.ConnectionString);
+        Assert.True(updated.IsActive);
+    }
+
+    [Fact]
+    public async Task CreateOrUpdateTenants_SkipsWhenNoCurrentConnectionForApp()
+    {
+        var currentUserId = Guid.NewGuid();
+        using var context = TestContext.Create(userId: currentUserId);
+
+        await TestDataFactory.SeedTenantConnectionAsync(
+            context.DbContext,
+            app: AppEnum.Faq,
+            connectionString: "Host=host.docker.internal;Database=old;Username=tenant;Password=tenant;",
+            isCurrent: false);
+
+        var handler = new TenantsCreateOrUpdateTenantsCommandHandler(context.DbContext, context.SessionService);
+        var request = new TenantsCreateOrUpdateTenantsCommand
+        {
+            Name = "Should Skip",
+            Edition = TenantEdition.Free
+        };
+
+        var result = await handler.Handle(request, CancellationToken.None);
+
+        Assert.Empty(result);
+        var tenantCount = await context.DbContext.Tenants.CountAsync(item => item.UserId == currentUserId);
+        Assert.Equal(0, tenantCount);
+    }
+}

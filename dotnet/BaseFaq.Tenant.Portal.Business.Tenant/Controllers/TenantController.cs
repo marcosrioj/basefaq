@@ -1,0 +1,30 @@
+using BaseFaq.Tenant.Portal.Business.Tenant.Abstractions;
+using BaseFaq.Tenant.Portal.Business.Tenant.Dtos;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+
+namespace BaseFaq.Tenant.Portal.Business.Tenant.Controllers;
+
+[Authorize]
+[ApiController]
+[Route("api/tenant/tenants")]
+public class TenantController(ITenantService tenantService) : ControllerBase
+{
+    [HttpGet("GetAll")]
+    [ProducesResponseType(typeof(List<TenantSummaryDto>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetAll(CancellationToken token)
+    {
+        var result = await tenantService.GetAll(token);
+        return Ok(result);
+    }
+
+    [HttpPost("CreateOrUpdate")]
+    [ProducesResponseType(typeof(List<TenantSummaryDto>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> CreateOrUpdate([FromBody] TenantCreateOrUpdateRequestDto dto,
+        CancellationToken token)
+    {
+        var result = await tenantService.CreateOrUpdate(dto, token);
+        return Ok(result);
+    }
+}

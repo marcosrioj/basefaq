@@ -5,6 +5,7 @@ Setup guide for a clean machine.
 ## What’s in this repo
 - FAQ Portal API
 - Tenant Back Office API
+- Tenant Portal API
 - Shared infrastructure libraries (Swagger/OpenAPI, Sentry, MediatR logging, API error handling)
 - Base services via Docker (PostgreSQL, RabbitMQ, Redis, SMTP4Dev)
 
@@ -144,7 +145,15 @@ dotnet run --project dotnet/BaseFaq.Tenant.BackOffice.Api
 Endpoints:
 - HTTP: `http://localhost:5000`
 
-Note: both apps default to port 5000 in Development, so change one if you run both locally.
+Tenant Portal API:
+
+```bash
+dotnet run --project dotnet/BaseFaq.Tenant.Portal.Api
+```
+
+Endpoints:
+- HTTP: `http://localhost:5002`
+- HTTPS: `https://localhost:5003`
 
 ## 4) (Optional) Run API in Docker
 APIs (Docker):
@@ -157,6 +166,8 @@ This compose file:
 - Runs these services:
   - `basefaq.faq.portal.app`
   - `basefaq.tenant.backoffice.app`
+  - `basefaq.tenant.portal.app`
+  - `basefaq.faq.public.app`
 - Wires the service to the `bf-network` network created by the base services.
 - Uses the repo root as the build context, so run the command from the repo root.
 
@@ -185,6 +196,8 @@ Note: the script removes the BaseFaq Docker images and prunes dangling Docker im
 - Redis: `localhost:6379`
 - FAQ Portal API (Docker): `http://localhost:5010`
 - Tenant Back Office API (Docker): `http://localhost:5000`
+- Tenant Portal API (Docker): `http://localhost:5002`
+- FAQ Public API (Docker): `http://localhost:5020`
 
 ## Redis cache
 Clear all Redis databases:
@@ -211,6 +224,7 @@ Integration tests:
 ```bash
 dotnet test dotnet/BaseFaq.Faq.Portal.Test.IntegrationTests/BaseFaq.Faq.Portal.Test.IntegrationTests.csproj
 dotnet test dotnet/BaseFaq.Tenant.BackOffice.Test.IntegrationTests/BaseFaq.Tenant.BackOffice.Test.IntegrationTests.csproj
+dotnet test dotnet/BaseFaq.Tenant.Portal.Test.IntegrationTests/BaseFaq.Tenant.Portal.Test.IntegrationTests.csproj
 ```
 
 ## Auth0 setup (step-by-step)
@@ -223,13 +237,13 @@ Create a new API:
 
 ### 2) Create an Auth0 application (SPA for Swagger UI)
 Create a Single Page Application:
-- Allowed Callback URLs: `http://localhost:5010/swagger/oauth2-redirect.html`, `http://localhost:5000/swagger/oauth2-redirect.html`
-- Allowed Web Origins: `http://localhost:5010`, `http://localhost:5000`
+- Allowed Callback URLs: `http://localhost:5010/swagger/oauth2-redirect.html`, `http://localhost:5000/swagger/oauth2-redirect.html`, `http://localhost:5002/swagger/oauth2-redirect.html`
+- Allowed Web Origins: `http://localhost:5010`, `http://localhost:5000`, `http://localhost:5002`
 - Ensure the app is public (no client secret required)
 - In the app's **APIs** tab, authorize access to your API identifier (Audience)
 
 ### 3) Configure BaseFaq apps
-Edit `dotnet/BaseFaq.Faq.Portal.Api/appsettings.json` and `dotnet/BaseFaq.Tenant.BackOffice.Api/appsettings.json`:
+Edit `dotnet/BaseFaq.Faq.Portal.Api/appsettings.json`, `dotnet/BaseFaq.Tenant.BackOffice.Api/appsettings.json`, and `dotnet/BaseFaq.Tenant.Portal.Api/appsettings.json`:
 - `JwtAuthentication:Authority` = `https://<AUTH0_DOMAIN>/`
 - `JwtAuthentication:Audience` = `https://<API_IDENTIFIER>`
 - `Session:UserIdClaimType` = `sub`
