@@ -123,6 +123,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BaseFaq.Faq.Public.Business
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BaseFaq.Faq.Public.Test.IntegrationTests", "dotnet\BaseFaq.Faq.Public.Test.IntegrationTests\BaseFaq.Faq.Public.Test.IntegrationTests.csproj", "{536F9A97-0131-437D-9D7A-84972AB99D45}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BaseFaq.Faq.Common.Persistence.Seed", "dotnet\BaseFaq.Faq.Common.Persistence.Seed\BaseFaq.Faq.Common.Persistence.Seed.csproj", "{BAF23C73-6F8D-4971-9CCF-4089DB216C67}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -249,6 +251,10 @@ Global
 		{536F9A97-0131-437D-9D7A-84972AB99D45}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{536F9A97-0131-437D-9D7A-84972AB99D45}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{536F9A97-0131-437D-9D7A-84972AB99D45}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BAF23C73-6F8D-4971-9CCF-4089DB216C67}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BAF23C73-6F8D-4971-9CCF-4089DB216C67}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BAF23C73-6F8D-4971-9CCF-4089DB216C67}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BAF23C73-6F8D-4971-9CCF-4089DB216C67}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{02B192E6-26BF-4FAA-888B-B3ADBDD32E19} = {FA22D355-D849-47BD-8698-4A822738F45B}
@@ -305,5 +311,6 @@ Global
 		{F7A49855-432F-423A-A467-41707FF28DC1} = {143419C0-0931-4472-A77B-FD45442D0F98}
 		{C83590D8-FB27-4B58-825B-C1869FF56F4E} = {143419C0-0931-4472-A77B-FD45442D0F98}
 		{536F9A97-0131-437D-9D7A-84972AB99D45} = {EE32ACCA-1A75-49E8-B12B-35BDA3F64FD3}
+		{BAF23C73-6F8D-4971-9CCF-4089DB216C67} = {FA22D355-D849-47BD-8698-4A822738F45B}
 	EndGlobalSection
 EndGlobal

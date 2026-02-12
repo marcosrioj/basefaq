@@ -77,6 +77,24 @@ Notes:
 - When creating a new migration, make sure the current tenant connection is properly added.
 - Migrations run against all existing tenants for the selected app.
 
+## Seed data
+The seed app inserts realistic data into both the tenant and FAQ databases.
+
+It reads connection strings from:
+- `dotnet/BaseFaq.Faq.Common.Persistence.Seed/appsettings.json`
+
+Run the seed:
+
+```bash
+dotnet run --project dotnet/BaseFaq.Faq.Common.Persistence.Seed
+```
+
+Notes:
+- The seed logs which `TenantDb` and `FaqDb` connections it uses from `appsettings.json`.
+- On startup it offers actions: seed, clean+seed, or clean-only.
+- If the target database already has data, it will ask whether to append.
+- It creates dozens of records per entity, including child entities (items, tags, votes, etc.).
+
 ## Hostname that works on host + Docker
 If you want a single hostname that works both in Rider (host machine) and inside Docker,
 use `host.docker.internal`.
@@ -167,6 +185,25 @@ Note: the script removes the BaseFaq Docker images and prunes dangling Docker im
 - Redis: `localhost:6379`
 - FAQ Portal API (Docker): `http://localhost:5010`
 - Tenant Portal API (Docker): `http://localhost:5000`
+
+## Redis cache
+Clear all Redis databases:
+
+```bash
+redis-cli FLUSHALL
+```
+
+Clear only the current database:
+
+```bash
+redis-cli FLUSHDB
+```
+
+If you need host/port/auth:
+
+```bash
+redis-cli -h <host> -p <porta> -a <senha> FLUSHALL
+```
 
 ## Tests
 Integration tests:
