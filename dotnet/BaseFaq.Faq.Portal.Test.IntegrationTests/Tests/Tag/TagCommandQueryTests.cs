@@ -84,7 +84,6 @@ public class TagCommandQueryTests
         Assert.NotNull(result);
         Assert.Equal(tag.Id, result!.Id);
         Assert.Equal("faq", result.Value);
-        Assert.Equal(tag.TenantId, result.TenantId);
     }
 
     [Fact]

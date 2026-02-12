@@ -28,8 +28,7 @@ public class FaqTagsGetFaqTagListQueryHandler(FaqDbContext dbContext)
             {
                 Id = faqTag.Id,
                 FaqId = faqTag.FaqId,
-                TagId = faqTag.TagId,
-                TenantId = faqTag.TenantId
+                TagId = faqTag.TagId
             })
             .ToListAsync(cancellationToken);
 

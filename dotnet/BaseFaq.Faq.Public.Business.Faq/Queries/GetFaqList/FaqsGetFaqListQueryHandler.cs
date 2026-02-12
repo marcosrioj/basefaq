@@ -59,7 +59,6 @@ public class FaqsGetFaqListQueryHandler(FaqDbContext dbContext)
                 SortStrategy = faq.SortStrategy,
                 CtaEnabled = faq.CtaEnabled,
                 CtaTarget = faq.CtaTarget,
-                TenantId = faq.TenantId,
                 Items = includeItems
                     ? faq.Items.Select(item => new FaqItemDto
                     {
@@ -85,16 +84,14 @@ public class FaqsGetFaqListQueryHandler(FaqDbContext dbContext)
                         Kind = faqContentRef.ContentRef.Kind,
                         Locator = faqContentRef.ContentRef.Locator,
                         Label = faqContentRef.ContentRef.Label,
-                        Scope = faqContentRef.ContentRef.Scope,
-                        TenantId = faqContentRef.ContentRef.TenantId
+                        Scope = faqContentRef.ContentRef.Scope
                     }).ToList()
                     : null,
                 Tags = includeTags
                     ? faq.Tags.Select(faqTag => new TagDto
                     {
                         Id = faqTag.Tag.Id,
-                        Value = faqTag.Tag.Value,
-                        TenantId = faqTag.Tag.TenantId
+                        Value = faqTag.Tag.Value
                     }).ToList()
                     : null
             })

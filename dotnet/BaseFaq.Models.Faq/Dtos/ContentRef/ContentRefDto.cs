@@ -9,5 +9,4 @@ public class ContentRefDto
     public required string Locator { get; set; }
     public string? Label { get; set; }
     public string? Scope { get; set; }
-    public required Guid TenantId { get; set; }
 }

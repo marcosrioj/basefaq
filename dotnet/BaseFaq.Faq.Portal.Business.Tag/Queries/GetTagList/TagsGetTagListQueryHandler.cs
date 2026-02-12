@@ -26,8 +26,7 @@ public class TagsGetTagListQueryHandler(FaqDbContext dbContext)
             .Select(tag => new TagDto
             {
                 Id = tag.Id,
-                Value = tag.Value,
-                TenantId = tag.TenantId
+                Value = tag.Value
             })
             .ToListAsync(cancellationToken);
 

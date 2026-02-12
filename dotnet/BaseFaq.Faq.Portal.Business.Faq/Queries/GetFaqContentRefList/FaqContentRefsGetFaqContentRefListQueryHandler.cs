@@ -28,8 +28,7 @@ public class FaqContentRefsGetFaqContentRefListQueryHandler(FaqDbContext dbConte
             {
                 Id = faqContentRef.Id,
                 FaqId = faqContentRef.FaqId,
-                ContentRefId = faqContentRef.ContentRefId,
-                TenantId = faqContentRef.TenantId
+                ContentRefId = faqContentRef.ContentRefId
             })
             .ToListAsync(cancellationToken);
 

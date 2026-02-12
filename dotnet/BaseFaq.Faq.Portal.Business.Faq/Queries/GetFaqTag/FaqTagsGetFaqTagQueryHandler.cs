@@ -17,8 +17,7 @@ public class FaqTagsGetFaqTagQueryHandler(FaqDbContext dbContext)
             {
                 Id = faqTag.Id,
                 FaqId = faqTag.FaqId,
-                TagId = faqTag.TagId,
-                TenantId = faqTag.TenantId
+                TagId = faqTag.TagId
             })
             .FirstOrDefaultAsync(cancellationToken);
     }

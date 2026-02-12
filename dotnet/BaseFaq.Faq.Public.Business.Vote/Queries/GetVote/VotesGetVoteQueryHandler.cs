@@ -21,7 +21,6 @@ public class VotesGetVoteQueryHandler(FaqDbContext dbContext)
                 Ip = vote.Ip,
                 UserAgent = vote.UserAgent,
                 UnLikeReason = vote.UnLikeReason,
-                TenantId = vote.TenantId,
                 FaqItemId = vote.FaqItemId
             })
             .FirstOrDefaultAsync(cancellationToken);

@@ -15,8 +15,7 @@ public class TagsGetTagQueryHandler(FaqDbContext dbContext) : IRequestHandler<Ta
             .Select(tag => new TagDto
             {
                 Id = tag.Id,
-                Value = tag.Value,
-                TenantId = tag.TenantId
+                Value = tag.Value
             })
             .FirstOrDefaultAsync(cancellationToken);
     }

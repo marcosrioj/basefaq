@@ -23,7 +23,7 @@ echo ""
 docker compose -p bf_services -f ./docker/docker-compose.yml up -d --build
 
 echo ""
-printf "\e[32m%s\e[0m\n" "Started services: basefaq.faq.portal.app, basefaq.tenant.portal.app"
+printf "\e[32m%s\e[0m\n" "Started services: basefaq.faq.portal.app, basefaq.faq.public.app, basefaq.tenant.portal.app"
 
 echo ""
 printf "\e[32m%s\e[0m\n" "======================================================================="

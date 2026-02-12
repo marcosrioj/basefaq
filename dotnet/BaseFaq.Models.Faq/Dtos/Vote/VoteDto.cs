@@ -10,6 +10,5 @@ public class VoteDto
     public required string Ip { get; set; }
     public required string UserAgent { get; set; }
     public UnLikeReason? UnLikeReason { get; set; }
-    public required Guid TenantId { get; set; }
     public required Guid FaqItemId { get; set; }
 }

@@ -124,7 +124,6 @@ public class ContentRefCommandQueryTests
         Assert.Equal(contentRef.Id, result!.Id);
         Assert.Equal(ContentRefKind.Repository, result.Kind);
         Assert.Equal("repo://faq", result.Locator);
-        Assert.Equal(contentRef.TenantId, result.TenantId);
     }
 
     [Fact]

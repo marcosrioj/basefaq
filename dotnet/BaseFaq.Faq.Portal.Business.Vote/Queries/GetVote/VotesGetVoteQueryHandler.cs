@@ -20,7 +20,6 @@ public class VotesGetVoteQueryHandler(FaqDbContext dbContext) : IRequestHandler<
                 Ip = vote.Ip,
                 UserAgent = vote.UserAgent,
                 UnLikeReason = vote.UnLikeReason,
-                TenantId = vote.TenantId,
                 FaqItemId = vote.FaqItemId
             })
             .FirstOrDefaultAsync(cancellationToken);

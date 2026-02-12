@@ -31,8 +31,7 @@ public class ContentRefsGetContentRefListQueryHandler(FaqDbContext dbContext)
                 Kind = contentRef.Kind,
                 Locator = contentRef.Locator,
                 Label = contentRef.Label,
-                Scope = contentRef.Scope,
-                TenantId = contentRef.TenantId
+                Scope = contentRef.Scope
             })
             .ToListAsync(cancellationToken);
 
