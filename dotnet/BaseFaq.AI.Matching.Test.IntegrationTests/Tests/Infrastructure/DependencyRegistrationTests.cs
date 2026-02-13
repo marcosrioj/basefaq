@@ -8,15 +8,21 @@ namespace BaseFaq.AI.Matching.Test.IntegrationTests.Tests.Infrastructure;
 public class DependencyRegistrationTests
 {
     [Fact]
-    public void AddMatchingBusiness_RegistersMatchingStatusService()
+    public void AddMatchingBusiness_RegistersMatchingServices()
     {
         var services = TestServiceCollectionFactory.Create();
 
         services.AddMatchingBusiness();
 
-        var serviceDescriptor = services.SingleOrDefault(x =>
+        var statusServiceDescriptor = services.SingleOrDefault(x =>
             x.ServiceType == typeof(IMatchingStatusService));
+        var faqItemValidationServiceDescriptor = services.SingleOrDefault(x =>
+            x.ServiceType == typeof(IMatchingFaqItemValidationService));
+        var requestServiceDescriptor = services.SingleOrDefault(x =>
+            x.ServiceType == typeof(IMatchingRequestService));
 
-        Assert.NotNull(serviceDescriptor);
+        Assert.NotNull(statusServiceDescriptor);
+        Assert.NotNull(faqItemValidationServiceDescriptor);
+        Assert.NotNull(requestServiceDescriptor);
     }
 }

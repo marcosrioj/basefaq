@@ -15,4 +15,15 @@ public class MatchingController(IMatchingStatusService matchingStatusService) : 
         var result = await matchingStatusService.GetStatusAsync(token);
         return Ok(result);
     }
+
+    [HttpPost("requests")]
+    [ProducesResponseType(typeof(MatchingRequestAcceptedResponse), StatusCodes.Status202Accepted)]
+    public async Task<IActionResult> RequestMatching(
+        [FromBody] MatchingRequestDto request,
+        [FromServices] IMatchingRequestService matchingRequestService,
+        CancellationToken token)
+    {
+        var result = await matchingRequestService.EnqueueAsync(request, token);
+        return Accepted(result);
+    }
 }

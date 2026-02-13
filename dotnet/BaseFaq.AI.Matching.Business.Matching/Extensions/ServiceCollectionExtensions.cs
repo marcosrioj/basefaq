@@ -9,6 +9,8 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection AddMatchingBusiness(this IServiceCollection services)
     {
         services.AddScoped<IMatchingStatusService, MatchingStatusService>();
+        services.AddScoped<IMatchingFaqItemValidationService, MatchingFaqItemValidationService>();
+        services.AddScoped<IMatchingRequestService, MatchingRequestService>();
         services.AddMediatR(config =>
             config.RegisterServicesFromAssembly(typeof(MatchingStatusService).Assembly));
 

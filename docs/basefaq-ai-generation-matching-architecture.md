@@ -37,7 +37,7 @@ The AI capability remains organized under:
 
 ### Target high-level model
 - `Generation`: asynchronous workflow driven by RabbitMQ events and worker consumers.
-- `Matching`: synchronous query path for end-user retrieval, with asynchronous background indexing/embedding refresh.
+- `Matching`: asynchronous workflow for end-user retrieval requests, with asynchronous background indexing/embedding refresh.
 - `Common`: provider and vector abstractions shared by both modules.
 - `Persistence split`:
   - AI lifecycle and operational state in `bf_ai_db` via AI context.
@@ -56,7 +56,7 @@ The AI capability remains organized under:
   - Add generation endpoints through new Business module controllers.
 - `BaseFaq.Faq.Public.Api`:
   - Register AI matching feature in existing `AddFeatures(...)`.
-  - Add matching endpoints through new Business module controllers.
+  - Add asynchronous matching endpoints through new Business module controllers.
 - `BaseFaq.Faq.Common.Persistence.FaqDb`:
   - Keep FAQ domain ownership.
   - Store only FAQ-side final data/state needed for product usage.
@@ -64,7 +64,7 @@ The AI capability remains organized under:
 
 ### New components (added)
 - New AI projects under `BaseFaq.AI` only (no restructuring of existing modules).
-- New worker processes for asynchronous generation and optional embedding refresh.
+- New worker processes for asynchronous generation, asynchronous matching, and optional embedding refresh.
 - New contracts shared for AI events and provider abstractions.
 - New AI persistence layer with dedicated context and migrations for `bf_ai_db`.
 
@@ -101,20 +101,15 @@ The AI capability remains organized under:
 13. FAQ API-side consumer receives callback and marks request as done/failed and ready to use.
 14. The cycle repeats for subsequent generation/matching requests.
 
-## Synchronous vs Asynchronous Integration
-### Use synchronous when
-- The caller needs immediate answer and bounded latency is acceptable.
-- Example: FAQ matching query in Public API (`search/match` path).
-- Timeout budget should be strict; fallback to lexical match if vector/provider unavailable.
-
+## Asynchronous Integration
 ### Use asynchronous when
 - Work is compute-heavy, long-running, expensive, or failure-prone.
-- Example: FAQ generation, re-generation, bulk embedding refresh.
+- Example: FAQ generation, matching, re-generation, bulk embedding refresh.
 - API should return `202 Accepted` with job identifier and polling/subscription mechanism.
 
 ### Rule of thumb
 - `Generation`: async by default.
-- `Matching`: sync query path + async index maintenance.
+- `Matching`: async request/response flow (job-based) + async index maintenance.
 
 ## RabbitMQ and MassTransit Evaluation
 ### Scenario A: Use both together (recommended if already standardized)
@@ -225,7 +220,7 @@ Recommended for BaseFAQ:
 - Implement generation status endpoint.
 - Add minimum AI persistence model in `bf_ai_db` for job + generated artifacts.
 - Implement FAQ integration write flow (`BaseFaq.AI` -> FAQ DB write path) + callback event.
-- Implement matching endpoint with basic vector + fallback search.
+- Implement matching endpoint with asynchronous response (job-based), no fallback behavior.
 - Add integration tests for happy-path generation and matching.
 
 ### Phase 2: Production Hardening
@@ -326,7 +321,7 @@ dotnet/BaseFaq.AI.Common.Contracts/BaseFaq.AI.Common.Contracts.csproj
 - [x] Async generation event flow implemented end-to-end through RabbitMQ.
 - [x] Callback flow implemented (`Ready`/`Failed`) and consumed by FAQ Portal API.
 - [x] FAQ integration write flow from AI services to FAQ DB is idempotent and validated.
-- [ ] Matching endpoint implemented with synchronous response, it doenst need fallback behavior and consumed by FAQ Public API only the request.
+- [x] Matching endpoint implemented with asynchronous response for FAQ item retrieval, validates `FaqItemId` (required, non-empty, and existence/access in FAQ DB for current tenant), no fallback behavior required, and consumed only by FAQ Public API requests.
 - [ ] Idempotency key support and dedupe table in place.
 - [ ] Retry and DLQ policies configured and validated.
 - [ ] Distributed tracing across API, broker, worker, AI DB, FAQ DB, provider enabled.
