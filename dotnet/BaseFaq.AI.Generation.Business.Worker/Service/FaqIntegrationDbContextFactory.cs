@@ -21,16 +21,23 @@ public sealed class FaqIntegrationDbContextFactory(
 
         return new FaqDbContext(
             options,
-            new IntegrationSessionService(tenantId),
+            new IntegrationSessionService(tenantId, ResolveAiUserId(configuration)),
             configuration,
             new StaticTenantConnectionStringProvider(connectionString),
             new HttpContextAccessor());
     }
 
-    private sealed class IntegrationSessionService(Guid tenantId) : ISessionService
+    private static Guid ResolveAiUserId(IConfiguration configuration)
+    {
+        return Guid.TryParse(configuration["Ai:UserId"], out var configuredUserId)
+            ? configuredUserId
+            : Guid.Empty;
+    }
+
+    private sealed class IntegrationSessionService(Guid tenantId, Guid userId) : ISessionService
     {
         public Guid GetTenantId(BaseFaq.Models.Common.Enums.AppEnum app) => tenantId;
-        public Guid GetUserId() => Guid.Empty; //TODO: Create a AI User for that
+        public Guid GetUserId() => userId;
     }
 
     private sealed class StaticTenantConnectionStringProvider(string connectionString) : ITenantConnectionStringProvider

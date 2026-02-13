@@ -11,12 +11,16 @@ namespace BaseFaq.Tools.Seed.Application;
 
 public sealed class TenantSeedService : ITenantSeedService
 {
+    private const string IaAgentName = "IA Agent";
+    private const string IaAgentEmail = "iaagent@basefaq.com";
+    private const string IaAgentExternalId = "iaagent@basefaq.com";
+
     public bool HasData(TenantDbContext dbContext)
     {
         return dbContext.Tenants.Any() || dbContext.Users.Any() || dbContext.TenantConnections.Any();
     }
 
-    public Guid Seed(TenantDbContext dbContext, TenantSeedRequest request, SeedCounts counts)
+    public Guid SeedDummyData(TenantDbContext dbContext, TenantSeedRequest request, SeedCounts counts)
     {
         var existingExternalIds = dbContext.Users.AsNoTracking().Select(user => user.ExternalId).ToHashSet();
         var existingSlugs = dbContext.Tenants.AsNoTracking().Select(tenant => tenant.Slug).ToHashSet();
@@ -38,6 +42,40 @@ public sealed class TenantSeedService : ITenantSeedService
                          ?? tenants.First();
 
         return seedTenant.Id;
+    }
+
+    public Guid EnsureIaAgentUser(TenantDbContext dbContext)
+    {
+        var user = dbContext.Users.FirstOrDefault(item => item.ExternalId == IaAgentExternalId)
+                   ?? dbContext.Users.FirstOrDefault(item => item.Email == IaAgentEmail);
+
+        if (user is null)
+        {
+            user = new User
+            {
+                Id = Guid.NewGuid(),
+                GivenName = IaAgentName,
+                SurName = null,
+                Email = IaAgentEmail,
+                ExternalId = IaAgentExternalId,
+                PhoneNumber = string.Empty,
+                Role = UserRoleType.Member
+            };
+
+            dbContext.Users.Add(user);
+        }
+        else
+        {
+            user.GivenName = IaAgentName;
+            user.SurName = null;
+            user.Email = IaAgentEmail;
+            user.ExternalId = IaAgentExternalId;
+            user.PhoneNumber = string.Empty;
+            user.Role = UserRoleType.Member;
+        }
+
+        dbContext.SaveChanges();
+        return user.Id;
     }
 
     private static List<User> BuildUsers(int count, HashSet<string> existingExternalIds)

@@ -6,5 +6,6 @@ namespace BaseFaq.Tools.Seed.Abstractions;
 public interface ITenantSeedService
 {
     bool HasData(TenantDbContext dbContext);
-    Guid Seed(TenantDbContext dbContext, TenantSeedRequest request, SeedCounts counts);
+    Guid SeedDummyData(TenantDbContext dbContext, TenantSeedRequest request, SeedCounts counts);
+    Guid EnsureIaAgentUser(TenantDbContext dbContext);
 }

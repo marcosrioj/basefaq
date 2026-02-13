@@ -55,7 +55,16 @@ public sealed class SeedRunner(
             cleanupService.CleanTenantDb(tenantDb);
         }
 
-        if (action is SeedAction.SeedOnly or SeedAction.CleanAndSeed)
+        if (action == SeedAction.SeedEssentialOnly)
+        {
+            var iaAgentUserId = tenantSeeder.EnsureIaAgentUser(tenantDb);
+            console.WriteLine("Essential seed complete.");
+            console.WriteLine($"IA Agent user id: {iaAgentUserId}");
+            console.WriteLine("Set this value in AI API appsettings: Ai:UserId");
+            return 0;
+        }
+
+        if (action is SeedAction.SeedDummyOnly or SeedAction.CleanAndSeed)
         {
             if (tenantSeeder.HasData(tenantDb) &&
                 !Confirm(console, "Tenant database already has data. Append seed data?"))
@@ -63,7 +72,7 @@ public sealed class SeedRunner(
                 return 0;
             }
 
-            var seedTenantId = tenantSeeder.Seed(
+            var seedTenantId = tenantSeeder.SeedDummyData(
                 tenantDb,
                 new TenantSeedRequest(tenantBuilder.ToString(), faqBuilder.ToString()),
                 counts);
@@ -131,24 +140,27 @@ public sealed class SeedRunner(
     private static SeedAction PromptAction(IConsoleAdapter console)
     {
         console.WriteLine("Select action:");
-        console.WriteLine("1) Seed data (default)");
-        console.WriteLine("2) Clean databases and seed data");
-        console.WriteLine("3) Clean databases only");
+        console.WriteLine("1) Seed dummy data (default)");
+        console.WriteLine("2) Seed essential data (IA Agent user only)");
+        console.WriteLine("3) Clean databases and seed dummy data");
+        console.WriteLine("4) Clean databases only");
         console.WriteLine("0) Exit");
         console.Write("Choice: ");
         var input = console.ReadLine();
         return input switch
         {
-            "2" => SeedAction.CleanAndSeed,
-            "3" => SeedAction.CleanOnly,
+            "2" => SeedAction.SeedEssentialOnly,
+            "3" => SeedAction.CleanAndSeed,
+            "4" => SeedAction.CleanOnly,
             "0" => SeedAction.Exit,
-            _ => SeedAction.SeedOnly
+            _ => SeedAction.SeedDummyOnly
         };
     }
 
     private enum SeedAction
     {
-        SeedOnly,
+        SeedDummyOnly,
+        SeedEssentialOnly,
         CleanAndSeed,
         CleanOnly,
         Exit
