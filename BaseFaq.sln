@@ -141,6 +141,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BaseFaq.Tenant.Portal.Test.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BaseFaq.Tenant.Portal.Business.Tenant", "dotnet\BaseFaq.Tenant.Portal.Business.Tenant\BaseFaq.Tenant.Portal.Business.Tenant.csproj", "{86C7579A-B246-4360-8D1B-5BB32C5BDD05}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "MassTransit", "MassTransit", "{3858D368-0D3D-48BF-BCD8-091F43080468}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BaseFaq.Common.Infrastructure.MassTransit", "dotnet\BaseFaq.Common.Infrastructure.MassTransit\BaseFaq.Common.Infrastructure.MassTransit.csproj", "{02389192-AF05-4E21-8C62-9ACA0A7F5630}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -287,6 +291,10 @@ Global
 		{86C7579A-B246-4360-8D1B-5BB32C5BDD05}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{86C7579A-B246-4360-8D1B-5BB32C5BDD05}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{86C7579A-B246-4360-8D1B-5BB32C5BDD05}.Release|Any CPU.Build.0 = Release|Any CPU
+		{02389192-AF05-4E21-8C62-9ACA0A7F5630}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{02389192-AF05-4E21-8C62-9ACA0A7F5630}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{02389192-AF05-4E21-8C62-9ACA0A7F5630}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{02389192-AF05-4E21-8C62-9ACA0A7F5630}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{02B192E6-26BF-4FAA-888B-B3ADBDD32E19} = {FA22D355-D849-47BD-8698-4A822738F45B}
@@ -352,5 +360,7 @@ Global
 		{A10CC2BF-6E42-43A4-84F6-AFB93130131D} = {39A1B0C7-95A8-4931-B828-C591BC96932F}
 		{720FBEAF-0EFF-401A-AE1E-590FEF26DF65} = {CD537227-7E29-474B-B659-9CF5BB73D58E}
 		{86C7579A-B246-4360-8D1B-5BB32C5BDD05} = {39A1B0C7-95A8-4931-B828-C591BC96932F}
+		{3858D368-0D3D-48BF-BCD8-091F43080468} = {87130428-904D-44AB-82A8-9341EA677BAB}
+		{02389192-AF05-4E21-8C62-9ACA0A7F5630} = {3858D368-0D3D-48BF-BCD8-091F43080468}
 	EndGlobalSection
 EndGlobal
