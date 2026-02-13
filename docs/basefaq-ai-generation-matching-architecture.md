@@ -321,7 +321,7 @@ dotnet/BaseFaq.AI.Common.Contracts/BaseFaq.AI.Common.Contracts.csproj
 - [x] `Generation` and `Matching` projects follow existing `Api/Business/Test` conventions.
 - [x] Existing API hosts register new AI features without changing current boundaries.
 - [x] AI lifecycle entities and migrations added to `bf_ai_db` persistence.
-- [ ] `AiDbContext` separated and wired independently from `FaqDbContext`.
+- [x] `AiDbContext` separated and wired independently from `FaqDbContext`.
 - [ ] No tenant dependency remains in AI request processing.
 - [ ] No FK relationship exists between AI and FAQ databases.
 - [ ] Async generation event flow implemented end-to-end through RabbitMQ.

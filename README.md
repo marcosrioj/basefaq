@@ -4,9 +4,12 @@ BaseFaq is a multi-tenant FAQ platform with APIs for tenant administration, auth
 
 ## What’s in this repo
 - FAQ Portal API
+- FAQ AI Generation API
+- FAQ AI Matching API
 - Tenant Back Office API
 - Tenant Portal API
 - Shared infrastructure libraries (Swagger/OpenAPI, Sentry, MediatR logging, API error handling)
+- AI persistence library (`AiDbContext` / `bf_ai_db`)
 - Base services via Docker (PostgreSQL, RabbitMQ, Redis, SMTP4Dev)
 
 ## Prerequisites
@@ -52,7 +55,8 @@ Windows (PowerShell):
 
 Notes:
 - The script only stops/removes containers in the `bf_baseservices` compose project.
-- It starts the base services using `docker/docker-compose.baseservices.yml` and creates the `bf_tenant_db` and `bf_faq_db` databases.
+- It starts the base services using `docker/docker-compose.baseservices.yml` and creates:
+  `bf_tenant_db`, `bf_faq_db_01`, `bf_faq_db_02`, and `bf_ai_db`.
 - PostgreSQL password is `Pass123$` (the compose file uses `$$` to escape `$`).
 - If PowerShell blocks script execution, run:
   `Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser`
@@ -98,6 +102,19 @@ Notes:
 - When creating a new migration, make sure the current tenant connection is properly added.
 - Migrations run against all existing tenants for the selected app.
 
+AI DB (independent, non-tenant):
+
+```bash
+dotnet ef database update \
+  --project dotnet/BaseFaq.AI.Common.Persistence.AiDb \
+  --startup-project dotnet/BaseFaq.AI.Generation.Api
+```
+
+Notes:
+- `AiDbContext` is separated from `FaqDbContext` and uses `ConnectionStrings:AiDb`.
+- The connection string is configured in `dotnet/BaseFaq.AI.Generation.Api/appsettings.json`
+  and `dotnet/BaseFaq.AI.Matching.Api/appsettings.json`.
+
 ## Seed data
 The seed app inserts realistic data into both the tenant and FAQ databases.
 
@@ -138,7 +155,7 @@ echo "127.0.0.1 host.docker.internal" | sudo tee -a /etc/hosts
 Then you can use this in tenant connection strings:
 
 ```
-Host=host.docker.internal;Port=5432;Database=bf_faq_db;Username=postgres;Password=Pass123$;
+Host=host.docker.internal;Port=5432;Database=bf_faq_db_01;Username=postgres;Password=Pass123$;
 ```
 
 ## 3) Run the API locally
@@ -187,6 +204,26 @@ Endpoints:
 - HTTP: `http://localhost:5020`
 - HTTPS: `https://localhost:5021`
 
+FAQ AI Generation API:
+
+```bash
+dotnet run --project dotnet/BaseFaq.AI.Generation.Api
+```
+
+Endpoints:
+- HTTP: `http://localhost:5030`
+- HTTPS: `https://localhost:5031`
+
+FAQ AI Matching API:
+
+```bash
+dotnet run --project dotnet/BaseFaq.AI.Matching.Api
+```
+
+Endpoints:
+- HTTP: `http://localhost:5040`
+- HTTPS: `https://localhost:5041`
+
 ## 4) (Optional) Run API in Docker
 APIs (Docker):
 
@@ -222,7 +259,7 @@ Windows (PowerShell):
 Note: the script removes the BaseFaq Docker images and prunes dangling Docker images after it brings the stack up.
 
 ## Service Ports
-- PostgreSQL: `localhost:5432` (databases `bf_tenant_db`, `bf_faq_db`)
+- PostgreSQL: `localhost:5432` (databases `bf_tenant_db`, `bf_faq_db_01`, `bf_faq_db_02`, `bf_ai_db`)
 - SMTP4Dev UI: `http://localhost:4590` (SMTP on `1025`)
 - RabbitMQ UI: `http://localhost:15672` (AMQP on `5672`, auth disabled)
 - Redis: `localhost:6379`
