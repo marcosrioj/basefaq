@@ -2,6 +2,7 @@ using BaseFaq.AI.Common.Contracts.Generation;
 using BaseFaq.AI.Common.Persistence.AiDb;
 using BaseFaq.AI.Common.Persistence.AiDb.Entities;
 using BaseFaq.AI.Generation.Business.Worker.Abstractions;
+using BaseFaq.Models.Ai.Enums;
 using Microsoft.EntityFrameworkCore;
 
 namespace BaseFaq.AI.Generation.Business.Worker.Consumers;

@@ -1,4 +1,5 @@
 using BaseFaq.AI.Matching.Business.Matching.Abstractions;
+using BaseFaq.Models.Ai.Dtos.Matching;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 

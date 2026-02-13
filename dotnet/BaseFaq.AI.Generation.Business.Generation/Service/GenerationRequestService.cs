@@ -1,5 +1,6 @@
 using BaseFaq.AI.Common.Contracts.Generation;
 using BaseFaq.AI.Generation.Business.Generation.Abstractions;
+using BaseFaq.Models.Ai.Dtos.Generation;
 using MassTransit;
 
 namespace BaseFaq.AI.Generation.Business.Generation.Service;

@@ -1,4 +1,5 @@
 using BaseFaq.AI.Generation.Business.Generation.Abstractions;
+using BaseFaq.Models.Ai.Dtos.Generation;
 
 namespace BaseFaq.AI.Generation.Business.Generation.Service;
 

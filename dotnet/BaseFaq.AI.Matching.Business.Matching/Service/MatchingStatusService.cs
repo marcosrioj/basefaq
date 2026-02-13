@@ -1,4 +1,5 @@
 using BaseFaq.AI.Matching.Business.Matching.Abstractions;
+using BaseFaq.Models.Ai.Dtos.Matching;
 
 namespace BaseFaq.AI.Matching.Business.Matching.Service;
 

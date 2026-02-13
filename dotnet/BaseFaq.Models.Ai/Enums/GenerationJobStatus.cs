@@ -1,4 +1,4 @@
-namespace BaseFaq.AI.Common.Persistence.AiDb.Entities;
+namespace BaseFaq.Models.Ai.Enums;
 
 public enum GenerationJobStatus
 {

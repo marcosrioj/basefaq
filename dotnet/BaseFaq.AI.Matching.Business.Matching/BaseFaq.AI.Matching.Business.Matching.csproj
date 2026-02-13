@@ -13,6 +13,7 @@
     <ItemGroup>
         <ProjectReference Include="..\BaseFaq.Common.Infrastructure.MediatR\BaseFaq.Common.Infrastructure.MediatR.csproj"/>
         <ProjectReference Include="..\BaseFaq.Faq.Common.Persistence.FaqDb\BaseFaq.Faq.Common.Persistence.FaqDb.csproj"/>
+        <ProjectReference Include="..\BaseFaq.Models.Ai\BaseFaq.Models.Ai.csproj"/>
     </ItemGroup>
 
 </Project>

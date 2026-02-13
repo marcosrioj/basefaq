@@ -197,6 +197,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Persistence", "Persistence"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BaseFaq.AI.Common.Persistence.AiDb", "dotnet\BaseFaq.AI.Common.Persistence.AiDb\BaseFaq.AI.Common.Persistence.AiDb.csproj", "{79360591-278F-4A8A-98AD-020A63310115}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BaseFaq.Models.Ai", "dotnet\BaseFaq.Models.Ai\BaseFaq.Models.Ai.csproj", "{2E6B79DE-8A40-400A-A810-C507B2C55559}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -395,6 +397,10 @@ Global
 		{79360591-278F-4A8A-98AD-020A63310115}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{79360591-278F-4A8A-98AD-020A63310115}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{79360591-278F-4A8A-98AD-020A63310115}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2E6B79DE-8A40-400A-A810-C507B2C55559}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2E6B79DE-8A40-400A-A810-C507B2C55559}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2E6B79DE-8A40-400A-A810-C507B2C55559}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2E6B79DE-8A40-400A-A810-C507B2C55559}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -490,5 +496,6 @@ Global
 		{4F2A9F2E-0168-43F8-8CAF-0DA9B4EEB84D} = {9858423A-FEFA-4F78-BA0A-C407649EE46A}
 		{79360591-278F-4A8A-98AD-020A63310115} = {4F2A9F2E-0168-43F8-8CAF-0DA9B4EEB84D}
 		{BAF23C73-6F8D-4971-9CCF-4089DB216C67} = {01B7FDA8-388B-47D9-9394-976D91A80566}
+		{2E6B79DE-8A40-400A-A810-C507B2C55559} = {CB8DB1C8-8F5C-474E-91A9-AF7BEAA0151F}
 	EndGlobalSection
 EndGlobal

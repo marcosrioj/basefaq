@@ -1,5 +1,6 @@
 using BaseFaq.AI.Matching.Business.Matching.Abstractions;
 using BaseFaq.AI.Matching.Business.Matching.Service;
+using BaseFaq.Models.Ai.Dtos.Matching;
 using Xunit;
 
 namespace BaseFaq.AI.Matching.Test.IntegrationTests.Tests.Matching;
