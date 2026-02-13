@@ -276,13 +276,13 @@ BaseFaq.Faq.AI
 Suggested concrete project names:
 ```text
 dotnet/BaseFaq.Faq.AI/Generation/Api/BaseFaq.Faq.AI.Generation.Api.csproj
-dotnet/BaseFaq.Faq.AI/Generation/Business/BaseFaq.Faq.AI.Generation.Business.csproj
-dotnet/BaseFaq.Faq.AI/Generation/Business/BaseFaq.Faq.AI.Generation.Worker.csproj
+dotnet/BaseFaq.Faq.AI/Generation/Business/BaseFaq.Faq.AI.Generation.Business.Generation.csproj
+dotnet/BaseFaq.Faq.AI/Generation/Business/BaseFaq.Faq.AI.Generation.Business.Worker.csproj
 dotnet/BaseFaq.Faq.AI/Generation/Test/BaseFaq.Faq.AI.Generation.Test.IntegrationTests.csproj
 
 dotnet/BaseFaq.Faq.AI/Matching/Api/BaseFaq.Faq.AI.Matching.Api.csproj
-dotnet/BaseFaq.Faq.AI/Matching/Business/BaseFaq.Faq.AI.Matching.Business.csproj
-dotnet/BaseFaq.Faq.AI/Matching/Business/BaseFaq.Faq.AI.Matching.Worker.csproj
+dotnet/BaseFaq.Faq.AI/Matching/Business/BaseFaq.Faq.AI.Matching.Business.Matching.csproj
+dotnet/BaseFaq.Faq.AI/Matching/Business/BaseFaq.Faq.AI.Matching.Business.Worker.csproj
 dotnet/BaseFaq.Faq.AI/Matching/Test/BaseFaq.Faq.AI.Matching.Test.IntegrationTests.csproj
 
 dotnet/BaseFaq.Faq.AI/Common/Providers/BaseFaq.Faq.AI.Common.Providers.csproj
@@ -301,7 +301,7 @@ dotnet/BaseFaq.Faq.AI/Common/Contracts/BaseFaq.Faq.AI.Common.Contracts.csproj
 | Queue backlog growth | SLA degradation | Queue depth alerts, scaling workers, backpressure controls |
 
 ## Final Technical Checklist
-- [ ] `BaseFaq.Faq.AI` root folder and projects created.
+- [x] `BaseFaq.Faq.AI` root folder and projects created.
 - [ ] `Generation` and `Matching` projects follow existing `Api/Business/Test` conventions.
 - [ ] Existing API hosts register new AI features without changing current boundaries.
 - [ ] AI lifecycle entities and migrations added to FAQ persistence.
@@ -315,4 +315,3 @@ dotnet/BaseFaq.Faq.AI/Common/Contracts/BaseFaq.Faq.AI.Common.Contracts.csproj
 - [ ] Logging redaction rules validated (no key leakage).
 - [ ] Prompt governance and quality gate process documented.
 - [ ] MVP, hardening, and scale backlog items created and tracked.
-
