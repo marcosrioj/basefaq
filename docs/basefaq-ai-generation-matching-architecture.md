@@ -322,7 +322,7 @@ dotnet/BaseFaq.AI.Common.Contracts/BaseFaq.AI.Common.Contracts.csproj
 - [x] Existing API hosts register new AI features without changing current boundaries.
 - [x] AI lifecycle entities and migrations added to `bf_ai_db` persistence.
 - [x] `AiDbContext` separated and wired independently from `FaqDbContext`.
-- [ ] No tenant dependency remains in AI request processing.
+- [x] No tenant dependency remains in AI request processing.
 - [ ] No FK relationship exists between AI and FAQ databases.
 - [ ] Async generation event flow implemented end-to-end through RabbitMQ.
 - [ ] Callback flow implemented (`Ready`/`Failed`) and consumed by FAQ APIs.

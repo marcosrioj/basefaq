@@ -1,4 +1,3 @@
-using BaseFaq.Common.EntityFramework.Tenant.Extensions;
 using BaseFaq.Common.Infrastructure.ApiErrorHandling.Extensions;
 using BaseFaq.Common.Infrastructure.Core.Extensions;
 using BaseFaq.Common.Infrastructure.MediatR.Extensions;
@@ -24,8 +23,6 @@ public class Program
         builder.Services.AddOpenApi();
         builder.Services.AddCustomCors(builder.Configuration);
         builder.Services.AddSwagger(builder.Configuration);
-        builder.Services.AddTenantDb(builder.Configuration.GetConnectionString("TenantDb"));
-        builder.Services.AddSessionService(builder.Configuration);
 
         builder.Services.AddLogging(c =>
         {
