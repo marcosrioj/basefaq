@@ -19,4 +19,17 @@ public class DependencyRegistrationTests
 
         Assert.NotNull(serviceDescriptor);
     }
+
+    [Fact]
+    public void AddGenerationBusiness_RegistersGenerationRequestService()
+    {
+        var services = TestServiceCollectionFactory.Create();
+
+        services.AddGenerationBusiness();
+
+        var serviceDescriptor = services.SingleOrDefault(x =>
+            x.ServiceType == typeof(IGenerationRequestService));
+
+        Assert.NotNull(serviceDescriptor);
+    }
 }

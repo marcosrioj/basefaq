@@ -1,0 +1,46 @@
+using BaseFaq.AI.Common.Contracts.Generation;
+using BaseFaq.AI.Generation.Business.Worker.Consumers;
+using BaseFaq.Common.Infrastructure.MassTransit.Models;
+using MassTransit;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+
+namespace BaseFaq.AI.Generation.Business.Worker.Extensions;
+
+public static class ServiceCollectionExtensions
+{
+    public static IServiceCollection AddGenerationWorker(this IServiceCollection services, IConfiguration configuration)
+    {
+        var rabbitMqOption = configuration.GetSection(RabbitMqOption.Name).Get<RabbitMqOption>()
+                             ?? throw new InvalidOperationException("RabbitMQ configuration is missing.");
+
+        services.AddMassTransit(x =>
+        {
+            x.AddConsumer<FaqGenerationRequestedConsumer>();
+
+            x.UsingRabbitMq((context, cfg) =>
+            {
+                cfg.Host(new Uri($"rabbitmq://{rabbitMqOption.Hostname}:{rabbitMqOption.Port}/"), h =>
+                {
+                    h.Username(rabbitMqOption.Username);
+                    h.Password(rabbitMqOption.Password);
+                });
+
+                cfg.Message<FaqGenerationRequestedV1>(message =>
+                    message.SetEntityName(rabbitMqOption.Exchange.Name));
+
+                cfg.Publish<FaqGenerationRequestedV1>(message =>
+                    message.ExchangeType = rabbitMqOption.Exchange.Type);
+
+                cfg.ReceiveEndpoint(rabbitMqOption.QueueName, endpoint =>
+                {
+                    endpoint.PrefetchCount = (ushort)Math.Max(1, rabbitMqOption.PrefetchCount);
+                    endpoint.ConcurrentMessageLimit = Math.Max(1, rabbitMqOption.ConcurrencyLimit);
+                    endpoint.ConfigureConsumer<FaqGenerationRequestedConsumer>(context);
+                });
+            });
+        });
+
+        return services;
+    }
+}

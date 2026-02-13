@@ -324,7 +324,7 @@ dotnet/BaseFaq.AI.Common.Contracts/BaseFaq.AI.Common.Contracts.csproj
 - [x] `AiDbContext` separated and wired independently from `FaqDbContext`.
 - [x] No tenant dependency remains in AI request processing.
 - [x] No FK relationship exists between AI and FAQ databases.
-- [ ] Async generation event flow implemented end-to-end through RabbitMQ.
+- [x] Async generation event flow implemented end-to-end through RabbitMQ.
 - [ ] Callback flow implemented (`Ready`/`Failed`) and consumed by FAQ APIs.
 - [ ] FAQ integration write flow from AI services to FAQ DB is idempotent and validated.
 - [ ] Matching endpoint implemented with synchronous response and fallback behavior.

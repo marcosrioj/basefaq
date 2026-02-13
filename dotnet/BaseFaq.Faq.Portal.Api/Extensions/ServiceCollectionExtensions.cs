@@ -19,6 +19,6 @@ public static class ServiceCollectionExtensions
         services.AddContentRefBusiness();
         services.AddVoteBusiness();
         services.AddGenerationBusiness();
-        //services.AddEventsFeature();
+        services.AddEventsFeature(configuration);
     }
 }

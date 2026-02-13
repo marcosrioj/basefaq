@@ -6,7 +6,9 @@ namespace BaseFaq.AI.Generation.Business.Generation.Controllers;
 
 [ApiController]
 [Route("api/ai/generation")]
-public class GenerationController(IGenerationStatusService generationStatusService) : ControllerBase
+public class GenerationController(
+    IGenerationStatusService generationStatusService,
+    IGenerationRequestService generationRequestService) : ControllerBase
 {
     [HttpGet("status")]
     [ProducesResponseType(typeof(GenerationStatusResponse), StatusCodes.Status200OK)]
@@ -14,5 +16,13 @@ public class GenerationController(IGenerationStatusService generationStatusServi
     {
         var result = await generationStatusService.GetStatusAsync(token);
         return Ok(result);
+    }
+
+    [HttpPost("requests")]
+    [ProducesResponseType(typeof(GenerationRequestAcceptedResponse), StatusCodes.Status202Accepted)]
+    public async Task<IActionResult> RequestGeneration([FromBody] GenerationRequestDto request, CancellationToken token)
+    {
+        var result = await generationRequestService.EnqueueAsync(request, token);
+        return Accepted(result);
     }
 }
