@@ -1,16 +1,14 @@
-using BaseFaq.Common.Infrastructure.ApiErrorHandling.Exception;
-using BaseFaq.Common.Infrastructure.Core.Abstractions;
-using Microsoft.AspNetCore.Http;
 using System.Net;
 using System.Security.Cryptography;
 using System.Text;
+using BaseFaq.Common.Infrastructure.ApiErrorHandling.Exception;
+using Microsoft.AspNetCore.Http;
 
 namespace BaseFaq.Faq.Public.Business.Vote.Helpers;
 
 public static class VoteRequestContext
 {
     public static VoteRequestIdentity GetIdentity(
-        ISessionService sessionService,
         IHttpContextAccessor httpContextAccessor)
     {
         var httpContext = httpContextAccessor.HttpContext;
@@ -28,9 +26,7 @@ public static class VoteRequestContext
         ip ??= string.Empty;
 
         var userAgent = httpContext.Request.Headers.UserAgent.ToString();
-        var userPrint = httpContext.User?.Identity?.IsAuthenticated == true
-            ? sessionService.GetUserId().ToString()
-            : ComputeUserPrint(ip, userAgent);
+        var userPrint = ComputeUserPrint(ip, userAgent);
 
         return new VoteRequestIdentity(userPrint, ip, userAgent);
     }

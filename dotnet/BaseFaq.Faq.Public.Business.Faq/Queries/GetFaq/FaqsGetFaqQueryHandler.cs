@@ -1,14 +1,21 @@
 using BaseFaq.Faq.Common.Persistence.FaqDb;
+using BaseFaq.Common.Infrastructure.Core.Abstractions;
+using BaseFaq.Common.Infrastructure.Core.Constants;
 using BaseFaq.Models.Faq.Dtos.ContentRef;
 using BaseFaq.Models.Faq.Dtos.Faq;
 using BaseFaq.Models.Faq.Dtos.FaqItem;
 using BaseFaq.Models.Faq.Dtos.Tag;
 using MediatR;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 
 namespace BaseFaq.Faq.Public.Business.Faq.Queries.GetFaq;
 
-public class FaqsGetFaqQueryHandler(FaqDbContext dbContext)
+public class FaqsGetFaqQueryHandler(
+    FaqDbContext dbContext,
+    IClientKeyContextService clientKeyContextService,
+    ITenantClientKeyResolver tenantClientKeyResolver,
+    IHttpContextAccessor httpContextAccessor)
     : IRequestHandler<FaqsGetFaqQuery, FaqDetailDto?>
 {
     public async Task<FaqDetailDto?> Handle(FaqsGetFaqQuery request, CancellationToken cancellationToken)
@@ -16,7 +23,13 @@ public class FaqsGetFaqQueryHandler(FaqDbContext dbContext)
         ArgumentNullException.ThrowIfNull(request);
         ArgumentNullException.ThrowIfNull(request.Request);
 
-        var query = dbContext.Faqs.AsNoTracking().Where(faq => faq.Id == request.Id);
+        var clientKey = clientKeyContextService.GetRequiredClientKey();
+        var tenantId = await tenantClientKeyResolver.ResolveTenantId(clientKey, cancellationToken);
+        httpContextAccessor.HttpContext?.Items[TenantContextKeys.TenantIdItemKey] = tenantId;
+
+        var query = dbContext.Faqs
+            .AsNoTracking()
+            .Where(faq => faq.TenantId == tenantId && faq.Id == request.Id);
 
         var includeItems = request.Request.IncludeFaqItems;
         var includeContentRefs = request.Request.IncludeContentRefs;

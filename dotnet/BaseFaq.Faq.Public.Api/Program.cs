@@ -6,7 +6,6 @@ using BaseFaq.Common.Infrastructure.Mvc.Filters;
 using BaseFaq.Common.Infrastructure.Sentry.Extensions;
 using BaseFaq.Common.Infrastructure.Swagger.Extensions;
 using BaseFaq.Faq.Public.Api.Extensions;
-using BaseFaq.Models.Common.Enums;
 
 namespace BaseFaq.Faq.Public.Api;
 
@@ -69,7 +68,7 @@ public class Program
 
         app.UseConfiguredSentry();
 
-        app.UseTenantResolution(AppEnum.Faq);
+        app.UseClientKeyResolution();
 
         app.MapControllers();
 

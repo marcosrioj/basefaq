@@ -15,7 +15,14 @@ public class FaqItemCommandQueryTests
         using var context = TestContext.Create();
         var faq = await TestDataFactory.SeedFaqAsync(context.DbContext, context.SessionService.TenantId);
 
-        var handler = new FaqItemsCreateFaqItemCommandHandler(context.DbContext, context.SessionService);
+        var clientKeyContextService = new TestClientKeyContextService(context.ClientKey);
+        var tenantClientKeyResolver =
+            new TestTenantClientKeyResolver(context.SessionService.TenantId, context.ClientKey);
+        var handler = new FaqItemsCreateFaqItemCommandHandler(
+            context.DbContext,
+            clientKeyContextService,
+            tenantClientKeyResolver,
+            context.HttpContextAccessor);
         var request = new FaqItemsCreateFaqItemCommand
         {
             Question = "How to sign in?",
@@ -84,7 +91,14 @@ public class FaqItemCommandQueryTests
         context.DbContext.FaqItems.AddRange(lowVote, highVote);
         await context.DbContext.SaveChangesAsync();
 
-        var handler = new FaqItemsSearchFaqItemQueryHandler(context.DbContext);
+        var clientKeyContextService = new TestClientKeyContextService(context.ClientKey);
+        var tenantClientKeyResolver =
+            new TestTenantClientKeyResolver(context.SessionService.TenantId, context.ClientKey);
+        var handler = new FaqItemsSearchFaqItemQueryHandler(
+            context.DbContext,
+            clientKeyContextService,
+            tenantClientKeyResolver,
+            context.HttpContextAccessor);
         var request = new FaqItemsSearchFaqItemQuery
         {
             Request = new FaqItemSearchRequestDto
@@ -111,7 +125,14 @@ public class FaqItemCommandQueryTests
         await TestDataFactory.SeedFaqItemAsync(context.DbContext, context.SessionService.TenantId, faq.Id);
         await TestDataFactory.SeedFaqItemAsync(context.DbContext, context.SessionService.TenantId, otherFaq.Id);
 
-        var handler = new FaqItemsSearchFaqItemQueryHandler(context.DbContext);
+        var clientKeyContextService = new TestClientKeyContextService(context.ClientKey);
+        var tenantClientKeyResolver =
+            new TestTenantClientKeyResolver(context.SessionService.TenantId, context.ClientKey);
+        var handler = new FaqItemsSearchFaqItemQueryHandler(
+            context.DbContext,
+            clientKeyContextService,
+            tenantClientKeyResolver,
+            context.HttpContextAccessor);
         var request = new FaqItemsSearchFaqItemQuery
         {
             Request = new FaqItemSearchRequestDto
@@ -167,7 +188,14 @@ public class FaqItemCommandQueryTests
             });
         await context.DbContext.SaveChangesAsync();
 
-        var handler = new FaqItemsSearchFaqItemQueryHandler(context.DbContext);
+        var clientKeyContextService = new TestClientKeyContextService(context.ClientKey);
+        var tenantClientKeyResolver =
+            new TestTenantClientKeyResolver(context.SessionService.TenantId, context.ClientKey);
+        var handler = new FaqItemsSearchFaqItemQueryHandler(
+            context.DbContext,
+            clientKeyContextService,
+            tenantClientKeyResolver,
+            context.HttpContextAccessor);
         var request = new FaqItemsSearchFaqItemQuery
         {
             Request = new FaqItemSearchRequestDto
@@ -243,7 +271,14 @@ public class FaqItemCommandQueryTests
             });
         await context.DbContext.SaveChangesAsync();
 
-        var handler = new FaqItemsSearchFaqItemQueryHandler(context.DbContext);
+        var clientKeyContextService = new TestClientKeyContextService(context.ClientKey);
+        var tenantClientKeyResolver =
+            new TestTenantClientKeyResolver(context.SessionService.TenantId, context.ClientKey);
+        var handler = new FaqItemsSearchFaqItemQueryHandler(
+            context.DbContext,
+            clientKeyContextService,
+            tenantClientKeyResolver,
+            context.HttpContextAccessor);
         var request = new FaqItemsSearchFaqItemQuery
         {
             Request = new FaqItemSearchRequestDto
@@ -300,7 +335,14 @@ public class FaqItemCommandQueryTests
             });
         await context.DbContext.SaveChangesAsync();
 
-        var handler = new FaqItemsSearchFaqItemQueryHandler(context.DbContext);
+        var clientKeyContextService = new TestClientKeyContextService(context.ClientKey);
+        var tenantClientKeyResolver =
+            new TestTenantClientKeyResolver(context.SessionService.TenantId, context.ClientKey);
+        var handler = new FaqItemsSearchFaqItemQueryHandler(
+            context.DbContext,
+            clientKeyContextService,
+            tenantClientKeyResolver,
+            context.HttpContextAccessor);
         var request = new FaqItemsSearchFaqItemQuery
         {
             Request = new FaqItemSearchRequestDto

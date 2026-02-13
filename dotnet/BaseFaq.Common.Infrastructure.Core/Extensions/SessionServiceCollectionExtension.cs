@@ -47,6 +47,7 @@ public static class SessionServiceCollectionExtension
         services.AddSingleton<IAllowedTenantStore, RedisAllowedTenantStore>();
 
         services.AddScoped<ISessionService, SessionService>();
+        services.AddScoped<IClientKeyContextService, ClientKeyContextService>();
 
         return services;
     }

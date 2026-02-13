@@ -1,13 +1,20 @@
 using BaseFaq.Faq.Common.Persistence.FaqDb;
+using BaseFaq.Common.Infrastructure.Core.Abstractions;
+using BaseFaq.Common.Infrastructure.Core.Constants;
 using BaseFaq.Models.Common.Dtos;
 using BaseFaq.Models.Faq.Dtos.FaqItem;
 using BaseFaq.Models.Faq.Enums;
 using MediatR;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 
 namespace BaseFaq.Faq.Public.Business.FaqItem.Queries.SearchFaqItem;
 
-public class FaqItemsSearchFaqItemQueryHandler(FaqDbContext dbContext)
+public class FaqItemsSearchFaqItemQueryHandler(
+    FaqDbContext dbContext,
+    IClientKeyContextService clientKeyContextService,
+    ITenantClientKeyResolver tenantClientKeyResolver,
+    IHttpContextAccessor httpContextAccessor)
     : IRequestHandler<FaqItemsSearchFaqItemQuery, PagedResultDto<FaqItemDto>>
 {
     public async Task<PagedResultDto<FaqItemDto>> Handle(
@@ -17,7 +24,13 @@ public class FaqItemsSearchFaqItemQueryHandler(FaqDbContext dbContext)
         ArgumentNullException.ThrowIfNull(request);
         ArgumentNullException.ThrowIfNull(request.Request);
 
-        var query = dbContext.FaqItems.AsNoTracking();
+        var clientKey = clientKeyContextService.GetRequiredClientKey();
+        var tenantId = await tenantClientKeyResolver.ResolveTenantId(clientKey, cancellationToken);
+        httpContextAccessor.HttpContext?.Items[TenantContextKeys.TenantIdItemKey] = tenantId;
+
+        var query = dbContext.FaqItems
+            .AsNoTracking()
+            .Where(item => item.TenantId == tenantId);
 
         if (request.Request.FaqIds is { Count: > 0 })
         {

@@ -1,5 +1,6 @@
 using BaseFaq.Faq.Common.Persistence.FaqDb;
 using BaseFaq.Faq.Public.Test.IntegrationTests.Helpers.Infrastructure;
+using BaseFaq.Common.Infrastructure.Core.Constants;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -14,27 +15,28 @@ public sealed class TestContext : IDisposable
 
     private TestContext(
         FaqDbContext dbContext,
-        TestSessionService sessionService,
         HttpContextAccessor httpContextAccessor,
+        string clientKey,
         bool ownsDatabase,
         string? databaseName,
         string? adminConnectionString)
     {
         DbContext = dbContext;
-        SessionService = sessionService;
         HttpContextAccessor = httpContextAccessor;
+        ClientKey = clientKey;
         _ownsDatabase = ownsDatabase;
         _databaseName = databaseName;
         _adminConnectionString = adminConnectionString;
     }
 
     public FaqDbContext DbContext { get; }
-    public TestSessionService SessionService { get; }
     public HttpContextAccessor HttpContextAccessor { get; }
+    public string ClientKey { get; }
 
     public static TestContext Create(
         Guid? tenantId = null,
         Guid? userId = null,
+        string? clientKey = null,
         HttpContext? httpContext = null)
     {
         var database = TestDatabase.Create();
@@ -44,6 +46,7 @@ public sealed class TestContext : IDisposable
             database.DatabaseName,
             tenantId,
             userId,
+            clientKey,
             httpContext,
             ownsDatabase: true);
     }
@@ -54,13 +57,17 @@ public sealed class TestContext : IDisposable
         string databaseName,
         Guid? tenantId = null,
         Guid? userId = null,
+        string? clientKey = null,
         HttpContext? httpContext = null,
         bool ownsDatabase = false)
     {
         var resolvedTenantId = tenantId ?? Guid.NewGuid();
         var resolvedUserId = userId ?? Guid.NewGuid();
+        var resolvedClientKey = clientKey ?? "test-client-key";
         var sessionService = new TestSessionService(resolvedTenantId, resolvedUserId);
-        var httpContextAccessor = new HttpContextAccessor { HttpContext = httpContext };
+        var resolvedHttpContext = httpContext ?? new DefaultHttpContext();
+        resolvedHttpContext.Items[ClientKeyContextKeys.ClientKeyItemKey] = resolvedClientKey;
+        var httpContextAccessor = new HttpContextAccessor { HttpContext = resolvedHttpContext };
 
         var options = new DbContextOptionsBuilder<FaqDbContext>()
             .UseNpgsql(connectionString)
@@ -84,6 +91,7 @@ public sealed class TestContext : IDisposable
             dbContext,
             sessionService,
             httpContextAccessor,
+            resolvedClientKey,
             ownsDatabase,
             databaseName,
             adminConnectionString);

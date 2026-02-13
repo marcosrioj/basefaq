@@ -1,18 +1,19 @@
+using System.Net;
 using BaseFaq.Common.Infrastructure.ApiErrorHandling.Exception;
 using BaseFaq.Common.Infrastructure.Core.Abstractions;
+using BaseFaq.Common.Infrastructure.Core.Constants;
 using BaseFaq.Faq.Common.Persistence.FaqDb;
 using BaseFaq.Faq.Public.Business.Vote.Helpers;
-using BaseFaq.Models.Common.Enums;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
-using System.Net;
 
 namespace BaseFaq.Faq.Public.Business.Vote.Commands.CreateVote;
 
 public class VotesCreateVoteCommandHandler(
     FaqDbContext dbContext,
-    ISessionService sessionService,
+    IClientKeyContextService clientKeyContextService,
+    ITenantClientKeyResolver tenantClientKeyResolver,
     IHttpContextAccessor httpContextAccessor)
     : IRequestHandler<VotesCreateVoteCommand, Guid>
 {
@@ -25,13 +26,17 @@ public class VotesCreateVoteCommandHandler(
                 errorCode: (int)HttpStatusCode.UnprocessableEntity);
         }
 
-        var identity = VoteRequestContext.GetIdentity(sessionService, httpContextAccessor);
-        var tenantId = sessionService.GetTenantId(AppEnum.Faq);
+        var identity = VoteRequestContext.GetIdentity(httpContextAccessor);
+        var clientKey = clientKeyContextService.GetRequiredClientKey();
+        var tenantId = await tenantClientKeyResolver.ResolveTenantId(clientKey, cancellationToken);
+        httpContextAccessor.HttpContext?.Items[TenantContextKeys.TenantIdItemKey] = tenantId;
 
         var existing = await dbContext.Votes
             .AsNoTracking()
             .FirstOrDefaultAsync(
-                vote => vote.FaqItemId == request.FaqItemId && vote.UserPrint == identity.UserPrint,
+                vote => vote.TenantId == tenantId &&
+                        vote.FaqItemId == request.FaqItemId &&
+                        vote.UserPrint == identity.UserPrint,
                 cancellationToken);
 
         if (existing is not null)
@@ -40,7 +45,7 @@ public class VotesCreateVoteCommandHandler(
         }
 
         var faqItem = await dbContext.FaqItems
-            .FirstOrDefaultAsync(item => item.Id == request.FaqItemId, cancellationToken);
+            .FirstOrDefaultAsync(item => item.TenantId == tenantId && item.Id == request.FaqItemId, cancellationToken);
         if (faqItem is null)
         {
             throw new ApiErrorException(
@@ -63,7 +68,7 @@ public class VotesCreateVoteCommandHandler(
         await dbContext.SaveChangesAsync(cancellationToken);
 
         faqItem.VoteScore = await dbContext.Votes
-            .Where(v => v.FaqItemId == request.FaqItemId)
+            .Where(v => v.TenantId == tenantId && v.FaqItemId == request.FaqItemId)
             .SumAsync(v => v.Like ? 1 : -1, cancellationToken);
 
         await dbContext.SaveChangesAsync(cancellationToken);

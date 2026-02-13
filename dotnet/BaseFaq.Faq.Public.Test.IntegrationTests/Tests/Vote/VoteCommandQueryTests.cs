@@ -25,8 +25,13 @@ public class VoteCommandQueryTests
             context.SessionService.TenantId,
             faq.Id);
 
+        var clientKeyContextService = new TestClientKeyContextService(context.ClientKey);
+        var tenantClientKeyResolver =
+            new TestTenantClientKeyResolver(context.SessionService.TenantId, context.ClientKey);
         var handler = new VotesCreateVoteCommandHandler(
             context.DbContext,
+            clientKeyContextService,
+            tenantClientKeyResolver,
             context.SessionService,
             context.HttpContextAccessor);
         var request = new VotesCreateVoteCommand
@@ -67,9 +72,13 @@ public class VoteCommandQueryTests
             context.SessionService.TenantId,
             faq.Id);
 
+        var clientKeyContextService = new TestClientKeyContextService(context.ClientKey);
+        var tenantClientKeyResolver =
+            new TestTenantClientKeyResolver(context.SessionService.TenantId, context.ClientKey);
         var handler = new VotesCreateVoteCommandHandler(
             context.DbContext,
-            context.SessionService,
+            clientKeyContextService,
+            tenantClientKeyResolver,
             context.HttpContextAccessor);
         var request = new VotesCreateVoteCommand
         {
@@ -94,8 +103,13 @@ public class VoteCommandQueryTests
     public async Task CreateVote_ThrowsWhenUnLikeReasonMissing()
     {
         using var context = TestContext.Create(httpContext: new DefaultHttpContext());
+        var clientKeyContextService = new TestClientKeyContextService(context.ClientKey);
+        var tenantClientKeyResolver =
+            new TestTenantClientKeyResolver(context.SessionService.TenantId, context.ClientKey);
         var handler = new VotesCreateVoteCommandHandler(
             context.DbContext,
+            clientKeyContextService,
+            tenantClientKeyResolver,
             context.SessionService,
             context.HttpContextAccessor);
         var request = new VotesCreateVoteCommand
@@ -125,8 +139,13 @@ public class VoteCommandQueryTests
             context.SessionService.TenantId,
             faq.Id);
 
+        var clientKeyContextService = new TestClientKeyContextService(context.ClientKey);
+        var tenantClientKeyResolver =
+            new TestTenantClientKeyResolver(context.SessionService.TenantId, context.ClientKey);
         var handler = new VotesCreateVoteCommandHandler(
             context.DbContext,
+            clientKeyContextService,
+            tenantClientKeyResolver,
             context.SessionService,
             context.HttpContextAccessor);
         var request = new VotesCreateVoteCommand
@@ -147,8 +166,13 @@ public class VoteCommandQueryTests
     public async Task CreateVote_ThrowsWhenFaqItemDoesNotExist()
     {
         using var context = TestContext.Create(httpContext: new DefaultHttpContext());
+        var clientKeyContextService = new TestClientKeyContextService(context.ClientKey);
+        var tenantClientKeyResolver =
+            new TestTenantClientKeyResolver(context.SessionService.TenantId, context.ClientKey);
         var handler = new VotesCreateVoteCommandHandler(
             context.DbContext,
+            clientKeyContextService,
+            tenantClientKeyResolver,
             context.SessionService,
             context.HttpContextAccessor);
         var request = new VotesCreateVoteCommand
@@ -183,6 +207,8 @@ public class VoteCommandQueryTests
 
         var handlerA = new VotesCreateVoteCommandHandler(
             contextA.DbContext,
+            new TestClientKeyContextService(contextA.ClientKey),
+            new TestTenantClientKeyResolver(contextA.SessionService.TenantId, contextA.ClientKey),
             contextA.SessionService,
             contextA.HttpContextAccessor);
         await handlerA.Handle(new VotesCreateVoteCommand
@@ -203,6 +229,8 @@ public class VoteCommandQueryTests
             httpContext: httpContextB);
         var handlerB = new VotesCreateVoteCommandHandler(
             contextB.DbContext,
+            new TestClientKeyContextService(contextB.ClientKey),
+            new TestTenantClientKeyResolver(contextB.SessionService.TenantId, contextB.ClientKey),
             contextB.SessionService,
             contextB.HttpContextAccessor);
         await handlerB.Handle(new VotesCreateVoteCommand
@@ -233,8 +261,13 @@ public class VoteCommandQueryTests
             context.SessionService.TenantId,
             faq.Id);
 
+        var clientKeyContextService = new TestClientKeyContextService(context.ClientKey);
+        var tenantClientKeyResolver =
+            new TestTenantClientKeyResolver(context.SessionService.TenantId, context.ClientKey);
         var handler = new VotesCreateVoteCommandHandler(
             context.DbContext,
+            clientKeyContextService,
+            tenantClientKeyResolver,
             context.SessionService,
             context.HttpContextAccessor);
         var request = new VotesCreateVoteCommand

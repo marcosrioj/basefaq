@@ -1,16 +1,36 @@
+using System.Net;
+using BaseFaq.Common.Infrastructure.ApiErrorHandling.Exception;
 using BaseFaq.Common.Infrastructure.Core.Abstractions;
+using BaseFaq.Common.Infrastructure.Core.Constants;
 using BaseFaq.Faq.Common.Persistence.FaqDb;
-using BaseFaq.Models.Common.Enums;
+using Microsoft.EntityFrameworkCore;
 using MediatR;
+using Microsoft.AspNetCore.Http;
 
 namespace BaseFaq.Faq.Public.Business.FaqItem.Commands.CreateFaqItem;
 
-public class FaqItemsCreateFaqItemCommandHandler(FaqDbContext dbContext, ISessionService sessionService)
+public class FaqItemsCreateFaqItemCommandHandler(
+    FaqDbContext dbContext,
+    IClientKeyContextService clientKeyContextService,
+    ITenantClientKeyResolver tenantClientKeyResolver,
+    IHttpContextAccessor httpContextAccessor)
     : IRequestHandler<FaqItemsCreateFaqItemCommand, Guid>
 {
     public async Task<Guid> Handle(FaqItemsCreateFaqItemCommand request, CancellationToken cancellationToken)
     {
-        var tenantId = sessionService.GetTenantId(AppEnum.Faq);
+        var clientKey = clientKeyContextService.GetRequiredClientKey();
+        var tenantId = await tenantClientKeyResolver.ResolveTenantId(clientKey, cancellationToken);
+        httpContextAccessor.HttpContext?.Items[TenantContextKeys.TenantIdItemKey] = tenantId;
+
+        var faqExists = await dbContext.Faqs
+            .AsNoTracking()
+            .AnyAsync(faq => faq.TenantId == tenantId && faq.Id == request.FaqId, cancellationToken);
+        if (!faqExists)
+        {
+            throw new ApiErrorException(
+                $"FAQ '{request.FaqId}' was not found.",
+                errorCode: (int)HttpStatusCode.NotFound);
+        }
 
         var faqItem = new Common.Persistence.FaqDb.Entities.FaqItem
         {

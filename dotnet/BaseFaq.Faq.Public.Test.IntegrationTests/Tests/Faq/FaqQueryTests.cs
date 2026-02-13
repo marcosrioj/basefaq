@@ -25,7 +25,14 @@ public class FaqQueryTests
         await TestDataFactory.SeedFaqTagAsync(context.DbContext, context.SessionService.TenantId, faq.Id, tag.Id);
         await TestDataFactory.SeedFaqItemAsync(context.DbContext, context.SessionService.TenantId, otherFaq.Id);
 
-        var handler = new FaqsGetFaqListQueryHandler(context.DbContext);
+        var clientKeyContextService = new TestClientKeyContextService(context.ClientKey);
+        var tenantClientKeyResolver =
+            new TestTenantClientKeyResolver(context.SessionService.TenantId, context.ClientKey);
+        var handler = new FaqsGetFaqListQueryHandler(
+            context.DbContext,
+            clientKeyContextService,
+            tenantClientKeyResolver,
+            context.HttpContextAccessor);
         var request = new FaqsGetFaqListQuery
         {
             Request = new FaqGetAllRequestDto
@@ -67,7 +74,14 @@ public class FaqQueryTests
             contentRef.Id);
         await TestDataFactory.SeedFaqTagAsync(context.DbContext, context.SessionService.TenantId, faq.Id, tag.Id);
 
-        var handler = new FaqsGetFaqQueryHandler(context.DbContext);
+        var clientKeyContextService = new TestClientKeyContextService(context.ClientKey);
+        var tenantClientKeyResolver =
+            new TestTenantClientKeyResolver(context.SessionService.TenantId, context.ClientKey);
+        var handler = new FaqsGetFaqQueryHandler(
+            context.DbContext,
+            clientKeyContextService,
+            tenantClientKeyResolver,
+            context.HttpContextAccessor);
         var request = new FaqsGetFaqQuery
         {
             Id = faq.Id,
@@ -97,7 +111,14 @@ public class FaqQueryTests
         await TestDataFactory.SeedFaqAsync(context.DbContext, context.SessionService.TenantId, "Bravo");
         await TestDataFactory.SeedFaqAsync(context.DbContext, context.SessionService.TenantId, "Alpha");
 
-        var handler = new FaqsGetFaqListQueryHandler(context.DbContext);
+        var clientKeyContextService = new TestClientKeyContextService(context.ClientKey);
+        var tenantClientKeyResolver =
+            new TestTenantClientKeyResolver(context.SessionService.TenantId, context.ClientKey);
+        var handler = new FaqsGetFaqListQueryHandler(
+            context.DbContext,
+            clientKeyContextService,
+            tenantClientKeyResolver,
+            context.HttpContextAccessor);
         var request = new FaqsGetFaqListQuery
         {
             Request = new FaqGetAllRequestDto
@@ -124,7 +145,14 @@ public class FaqQueryTests
         first.CtaEnabled = !first.CtaEnabled;
         await context.DbContext.SaveChangesAsync();
 
-        var handler = new FaqsGetFaqListQueryHandler(context.DbContext);
+        var clientKeyContextService = new TestClientKeyContextService(context.ClientKey);
+        var tenantClientKeyResolver =
+            new TestTenantClientKeyResolver(context.SessionService.TenantId, context.ClientKey);
+        var handler = new FaqsGetFaqListQueryHandler(
+            context.DbContext,
+            clientKeyContextService,
+            tenantClientKeyResolver,
+            context.HttpContextAccessor);
         var request = new FaqsGetFaqListQuery
         {
             Request = new FaqGetAllRequestDto
