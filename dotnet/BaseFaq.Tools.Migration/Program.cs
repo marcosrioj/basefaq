@@ -1,0 +1,43 @@
+using BaseFaq.Tools.Migration.Configuration;
+using BaseFaq.Tools.Migration.Prompts;
+using BaseFaq.Tools.Migration.Runners;
+using BaseFaq.Tools.Migration.Utilities;
+
+namespace BaseFaq.Tools.Migration;
+
+public static class Program
+{
+    public static int Main()
+    {
+        var solutionRoot = SolutionRootLocator.Find();
+        var configuration = MigrationsConfiguration.Build(solutionRoot);
+        var app = MigrationPrompt.SelectApp();
+        var command = MigrationPrompt.SelectCommand();
+
+        string tenantDbConnectionString;
+        try
+        {
+            tenantDbConnectionString = MigrationsConfiguration.GetTenantDbConnectionString(configuration);
+        }
+        catch (InvalidOperationException ex)
+        {
+            Console.Error.WriteLine(ex.Message);
+            return 1;
+        }
+
+        if (command == MigrationCommand.DatabaseUpdate)
+        {
+            FaqTenantMigrationUpdater.ApplyAll(configuration, tenantDbConnectionString, app);
+            return 0;
+        }
+
+        if (solutionRoot is null)
+        {
+            Console.Error.WriteLine("Unable to locate solution root (BaseFaq.sln).");
+            return 1;
+        }
+
+        var migrationName = MigrationPrompt.ReadMigrationName();
+        return EfMigrationsRunner.AddFaqMigration(solutionRoot, migrationName, app);
+    }
+}

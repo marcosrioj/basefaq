@@ -10,6 +10,7 @@ BaseFaq is a multi-tenant FAQ platform with APIs for tenant administration, auth
 - Tenant Portal API
 - Shared infrastructure libraries (Swagger/OpenAPI, Sentry, MediatR logging, API error handling)
 - AI persistence library (`AiDbContext` / `bf_ai_db`)
+- Tooling apps (`BaseFaq.Tools.Seed`, `BaseFaq.Tools.Migration`)
 - Base services via Docker (PostgreSQL, RabbitMQ, Redis, SMTP4Dev)
 
 ## Prerequisites
@@ -25,7 +26,7 @@ BaseFaq is a multi-tenant FAQ platform with APIs for tenant administration, auth
 ```bash
 dotnet restore BaseFaq.sln
 ./docker-base.sh
-dotnet run --project dotnet/BaseFaq.Faq.Common.Persistence.Seed
+dotnet run --project dotnet/BaseFaq.Tools.Seed
 dotnet run --project dotnet/BaseFaq.Faq.Portal.Api
 ```
 
@@ -88,10 +89,10 @@ Connection strings live in:
 
 App DBs (run per tenant):
 
-Use the migrations console app and follow the prompts:
+Use the migrations console app (`BaseFaq.Tools.Migration`) and follow the prompts:
 
 ```bash
-dotnet run --project dotnet/BaseFaq.Migration
+dotnet run --project dotnet/BaseFaq.Tools.Migration
 ```
 
 Notes:
@@ -116,15 +117,15 @@ Notes:
   and `dotnet/BaseFaq.AI.Matching.Api/appsettings.json`.
 
 ## Seed data
-The seed app inserts realistic data into both the tenant and FAQ databases.
+The seed app (`BaseFaq.Tools.Seed`) inserts realistic data into both the tenant and FAQ databases.
 
 It reads connection strings from:
-- `dotnet/BaseFaq.Faq.Common.Persistence.Seed/appsettings.json`
+- `dotnet/BaseFaq.Tools.Seed/appsettings.json`
 
 Run the seed:
 
 ```bash
-dotnet run --project dotnet/BaseFaq.Faq.Common.Persistence.Seed
+dotnet run --project dotnet/BaseFaq.Tools.Seed
 ```
 
 Notes:
