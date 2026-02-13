@@ -1,4 +1,5 @@
 using BaseFaq.AI.Common.Contracts.Generation;
+using BaseFaq.Common.Infrastructure.MassTransit.Extensions;
 using BaseFaq.Common.Infrastructure.MassTransit.Models;
 using BaseFaq.Faq.Portal.Api.Consumers;
 using MassTransit;
@@ -47,6 +48,7 @@ public static class EventsServiceCollectionExtensions
                 {
                     endpoint.PrefetchCount = (ushort)Math.Max(1, rabbitMqOption.PrefetchCount);
                     endpoint.ConcurrentMessageLimit = Math.Max(1, rabbitMqOption.ConcurrencyLimit);
+                    endpoint.ConfigureResilience(rabbitMqOption);
                     endpoint.ConfigureConsumer<FaqGenerationReadyConsumer>(context);
                 });
 
@@ -54,6 +56,7 @@ public static class EventsServiceCollectionExtensions
                 {
                     endpoint.PrefetchCount = (ushort)Math.Max(1, rabbitMqOption.PrefetchCount);
                     endpoint.ConcurrentMessageLimit = Math.Max(1, rabbitMqOption.ConcurrencyLimit);
+                    endpoint.ConfigureResilience(rabbitMqOption);
                     endpoint.ConfigureConsumer<FaqGenerationFailedConsumer>(context);
                 });
             });

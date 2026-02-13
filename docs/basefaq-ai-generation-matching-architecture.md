@@ -323,7 +323,7 @@ dotnet/BaseFaq.AI.Common.Contracts/BaseFaq.AI.Common.Contracts.csproj
 - [x] FAQ integration write flow from AI services to FAQ DB is idempotent and validated.
 - [x] Matching endpoint implemented with asynchronous response for FAQ item retrieval, validates `FaqItemId` (required, non-empty, and existence/access in FAQ DB for current tenant), no fallback behavior required, and consumed only by FAQ Public API requests.
 - [x] Idempotency key support and dedupe table in place.
-- [ ] Retry and DLQ policies configured and validated.
+- [x] Retry and DLQ policies configured and validated.
 - [ ] Distributed tracing across API, broker, worker, AI DB, FAQ DB, provider enabled.
 - [ ] Monitoring dashboard and alerts configured.
 - [ ] Secret manager integration and key rotation process implemented.

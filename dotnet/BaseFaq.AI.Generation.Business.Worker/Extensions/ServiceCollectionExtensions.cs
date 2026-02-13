@@ -2,6 +2,7 @@ using BaseFaq.AI.Common.Contracts.Generation;
 using BaseFaq.AI.Generation.Business.Worker.Abstractions;
 using BaseFaq.AI.Generation.Business.Worker.Consumers;
 using BaseFaq.AI.Generation.Business.Worker.Service;
+using BaseFaq.Common.Infrastructure.MassTransit.Extensions;
 using BaseFaq.Common.Infrastructure.MassTransit.Models;
 using MassTransit;
 using Microsoft.Extensions.Configuration;
@@ -53,6 +54,7 @@ public static class ServiceCollectionExtensions
                 {
                     endpoint.PrefetchCount = (ushort)Math.Max(1, rabbitMqOption.PrefetchCount);
                     endpoint.ConcurrentMessageLimit = Math.Max(1, rabbitMqOption.ConcurrencyLimit);
+                    endpoint.ConfigureResilience(rabbitMqOption);
                     endpoint.ConfigureConsumer<FaqGenerationRequestedConsumer>(context);
                 });
             });
