@@ -196,10 +196,10 @@ docker compose -p bf_services -f docker/docker-compose.yml up -d --build
 
 This compose file:
 - Runs these services:
-  - `basefaq.faq.portal.app`
-  - `basefaq.tenant.backoffice.app`
-  - `basefaq.tenant.portal.app`
-  - `basefaq.faq.public.app`
+  - `basefaq.faq.portal.api`
+  - `basefaq.tenant.backoffice.api`
+  - `basefaq.tenant.portal.api`
+  - `basefaq.faq.public.api`
 - Wires the service to the `bf-network` network created by the base services.
 - Uses the repo root as the build context, so run the command from the repo root.
 

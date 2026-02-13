@@ -31,7 +31,7 @@ Write-Host ""
 docker compose -p bf_services -f ./docker/docker-compose.yml up -d --build
 
 Write-Host ""
-Write-Host "Started services: basefaq.faq.portal.app, basefaq.faq.public.app, basefaq.tenant.backoffice.app, basefaq.tenant.portal.app" -ForegroundColor Green
+Write-Host "Started services: basefaq.faq.portal.api, basefaq.faq.public.api, basefaq.tenant.backoffice.api, basefaq.tenant.portal.api" -ForegroundColor Green
 
 Write-Host ""
 Write-Host "=======================================================================" -ForegroundColor Green

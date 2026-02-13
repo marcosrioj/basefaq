@@ -1,6 +1,6 @@
 services:
-  basefaq.faq.portal.app:
-    image: basefaq.faq.portal.app
+  basefaq.faq.portal.api:
+    image: basefaq.faq.portal.api
     build:
       context: ..
       dockerfile: dotnet/BaseFaq.Faq.Portal.Api/Dockerfile
@@ -13,8 +13,8 @@ services:
       - "host.docker.internal:host-gateway"
     networks:
       - bf-network
-  basefaq.tenant.backoffice.app:
-    image: basefaq.tenant.backoffice.app
+  basefaq.tenant.backoffice.api:
+    image: basefaq.tenant.backoffice.api
     build:
       context: ..
       dockerfile: dotnet/BaseFaq.Tenant.BackOffice.Api/Dockerfile
@@ -27,8 +27,8 @@ services:
       - "host.docker.internal:host-gateway"
     networks:
       - bf-network
-  basefaq.tenant.portal.app:
-    image: basefaq.tenant.portal.app
+  basefaq.tenant.portal.api:
+    image: basefaq.tenant.portal.api
     build:
       context: ..
       dockerfile: dotnet/BaseFaq.Tenant.Portal.Api/Dockerfile
@@ -41,8 +41,8 @@ services:
       - "host.docker.internal:host-gateway"
     networks:
       - bf-network
-  basefaq.faq.public.app:
-    image: basefaq.faq.public.app
+  basefaq.faq.public.api:
+    image: basefaq.faq.public.api
     build:
       context: ..
       dockerfile: dotnet/BaseFaq.Faq.Public.Api/Dockerfile
