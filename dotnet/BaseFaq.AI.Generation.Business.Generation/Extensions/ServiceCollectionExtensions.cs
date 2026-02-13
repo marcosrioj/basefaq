@@ -11,7 +11,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IGenerationStatusService, GenerationStatusService>();
         services.AddScoped<IGenerationRequestService, GenerationRequestService>();
         services.AddMediatR(config =>
-            config.RegisterServicesFromAssembly(typeof(GenerationBusinessAssemblyMarker).Assembly));
+            config.RegisterServicesFromAssembly(typeof(GenerationStatusService).Assembly));
 
         return services;
     }

@@ -10,7 +10,7 @@ public static class ServiceCollectionExtensions
     {
         services.AddScoped<IMatchingStatusService, MatchingStatusService>();
         services.AddMediatR(config =>
-            config.RegisterServicesFromAssembly(typeof(MatchingBusinessAssemblyMarker).Assembly));
+            config.RegisterServicesFromAssembly(typeof(MatchingStatusService).Assembly));
 
         return services;
     }

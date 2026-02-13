@@ -32,6 +32,18 @@ public static class ServiceCollectionExtensions
                 cfg.Publish<FaqGenerationRequestedV1>(message =>
                     message.ExchangeType = rabbitMqOption.Exchange.Type);
 
+                cfg.Message<FaqGenerationReadyV1>(message =>
+                    message.SetEntityName(GenerationEventNames.ReadyExchange));
+
+                cfg.Publish<FaqGenerationReadyV1>(message =>
+                    message.ExchangeType = GenerationEventNames.ExchangeType);
+
+                cfg.Message<FaqGenerationFailedV1>(message =>
+                    message.SetEntityName(GenerationEventNames.FailedExchange));
+
+                cfg.Publish<FaqGenerationFailedV1>(message =>
+                    message.ExchangeType = GenerationEventNames.ExchangeType);
+
                 cfg.ReceiveEndpoint(rabbitMqOption.QueueName, endpoint =>
                 {
                     endpoint.PrefetchCount = (ushort)Math.Max(1, rabbitMqOption.PrefetchCount);

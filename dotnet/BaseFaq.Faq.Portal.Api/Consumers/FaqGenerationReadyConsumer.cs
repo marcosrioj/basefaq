@@ -1,0 +1,22 @@
+using BaseFaq.AI.Common.Contracts.Generation;
+using MassTransit;
+
+namespace BaseFaq.Faq.Portal.Api.Consumers;
+
+public sealed class FaqGenerationReadyConsumer(ILogger<FaqGenerationReadyConsumer> logger)
+    : IConsumer<FaqGenerationReadyV1>
+{
+    public Task Consume(ConsumeContext<FaqGenerationReadyV1> context)
+    {
+        var message = context.Message;
+
+        logger.LogInformation(
+            "Generation ready callback consumed. CorrelationId: {CorrelationId}, JobId: {JobId}, FaqId: {FaqId}, OccurredUtc: {OccurredUtc}",
+            message.CorrelationId,
+            message.JobId,
+            message.FaqId,
+            message.OccurredUtc);
+
+        return Task.CompletedTask;
+    }
+}
