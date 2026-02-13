@@ -12,22 +12,22 @@ public class FaqQueryTests
     public async Task GetFaqList_FiltersByFaqIdsAndIncludesRelations()
     {
         using var context = TestContext.Create();
-        var faq = await TestDataFactory.SeedFaqAsync(context.DbContext, context.SessionService.TenantId, "Public FAQ");
-        var otherFaq = await TestDataFactory.SeedFaqAsync(context.DbContext, context.SessionService.TenantId, "Other");
-        var contentRef = await TestDataFactory.SeedContentRefAsync(context.DbContext, context.SessionService.TenantId);
-        var tag = await TestDataFactory.SeedTagAsync(context.DbContext, context.SessionService.TenantId);
-        await TestDataFactory.SeedFaqItemAsync(context.DbContext, context.SessionService.TenantId, faq.Id);
+        var faq = await TestDataFactory.SeedFaqAsync(context.DbContext, context.TenantId, "Public FAQ");
+        var otherFaq = await TestDataFactory.SeedFaqAsync(context.DbContext, context.TenantId, "Other");
+        var contentRef = await TestDataFactory.SeedContentRefAsync(context.DbContext, context.TenantId);
+        var tag = await TestDataFactory.SeedTagAsync(context.DbContext, context.TenantId);
+        await TestDataFactory.SeedFaqItemAsync(context.DbContext, context.TenantId, faq.Id);
         await TestDataFactory.SeedFaqContentRefAsync(
             context.DbContext,
-            context.SessionService.TenantId,
+            context.TenantId,
             faq.Id,
             contentRef.Id);
-        await TestDataFactory.SeedFaqTagAsync(context.DbContext, context.SessionService.TenantId, faq.Id, tag.Id);
-        await TestDataFactory.SeedFaqItemAsync(context.DbContext, context.SessionService.TenantId, otherFaq.Id);
+        await TestDataFactory.SeedFaqTagAsync(context.DbContext, context.TenantId, faq.Id, tag.Id);
+        await TestDataFactory.SeedFaqItemAsync(context.DbContext, context.TenantId, otherFaq.Id);
 
         var clientKeyContextService = new TestClientKeyContextService(context.ClientKey);
         var tenantClientKeyResolver =
-            new TestTenantClientKeyResolver(context.SessionService.TenantId, context.ClientKey);
+            new TestTenantClientKeyResolver(context.TenantId, context.ClientKey);
         var handler = new FaqsGetFaqListQueryHandler(
             context.DbContext,
             clientKeyContextService,
@@ -63,20 +63,20 @@ public class FaqQueryTests
     public async Task GetFaqById_RespectsIncludeFlags()
     {
         using var context = TestContext.Create();
-        var faq = await TestDataFactory.SeedFaqAsync(context.DbContext, context.SessionService.TenantId);
-        var contentRef = await TestDataFactory.SeedContentRefAsync(context.DbContext, context.SessionService.TenantId);
-        var tag = await TestDataFactory.SeedTagAsync(context.DbContext, context.SessionService.TenantId);
-        await TestDataFactory.SeedFaqItemAsync(context.DbContext, context.SessionService.TenantId, faq.Id);
+        var faq = await TestDataFactory.SeedFaqAsync(context.DbContext, context.TenantId);
+        var contentRef = await TestDataFactory.SeedContentRefAsync(context.DbContext, context.TenantId);
+        var tag = await TestDataFactory.SeedTagAsync(context.DbContext, context.TenantId);
+        await TestDataFactory.SeedFaqItemAsync(context.DbContext, context.TenantId, faq.Id);
         await TestDataFactory.SeedFaqContentRefAsync(
             context.DbContext,
-            context.SessionService.TenantId,
+            context.TenantId,
             faq.Id,
             contentRef.Id);
-        await TestDataFactory.SeedFaqTagAsync(context.DbContext, context.SessionService.TenantId, faq.Id, tag.Id);
+        await TestDataFactory.SeedFaqTagAsync(context.DbContext, context.TenantId, faq.Id, tag.Id);
 
         var clientKeyContextService = new TestClientKeyContextService(context.ClientKey);
         var tenantClientKeyResolver =
-            new TestTenantClientKeyResolver(context.SessionService.TenantId, context.ClientKey);
+            new TestTenantClientKeyResolver(context.TenantId, context.ClientKey);
         var handler = new FaqsGetFaqQueryHandler(
             context.DbContext,
             clientKeyContextService,
@@ -107,13 +107,13 @@ public class FaqQueryTests
     public async Task GetFaqList_AppliesSortingAndPagination()
     {
         using var context = TestContext.Create();
-        await TestDataFactory.SeedFaqAsync(context.DbContext, context.SessionService.TenantId, "Zulu");
-        await TestDataFactory.SeedFaqAsync(context.DbContext, context.SessionService.TenantId, "Bravo");
-        await TestDataFactory.SeedFaqAsync(context.DbContext, context.SessionService.TenantId, "Alpha");
+        await TestDataFactory.SeedFaqAsync(context.DbContext, context.TenantId, "Zulu");
+        await TestDataFactory.SeedFaqAsync(context.DbContext, context.TenantId, "Bravo");
+        await TestDataFactory.SeedFaqAsync(context.DbContext, context.TenantId, "Alpha");
 
         var clientKeyContextService = new TestClientKeyContextService(context.ClientKey);
         var tenantClientKeyResolver =
-            new TestTenantClientKeyResolver(context.SessionService.TenantId, context.ClientKey);
+            new TestTenantClientKeyResolver(context.TenantId, context.ClientKey);
         var handler = new FaqsGetFaqListQueryHandler(
             context.DbContext,
             clientKeyContextService,
@@ -140,14 +140,14 @@ public class FaqQueryTests
     public async Task GetFaqList_FallsBackToUpdatedDateSortWhenSortingFieldIsInvalid()
     {
         using var context = TestContext.Create();
-        var first = await TestDataFactory.SeedFaqAsync(context.DbContext, context.SessionService.TenantId, "First");
-        await TestDataFactory.SeedFaqAsync(context.DbContext, context.SessionService.TenantId, "Second");
+        var first = await TestDataFactory.SeedFaqAsync(context.DbContext, context.TenantId, "First");
+        await TestDataFactory.SeedFaqAsync(context.DbContext, context.TenantId, "Second");
         first.CtaEnabled = !first.CtaEnabled;
         await context.DbContext.SaveChangesAsync();
 
         var clientKeyContextService = new TestClientKeyContextService(context.ClientKey);
         var tenantClientKeyResolver =
-            new TestTenantClientKeyResolver(context.SessionService.TenantId, context.ClientKey);
+            new TestTenantClientKeyResolver(context.TenantId, context.ClientKey);
         var handler = new FaqsGetFaqListQueryHandler(
             context.DbContext,
             clientKeyContextService,

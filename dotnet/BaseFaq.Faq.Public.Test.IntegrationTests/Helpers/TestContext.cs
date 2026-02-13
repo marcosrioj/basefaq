@@ -1,6 +1,6 @@
+using BaseFaq.Common.Infrastructure.Core.Constants;
 using BaseFaq.Faq.Common.Persistence.FaqDb;
 using BaseFaq.Faq.Public.Test.IntegrationTests.Helpers.Infrastructure;
-using BaseFaq.Common.Infrastructure.Core.Constants;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -16,6 +16,8 @@ public sealed class TestContext : IDisposable
     private TestContext(
         FaqDbContext dbContext,
         HttpContextAccessor httpContextAccessor,
+        Guid tenantId,
+        Guid userId,
         string clientKey,
         bool ownsDatabase,
         string? databaseName,
@@ -23,6 +25,8 @@ public sealed class TestContext : IDisposable
     {
         DbContext = dbContext;
         HttpContextAccessor = httpContextAccessor;
+        TenantId = tenantId;
+        UserId = userId;
         ClientKey = clientKey;
         _ownsDatabase = ownsDatabase;
         _databaseName = databaseName;
@@ -31,6 +35,8 @@ public sealed class TestContext : IDisposable
 
     public FaqDbContext DbContext { get; }
     public HttpContextAccessor HttpContextAccessor { get; }
+    public Guid TenantId { get; }
+    public Guid UserId { get; }
     public string ClientKey { get; }
 
     public static TestContext Create(
@@ -89,8 +95,9 @@ public sealed class TestContext : IDisposable
 
         return new TestContext(
             dbContext,
-            sessionService,
             httpContextAccessor,
+            resolvedTenantId,
+            resolvedUserId,
             resolvedClientKey,
             ownsDatabase,
             databaseName,

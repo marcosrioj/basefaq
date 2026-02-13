@@ -19,20 +19,19 @@ public class VoteCommandQueryTests
         httpContext.Request.Headers.UserAgent = "TestAgent/1.0";
 
         using var context = TestContext.Create(httpContext: httpContext);
-        var faq = await TestDataFactory.SeedFaqAsync(context.DbContext, context.SessionService.TenantId);
+        var faq = await TestDataFactory.SeedFaqAsync(context.DbContext, context.TenantId);
         var faqItem = await TestDataFactory.SeedFaqItemAsync(
             context.DbContext,
-            context.SessionService.TenantId,
+            context.TenantId,
             faq.Id);
 
         var clientKeyContextService = new TestClientKeyContextService(context.ClientKey);
         var tenantClientKeyResolver =
-            new TestTenantClientKeyResolver(context.SessionService.TenantId, context.ClientKey);
+            new TestTenantClientKeyResolver(context.TenantId, context.ClientKey);
         var handler = new VotesCreateVoteCommandHandler(
             context.DbContext,
             clientKeyContextService,
             tenantClientKeyResolver,
-            context.SessionService,
             context.HttpContextAccessor);
         var request = new VotesCreateVoteCommand
         {
@@ -41,7 +40,7 @@ public class VoteCommandQueryTests
             FaqItemId = faqItem.Id
         };
 
-        var identity = VoteRequestContext.GetIdentity(context.SessionService, context.HttpContextAccessor);
+        var identity = VoteRequestContext.GetIdentity(context.HttpContextAccessor);
         var id = await handler.Handle(request, CancellationToken.None);
 
         var vote = await context.DbContext.Votes.FindAsync(id);
@@ -53,7 +52,7 @@ public class VoteCommandQueryTests
         Assert.Equal(identity.Ip, vote.Ip);
         Assert.Equal(identity.UserAgent, vote.UserAgent);
         Assert.Equal(faqItem.Id, vote.FaqItemId);
-        Assert.Equal(context.SessionService.TenantId, vote.TenantId);
+        Assert.Equal(context.TenantId, vote.TenantId);
         Assert.NotNull(updatedFaqItem);
         Assert.Equal(1, updatedFaqItem!.VoteScore);
     }
@@ -66,15 +65,15 @@ public class VoteCommandQueryTests
         httpContext.Request.Headers.UserAgent = "DupAgent/2.0";
 
         using var context = TestContext.Create(httpContext: httpContext);
-        var faq = await TestDataFactory.SeedFaqAsync(context.DbContext, context.SessionService.TenantId);
+        var faq = await TestDataFactory.SeedFaqAsync(context.DbContext, context.TenantId);
         var faqItem = await TestDataFactory.SeedFaqItemAsync(
             context.DbContext,
-            context.SessionService.TenantId,
+            context.TenantId,
             faq.Id);
 
         var clientKeyContextService = new TestClientKeyContextService(context.ClientKey);
         var tenantClientKeyResolver =
-            new TestTenantClientKeyResolver(context.SessionService.TenantId, context.ClientKey);
+            new TestTenantClientKeyResolver(context.TenantId, context.ClientKey);
         var handler = new VotesCreateVoteCommandHandler(
             context.DbContext,
             clientKeyContextService,
@@ -105,12 +104,11 @@ public class VoteCommandQueryTests
         using var context = TestContext.Create(httpContext: new DefaultHttpContext());
         var clientKeyContextService = new TestClientKeyContextService(context.ClientKey);
         var tenantClientKeyResolver =
-            new TestTenantClientKeyResolver(context.SessionService.TenantId, context.ClientKey);
+            new TestTenantClientKeyResolver(context.TenantId, context.ClientKey);
         var handler = new VotesCreateVoteCommandHandler(
             context.DbContext,
             clientKeyContextService,
             tenantClientKeyResolver,
-            context.SessionService,
             context.HttpContextAccessor);
         var request = new VotesCreateVoteCommand
         {
@@ -133,20 +131,19 @@ public class VoteCommandQueryTests
         httpContext.Request.Headers.UserAgent = "DislikeAgent/1.0";
 
         using var context = TestContext.Create(httpContext: httpContext);
-        var faq = await TestDataFactory.SeedFaqAsync(context.DbContext, context.SessionService.TenantId);
+        var faq = await TestDataFactory.SeedFaqAsync(context.DbContext, context.TenantId);
         var faqItem = await TestDataFactory.SeedFaqItemAsync(
             context.DbContext,
-            context.SessionService.TenantId,
+            context.TenantId,
             faq.Id);
 
         var clientKeyContextService = new TestClientKeyContextService(context.ClientKey);
         var tenantClientKeyResolver =
-            new TestTenantClientKeyResolver(context.SessionService.TenantId, context.ClientKey);
+            new TestTenantClientKeyResolver(context.TenantId, context.ClientKey);
         var handler = new VotesCreateVoteCommandHandler(
             context.DbContext,
             clientKeyContextService,
             tenantClientKeyResolver,
-            context.SessionService,
             context.HttpContextAccessor);
         var request = new VotesCreateVoteCommand
         {
@@ -168,12 +165,11 @@ public class VoteCommandQueryTests
         using var context = TestContext.Create(httpContext: new DefaultHttpContext());
         var clientKeyContextService = new TestClientKeyContextService(context.ClientKey);
         var tenantClientKeyResolver =
-            new TestTenantClientKeyResolver(context.SessionService.TenantId, context.ClientKey);
+            new TestTenantClientKeyResolver(context.TenantId, context.ClientKey);
         var handler = new VotesCreateVoteCommandHandler(
             context.DbContext,
             clientKeyContextService,
             tenantClientKeyResolver,
-            context.SessionService,
             context.HttpContextAccessor);
         var request = new VotesCreateVoteCommand
         {
@@ -201,15 +197,14 @@ public class VoteCommandQueryTests
             database.AdminConnectionString,
             database.DatabaseName,
             httpContext: httpContextA);
-        var faq = await TestDataFactory.SeedFaqAsync(contextA.DbContext, contextA.SessionService.TenantId);
+        var faq = await TestDataFactory.SeedFaqAsync(contextA.DbContext, contextA.TenantId);
         var faqItem =
-            await TestDataFactory.SeedFaqItemAsync(contextA.DbContext, contextA.SessionService.TenantId, faq.Id);
+            await TestDataFactory.SeedFaqItemAsync(contextA.DbContext, contextA.TenantId, faq.Id);
 
         var handlerA = new VotesCreateVoteCommandHandler(
             contextA.DbContext,
             new TestClientKeyContextService(contextA.ClientKey),
-            new TestTenantClientKeyResolver(contextA.SessionService.TenantId, contextA.ClientKey),
-            contextA.SessionService,
+            new TestTenantClientKeyResolver(contextA.TenantId, contextA.ClientKey),
             contextA.HttpContextAccessor);
         await handlerA.Handle(new VotesCreateVoteCommand
         {
@@ -225,13 +220,12 @@ public class VoteCommandQueryTests
             database.ConnectionString,
             database.AdminConnectionString,
             database.DatabaseName,
-            tenantId: contextA.SessionService.TenantId,
+            tenantId: contextA.TenantId,
             httpContext: httpContextB);
         var handlerB = new VotesCreateVoteCommandHandler(
             contextB.DbContext,
             new TestClientKeyContextService(contextB.ClientKey),
-            new TestTenantClientKeyResolver(contextB.SessionService.TenantId, contextB.ClientKey),
-            contextB.SessionService,
+            new TestTenantClientKeyResolver(contextB.TenantId, contextB.ClientKey),
             contextB.HttpContextAccessor);
         await handlerB.Handle(new VotesCreateVoteCommand
         {
@@ -255,20 +249,19 @@ public class VoteCommandQueryTests
         httpContext.Request.Headers["X-Forwarded-For"] = "203.0.113.9, 70.41.3.18";
 
         using var context = TestContext.Create(httpContext: httpContext);
-        var faq = await TestDataFactory.SeedFaqAsync(context.DbContext, context.SessionService.TenantId);
+        var faq = await TestDataFactory.SeedFaqAsync(context.DbContext, context.TenantId);
         var faqItem = await TestDataFactory.SeedFaqItemAsync(
             context.DbContext,
-            context.SessionService.TenantId,
+            context.TenantId,
             faq.Id);
 
         var clientKeyContextService = new TestClientKeyContextService(context.ClientKey);
         var tenantClientKeyResolver =
-            new TestTenantClientKeyResolver(context.SessionService.TenantId, context.ClientKey);
+            new TestTenantClientKeyResolver(context.TenantId, context.ClientKey);
         var handler = new VotesCreateVoteCommandHandler(
             context.DbContext,
             clientKeyContextService,
             tenantClientKeyResolver,
-            context.SessionService,
             context.HttpContextAccessor);
         var request = new VotesCreateVoteCommand
         {

@@ -13,11 +13,11 @@ public class FaqItemCommandQueryTests
     public async Task CreateFaqItem_PersistsEntityAndReturnsId()
     {
         using var context = TestContext.Create();
-        var faq = await TestDataFactory.SeedFaqAsync(context.DbContext, context.SessionService.TenantId);
+        var faq = await TestDataFactory.SeedFaqAsync(context.DbContext, context.TenantId);
 
         var clientKeyContextService = new TestClientKeyContextService(context.ClientKey);
         var tenantClientKeyResolver =
-            new TestTenantClientKeyResolver(context.SessionService.TenantId, context.ClientKey);
+            new TestTenantClientKeyResolver(context.TenantId, context.ClientKey);
         var handler = new FaqItemsCreateFaqItemCommandHandler(
             context.DbContext,
             clientKeyContextService,
@@ -45,7 +45,7 @@ public class FaqItemCommandQueryTests
         Assert.NotNull(faqItem);
         Assert.Equal("How to sign in?", faqItem!.Question);
         Assert.Equal(faq.Id, faqItem.FaqId);
-        Assert.Equal(context.SessionService.TenantId, faqItem.TenantId);
+        Assert.Equal(context.TenantId, faqItem.TenantId);
     }
 
     [Fact]
@@ -54,7 +54,7 @@ public class FaqItemCommandQueryTests
         using var context = TestContext.Create();
         var faq = await TestDataFactory.SeedFaqAsync(
             context.DbContext,
-            context.SessionService.TenantId,
+            context.TenantId,
             sortStrategy: FaqSortStrategy.Vote);
 
         var lowVote = new Common.Persistence.FaqDb.Entities.FaqItem
@@ -70,7 +70,7 @@ public class FaqItemCommandQueryTests
             AiConfidenceScore = 10,
             IsActive = true,
             FaqId = faq.Id,
-            TenantId = context.SessionService.TenantId
+            TenantId = context.TenantId
         };
         var highVote = new Common.Persistence.FaqDb.Entities.FaqItem
         {
@@ -85,7 +85,7 @@ public class FaqItemCommandQueryTests
             AiConfidenceScore = 50,
             IsActive = true,
             FaqId = faq.Id,
-            TenantId = context.SessionService.TenantId
+            TenantId = context.TenantId
         };
 
         context.DbContext.FaqItems.AddRange(lowVote, highVote);
@@ -93,7 +93,7 @@ public class FaqItemCommandQueryTests
 
         var clientKeyContextService = new TestClientKeyContextService(context.ClientKey);
         var tenantClientKeyResolver =
-            new TestTenantClientKeyResolver(context.SessionService.TenantId, context.ClientKey);
+            new TestTenantClientKeyResolver(context.TenantId, context.ClientKey);
         var handler = new FaqItemsSearchFaqItemQueryHandler(
             context.DbContext,
             clientKeyContextService,
@@ -120,14 +120,14 @@ public class FaqItemCommandQueryTests
     public async Task SearchFaqItems_FiltersByFaqIds()
     {
         using var context = TestContext.Create();
-        var faq = await TestDataFactory.SeedFaqAsync(context.DbContext, context.SessionService.TenantId);
-        var otherFaq = await TestDataFactory.SeedFaqAsync(context.DbContext, context.SessionService.TenantId, "Other");
-        await TestDataFactory.SeedFaqItemAsync(context.DbContext, context.SessionService.TenantId, faq.Id);
-        await TestDataFactory.SeedFaqItemAsync(context.DbContext, context.SessionService.TenantId, otherFaq.Id);
+        var faq = await TestDataFactory.SeedFaqAsync(context.DbContext, context.TenantId);
+        var otherFaq = await TestDataFactory.SeedFaqAsync(context.DbContext, context.TenantId, "Other");
+        await TestDataFactory.SeedFaqItemAsync(context.DbContext, context.TenantId, faq.Id);
+        await TestDataFactory.SeedFaqItemAsync(context.DbContext, context.TenantId, otherFaq.Id);
 
         var clientKeyContextService = new TestClientKeyContextService(context.ClientKey);
         var tenantClientKeyResolver =
-            new TestTenantClientKeyResolver(context.SessionService.TenantId, context.ClientKey);
+            new TestTenantClientKeyResolver(context.TenantId, context.ClientKey);
         var handler = new FaqItemsSearchFaqItemQueryHandler(
             context.DbContext,
             clientKeyContextService,
@@ -153,7 +153,7 @@ public class FaqItemCommandQueryTests
     public async Task SearchFaqItems_FiltersBySearchTermInQuestion()
     {
         using var context = TestContext.Create();
-        var faq = await TestDataFactory.SeedFaqAsync(context.DbContext, context.SessionService.TenantId);
+        var faq = await TestDataFactory.SeedFaqAsync(context.DbContext, context.TenantId);
 
         context.DbContext.FaqItems.AddRange(
             new Common.Persistence.FaqDb.Entities.FaqItem
@@ -169,7 +169,7 @@ public class FaqItemCommandQueryTests
                 AiConfidenceScore = 0,
                 IsActive = true,
                 FaqId = faq.Id,
-                TenantId = context.SessionService.TenantId
+                TenantId = context.TenantId
             },
             new Common.Persistence.FaqDb.Entities.FaqItem
             {
@@ -184,13 +184,13 @@ public class FaqItemCommandQueryTests
                 AiConfidenceScore = 0,
                 IsActive = true,
                 FaqId = faq.Id,
-                TenantId = context.SessionService.TenantId
+                TenantId = context.TenantId
             });
         await context.DbContext.SaveChangesAsync();
 
         var clientKeyContextService = new TestClientKeyContextService(context.ClientKey);
         var tenantClientKeyResolver =
-            new TestTenantClientKeyResolver(context.SessionService.TenantId, context.ClientKey);
+            new TestTenantClientKeyResolver(context.TenantId, context.ClientKey);
         var handler = new FaqItemsSearchFaqItemQueryHandler(
             context.DbContext,
             clientKeyContextService,
@@ -220,7 +220,7 @@ public class FaqItemCommandQueryTests
         using var context = TestContext.Create();
         var faq = await TestDataFactory.SeedFaqAsync(
             context.DbContext,
-            context.SessionService.TenantId,
+            context.TenantId,
             sortStrategy: FaqSortStrategy.Sort);
 
         context.DbContext.FaqItems.AddRange(
@@ -237,7 +237,7 @@ public class FaqItemCommandQueryTests
                 AiConfidenceScore = 0,
                 IsActive = true,
                 FaqId = faq.Id,
-                TenantId = context.SessionService.TenantId
+                TenantId = context.TenantId
             },
             new Common.Persistence.FaqDb.Entities.FaqItem
             {
@@ -252,7 +252,7 @@ public class FaqItemCommandQueryTests
                 AiConfidenceScore = 0,
                 IsActive = true,
                 FaqId = faq.Id,
-                TenantId = context.SessionService.TenantId
+                TenantId = context.TenantId
             },
             new Common.Persistence.FaqDb.Entities.FaqItem
             {
@@ -267,13 +267,13 @@ public class FaqItemCommandQueryTests
                 AiConfidenceScore = 0,
                 IsActive = true,
                 FaqId = faq.Id,
-                TenantId = context.SessionService.TenantId
+                TenantId = context.TenantId
             });
         await context.DbContext.SaveChangesAsync();
 
         var clientKeyContextService = new TestClientKeyContextService(context.ClientKey);
         var tenantClientKeyResolver =
-            new TestTenantClientKeyResolver(context.SessionService.TenantId, context.ClientKey);
+            new TestTenantClientKeyResolver(context.TenantId, context.ClientKey);
         var handler = new FaqItemsSearchFaqItemQueryHandler(
             context.DbContext,
             clientKeyContextService,
@@ -300,7 +300,7 @@ public class FaqItemCommandQueryTests
     public async Task SearchFaqItems_FiltersBySearchTermInAdditionalInfo()
     {
         using var context = TestContext.Create();
-        var faq = await TestDataFactory.SeedFaqAsync(context.DbContext, context.SessionService.TenantId);
+        var faq = await TestDataFactory.SeedFaqAsync(context.DbContext, context.TenantId);
 
         context.DbContext.FaqItems.AddRange(
             new Common.Persistence.FaqDb.Entities.FaqItem
@@ -316,7 +316,7 @@ public class FaqItemCommandQueryTests
                 AiConfidenceScore = 0,
                 IsActive = true,
                 FaqId = faq.Id,
-                TenantId = context.SessionService.TenantId
+                TenantId = context.TenantId
             },
             new Common.Persistence.FaqDb.Entities.FaqItem
             {
@@ -331,13 +331,13 @@ public class FaqItemCommandQueryTests
                 AiConfidenceScore = 0,
                 IsActive = true,
                 FaqId = faq.Id,
-                TenantId = context.SessionService.TenantId
+                TenantId = context.TenantId
             });
         await context.DbContext.SaveChangesAsync();
 
         var clientKeyContextService = new TestClientKeyContextService(context.ClientKey);
         var tenantClientKeyResolver =
-            new TestTenantClientKeyResolver(context.SessionService.TenantId, context.ClientKey);
+            new TestTenantClientKeyResolver(context.TenantId, context.ClientKey);
         var handler = new FaqItemsSearchFaqItemQueryHandler(
             context.DbContext,
             clientKeyContextService,
