@@ -11,10 +11,12 @@ public sealed class GenerationRequestService(IPublishEndpoint publishEndpoint) :
     private const int MaxPromptProfileLength = 128;
     private const int MaxIdempotencyKeyLength = 128;
 
-    public async Task<GenerationRequestAcceptedResponse> EnqueueAsync(GenerationRequestDto request,
+    public async Task<GenerationRequestAcceptedResponse> EnqueueAsync(
+        GenerationRequestDto request,
+        string? idempotencyKey,
         CancellationToken token)
     {
-        ValidateRequest(request);
+        var normalizedIdempotencyKey = ValidateRequest(request, idempotencyKey);
 
         var queuedUtc = DateTime.UtcNow;
         var correlationId = Guid.NewGuid();
@@ -27,7 +29,7 @@ public sealed class GenerationRequestService(IPublishEndpoint publishEndpoint) :
             RequestedByUserId = request.RequestedByUserId ?? Guid.Empty,
             Language = request.Language,
             PromptProfile = request.PromptProfile,
-            IdempotencyKey = request.IdempotencyKey ?? correlationId.ToString("N"),
+            IdempotencyKey = normalizedIdempotencyKey,
             RequestedUtc = queuedUtc
         };
 
@@ -36,7 +38,7 @@ public sealed class GenerationRequestService(IPublishEndpoint publishEndpoint) :
         return new GenerationRequestAcceptedResponse(correlationId, queuedUtc);
     }
 
-    private static void ValidateRequest(GenerationRequestDto request)
+    private static string ValidateRequest(GenerationRequestDto request, string? idempotencyKey)
     {
         if (request.FaqId == Guid.Empty)
         {
@@ -63,12 +65,27 @@ public sealed class GenerationRequestService(IPublishEndpoint publishEndpoint) :
                 nameof(request));
         }
 
-        if (!string.IsNullOrWhiteSpace(request.IdempotencyKey) &&
-            request.IdempotencyKey.Length > MaxIdempotencyKeyLength)
+        if (string.IsNullOrWhiteSpace(idempotencyKey))
+        {
+            throw new ArgumentException("Idempotency-Key header is required.", nameof(idempotencyKey));
+        }
+
+        var normalizedIdempotencyKey = idempotencyKey.Trim();
+        if (normalizedIdempotencyKey.Length > MaxIdempotencyKeyLength)
         {
             throw new ArgumentException(
                 $"IdempotencyKey must have at most {MaxIdempotencyKeyLength} characters.",
+                nameof(idempotencyKey));
+        }
+
+        if (!string.IsNullOrWhiteSpace(request.IdempotencyKey) &&
+            !string.Equals(request.IdempotencyKey, normalizedIdempotencyKey, StringComparison.Ordinal))
+        {
+            throw new ArgumentException(
+                "Request body idempotency key does not match Idempotency-Key header.",
                 nameof(request));
         }
+
+        return normalizedIdempotencyKey;
     }
 }

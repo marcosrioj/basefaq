@@ -69,6 +69,10 @@ public class GenerationJobConfiguration : BaseConfiguration<GenerationJob>
         builder.HasIndex(p => p.IdempotencyKey)
             .HasDatabaseName("IX_GenerationJob_IdempotencyKey");
 
+        builder.HasIndex(p => new { p.FaqId, p.IdempotencyKey })
+            .HasDatabaseName("IX_GenerationJob_FaqId_IdempotencyKey")
+            .IsUnique();
+
         builder.HasMany(p => p.Artifacts)
             .WithOne(item => item.GenerationJob)
             .HasForeignKey(item => item.GenerationJobId)

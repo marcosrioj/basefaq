@@ -322,7 +322,7 @@ dotnet/BaseFaq.AI.Common.Contracts/BaseFaq.AI.Common.Contracts.csproj
 - [x] Callback flow implemented (`Ready`/`Failed`) and consumed by FAQ Portal API.
 - [x] FAQ integration write flow from AI services to FAQ DB is idempotent and validated.
 - [x] Matching endpoint implemented with asynchronous response for FAQ item retrieval, validates `FaqItemId` (required, non-empty, and existence/access in FAQ DB for current tenant), no fallback behavior required, and consumed only by FAQ Public API requests.
-- [ ] Idempotency key support and dedupe table in place.
+- [x] Idempotency key support and dedupe table in place.
 - [ ] Retry and DLQ policies configured and validated.
 - [ ] Distributed tracing across API, broker, worker, AI DB, FAQ DB, provider enabled.
 - [ ] Monitoring dashboard and alerts configured.

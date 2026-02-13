@@ -4,5 +4,8 @@ namespace BaseFaq.AI.Generation.Business.Generation.Abstractions;
 
 public interface IGenerationRequestService
 {
-    Task<GenerationRequestAcceptedResponse> EnqueueAsync(GenerationRequestDto request, CancellationToken token);
+    Task<GenerationRequestAcceptedResponse> EnqueueAsync(
+        GenerationRequestDto request,
+        string? idempotencyKey,
+        CancellationToken token);
 }

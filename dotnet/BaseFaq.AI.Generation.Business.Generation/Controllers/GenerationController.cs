@@ -21,9 +21,12 @@ public class GenerationController(
 
     [HttpPost("requests")]
     [ProducesResponseType(typeof(GenerationRequestAcceptedResponse), StatusCodes.Status202Accepted)]
-    public async Task<IActionResult> RequestGeneration([FromBody] GenerationRequestDto request, CancellationToken token)
+    public async Task<IActionResult> RequestGeneration(
+        [FromBody] GenerationRequestDto request,
+        [FromHeader(Name = "Idempotency-Key")] string? idempotencyKey,
+        CancellationToken token)
     {
-        var result = await generationRequestService.EnqueueAsync(request, token);
+        var result = await generationRequestService.EnqueueAsync(request, idempotencyKey, token);
         return Accepted(result);
     }
 }

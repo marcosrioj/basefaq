@@ -14,14 +14,28 @@ public sealed class FaqGenerationRequestedConsumer(
 {
     public async Task Consume(MassTransit.ConsumeContext<FaqGenerationRequestedV1> context)
     {
+        var handlerName = nameof(FaqGenerationRequestedConsumer);
+        var messageId = context.MessageId?.ToString("N") ?? context.Message.CorrelationId.ToString("N");
+
+        var processedMessageExists = await aiDbContext.ProcessedMessages
+            .AnyAsync(x => x.HandlerName == handlerName && x.MessageId == messageId, context.CancellationToken);
+
+        if (processedMessageExists)
+        {
+            return;
+        }
+
         var message = context.Message;
 
         var alreadyExists = await aiDbContext.GenerationJobs
-            .AnyAsync(x => x.CorrelationId == message.CorrelationId || x.IdempotencyKey == message.IdempotencyKey,
+            .AnyAsync(x =>
+                    x.CorrelationId == message.CorrelationId ||
+                    (x.FaqId == message.FaqId && x.IdempotencyKey == message.IdempotencyKey),
                 context.CancellationToken);
 
         if (alreadyExists)
         {
+            await MarkProcessedAsync(handlerName, messageId, context.CancellationToken);
             return;
         }
 
@@ -44,7 +58,15 @@ public sealed class FaqGenerationRequestedConsumer(
         };
 
         aiDbContext.GenerationJobs.Add(job);
-        await aiDbContext.SaveChangesAsync(context.CancellationToken);
+        try
+        {
+            await aiDbContext.SaveChangesAsync(context.CancellationToken);
+        }
+        catch (DbUpdateException ex) when (IsDuplicateJobException(ex))
+        {
+            await MarkProcessedAsync(handlerName, messageId, context.CancellationToken);
+            return;
+        }
 
         try
         {
@@ -112,5 +134,34 @@ public sealed class FaqGenerationRequestedConsumer(
                 OccurredUtc = DateTime.UtcNow
             }, context.CancellationToken);
         }
+
+        await MarkProcessedAsync(handlerName, messageId, context.CancellationToken);
+    }
+
+    private async Task MarkProcessedAsync(string handlerName, string messageId, CancellationToken cancellationToken)
+    {
+        aiDbContext.ProcessedMessages.Add(new ProcessedMessage
+        {
+            HandlerName = handlerName,
+            MessageId = messageId,
+            ProcessedUtc = DateTime.UtcNow
+        });
+
+        try
+        {
+            await aiDbContext.SaveChangesAsync(cancellationToken);
+        }
+        catch (DbUpdateException)
+        {
+            // Another consumer execution may persist the same dedupe key first.
+        }
+    }
+
+    private static bool IsDuplicateJobException(DbUpdateException ex)
+    {
+        var message = ex.InnerException?.Message ?? ex.Message;
+
+        return message.Contains("IX_GenerationJob_CorrelationId", StringComparison.Ordinal) ||
+               message.Contains("IX_GenerationJob_FaqId_IdempotencyKey", StringComparison.Ordinal);
     }
 }

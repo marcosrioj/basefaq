@@ -23,6 +23,7 @@ public class AiDbContext(
 {
     public DbSet<GenerationJob> GenerationJobs { get; set; } = null!;
     public DbSet<GenerationArtifact> GenerationArtifacts { get; set; } = null!;
+    public DbSet<ProcessedMessage> ProcessedMessages { get; set; } = null!;
 
     protected override IEnumerable<string> ConfigurationNamespaces =>
     [
