@@ -302,7 +302,7 @@ dotnet/BaseFaq.Faq.AI.Common.Contracts/BaseFaq.Faq.AI.Common.Contracts.csproj
 ## Final Technical Checklist
 - [x] `BaseFaq.Faq.AI` root folder and projects created.
 - [x] `Generation` and `Matching` projects follow existing `Api/Business/Test` conventions.
-- [ ] Existing API hosts register new AI features without changing current boundaries.
+- [x] Existing API hosts register new AI features without changing current boundaries.
 - [ ] AI lifecycle entities and migrations added to FAQ persistence.
 - [ ] Async generation event flow implemented end-to-end.
 - [ ] Matching endpoint implemented with synchronous response and fallback behavior.
