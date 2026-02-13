@@ -258,36 +258,35 @@ public record FaqGenerationFailedV1(
 
 ### Solution/project folder structure
 ```text
-BaseFaq.Faq.AI
-  /Generation
-      /Api
-      /Business
-      /Test
-  /Matching
-      /Api
-      /Business
-      /Test
-  /Common
-      /Providers
-      /VectorStore
-      /Contracts
+dotnet
+  /BaseFaq.Faq.AI.Generation.Api
+  /BaseFaq.Faq.AI.Generation.Business.Generation
+  /BaseFaq.Faq.AI.Generation.Business.Worker
+  /BaseFaq.Faq.AI.Generation.Test.IntegrationTests
+  /BaseFaq.Faq.AI.Matching.Api
+  /BaseFaq.Faq.AI.Matching.Business.Matching
+  /BaseFaq.Faq.AI.Matching.Business.Worker
+  /BaseFaq.Faq.AI.Matching.Test.IntegrationTests
+  /BaseFaq.Faq.AI.Common.Providers
+  /BaseFaq.Faq.AI.Common.VectorStore
+  /BaseFaq.Faq.AI.Common.Contracts
 ```
 
 Suggested concrete project names:
 ```text
-dotnet/BaseFaq.Faq.AI/Generation/Api/BaseFaq.Faq.AI.Generation.Api.csproj
-dotnet/BaseFaq.Faq.AI/Generation/Business/BaseFaq.Faq.AI.Generation.Business.Generation.csproj
-dotnet/BaseFaq.Faq.AI/Generation/Business/BaseFaq.Faq.AI.Generation.Business.Worker.csproj
-dotnet/BaseFaq.Faq.AI/Generation/Test/BaseFaq.Faq.AI.Generation.Test.IntegrationTests.csproj
+dotnet/BaseFaq.Faq.AI.Generation.Api/BaseFaq.Faq.AI.Generation.Api.csproj
+dotnet/BaseFaq.Faq.AI.Generation.Business.Generation/BaseFaq.Faq.AI.Generation.Business.Generation.csproj
+dotnet/BaseFaq.Faq.AI.Generation.Business.Worker/BaseFaq.Faq.AI.Generation.Business.Worker.csproj
+dotnet/BaseFaq.Faq.AI.Generation.Test.IntegrationTests/BaseFaq.Faq.AI.Generation.Test.IntegrationTests.csproj
 
-dotnet/BaseFaq.Faq.AI/Matching/Api/BaseFaq.Faq.AI.Matching.Api.csproj
-dotnet/BaseFaq.Faq.AI/Matching/Business/BaseFaq.Faq.AI.Matching.Business.Matching.csproj
-dotnet/BaseFaq.Faq.AI/Matching/Business/BaseFaq.Faq.AI.Matching.Business.Worker.csproj
-dotnet/BaseFaq.Faq.AI/Matching/Test/BaseFaq.Faq.AI.Matching.Test.IntegrationTests.csproj
+dotnet/BaseFaq.Faq.AI.Matching.Api/BaseFaq.Faq.AI.Matching.Api.csproj
+dotnet/BaseFaq.Faq.AI.Matching.Business.Matching/BaseFaq.Faq.AI.Matching.Business.Matching.csproj
+dotnet/BaseFaq.Faq.AI.Matching.Business.Worker/BaseFaq.Faq.AI.Matching.Business.Worker.csproj
+dotnet/BaseFaq.Faq.AI.Matching.Test.IntegrationTests/BaseFaq.Faq.AI.Matching.Test.IntegrationTests.csproj
 
-dotnet/BaseFaq.Faq.AI/Common/Providers/BaseFaq.Faq.AI.Common.Providers.csproj
-dotnet/BaseFaq.Faq.AI/Common/VectorStore/BaseFaq.Faq.AI.Common.VectorStore.csproj
-dotnet/BaseFaq.Faq.AI/Common/Contracts/BaseFaq.Faq.AI.Common.Contracts.csproj
+dotnet/BaseFaq.Faq.AI.Common.Providers/BaseFaq.Faq.AI.Common.Providers.csproj
+dotnet/BaseFaq.Faq.AI.Common.VectorStore/BaseFaq.Faq.AI.Common.VectorStore.csproj
+dotnet/BaseFaq.Faq.AI.Common.Contracts/BaseFaq.Faq.AI.Common.Contracts.csproj
 ```
 
 ## Main Risks and Mitigations
