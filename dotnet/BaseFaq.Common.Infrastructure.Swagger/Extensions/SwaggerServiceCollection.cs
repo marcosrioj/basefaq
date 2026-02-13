@@ -35,28 +35,24 @@ public static class SwaggerServiceCollection
 
             var version = options?.Version ?? "v1";
             var title = options?.Title ?? "Swagger API";
+            var contextHeaderName = ResolveContextHeaderName(options);
+            var apiDescription = ResolveApiDescription(options, contextHeaderName);
 
             c.SwaggerDoc(version, new OpenApiInfo
             {
                 Title = title,
                 Version = version,
-                Description = "Tenant context is provided via X-Tenant-Id headers and resolved by middleware."
+                Description = apiDescription
             });
 
             if (options?.EnableTenantHeader ?? true)
             {
-                var tenantScheme = new OpenApiSecurityScheme
-                {
-                    Type = SecuritySchemeType.ApiKey,
-                    Name = TenantResolutionMiddleware.TenantHeaderName,
-                    In = ParameterLocation.Header,
-                    Description = "Set the tenant once in the Authorize dialog."
-                };
+                var tenantScheme = CreateContextHeaderSecurityScheme(options, contextHeaderName);
 
-                c.AddSecurityDefinition("TenantId", tenantScheme);
+                c.AddSecurityDefinition("ContextHeader", tenantScheme);
                 c.AddSecurityRequirement(document => new OpenApiSecurityRequirement
                 {
-                    [new OpenApiSecuritySchemeReference("TenantId", document)] = []
+                    [new OpenApiSecuritySchemeReference("ContextHeader", document)] = []
                 });
             }
         });
@@ -76,12 +72,14 @@ public static class SwaggerServiceCollection
 
             var version = options?.Version ?? "v1";
             var title = options?.Title ?? "Swagger API";
+            var contextHeaderName = ResolveContextHeaderName(options);
+            var apiDescription = ResolveApiDescription(options, contextHeaderName);
 
             c.SwaggerDoc(version, new OpenApiInfo
             {
                 Title = title,
                 Version = version,
-                Description = "Tenant context is provided via X-Tenant-Id headers and resolved by middleware."
+                Description = apiDescription
             });
 
             var scheme = new OpenApiSecurityScheme
@@ -113,15 +111,9 @@ public static class SwaggerServiceCollection
 
             if (options?.EnableTenantHeader ?? true)
             {
-                var tenantScheme = new OpenApiSecurityScheme
-                {
-                    Type = SecuritySchemeType.ApiKey,
-                    Name = TenantResolutionMiddleware.TenantHeaderName,
-                    In = ParameterLocation.Header,
-                    Description = "Set the tenant once in the Authorize dialog."
-                };
+                var tenantScheme = CreateContextHeaderSecurityScheme(options, contextHeaderName);
 
-                c.AddSecurityDefinition("TenantId", tenantScheme);
+                c.AddSecurityDefinition("ContextHeader", tenantScheme);
                 c.AddSecurityRequirement(document =>
                 {
                     var requirement = new OpenApiSecurityRequirement
@@ -129,7 +121,7 @@ public static class SwaggerServiceCollection
                         [new OpenApiSecuritySchemeReference("OAuth2", document)] = []
                     };
 
-                    requirement[new OpenApiSecuritySchemeReference("TenantId", document)] = [];
+                    requirement[new OpenApiSecuritySchemeReference("ContextHeader", document)] = [];
                     return requirement;
                 });
             }
@@ -174,5 +166,45 @@ public static class SwaggerServiceCollection
         });
 
         return app;
+    }
+
+    private static string ResolveContextHeaderName(SwaggerOptions? options)
+    {
+        if (!string.IsNullOrWhiteSpace(options?.ContextHeaderName))
+        {
+            return options.ContextHeaderName;
+        }
+
+        return TenantResolutionMiddleware.TenantHeaderName;
+    }
+
+    private static string ResolveApiDescription(SwaggerOptions? options, string contextHeaderName)
+    {
+        if (string.Equals(contextHeaderName, ClientKeyResolutionMiddleware.ClientKeyHeaderName,
+                StringComparison.OrdinalIgnoreCase))
+        {
+            return $"Client context is provided via {contextHeaderName} header and resolved by middleware.";
+        }
+
+        return $"Tenant context is provided via {contextHeaderName} header and resolved by middleware.";
+    }
+
+    private static OpenApiSecurityScheme CreateContextHeaderSecurityScheme(
+        SwaggerOptions? options,
+        string contextHeaderName)
+    {
+        var schemeDescription = options?.ContextHeaderDescription;
+        if (string.IsNullOrWhiteSpace(schemeDescription))
+        {
+            schemeDescription = $"Set '{contextHeaderName}' once in the Authorize dialog.";
+        }
+
+        return new OpenApiSecurityScheme
+        {
+            Type = SecuritySchemeType.ApiKey,
+            Name = contextHeaderName,
+            In = ParameterLocation.Header,
+            Description = schemeDescription
+        };
     }
 }

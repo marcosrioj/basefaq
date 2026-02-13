@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using BaseFaq.Common.Infrastructure.Core.Middleware;
 
 namespace BaseFaq.Common.Infrastructure.Swagger.Options;
 
@@ -8,6 +9,8 @@ public class SwaggerOptions
     [Required] public string Title { get; set; } = string.Empty;
     [Required] public string Version { get; set; } = string.Empty;
     public bool EnableTenantHeader { get; set; } = true;
+    public string ContextHeaderName { get; set; } = TenantResolutionMiddleware.TenantHeaderName;
+    public string? ContextHeaderDescription { get; set; }
     public SwaggerAuthOptions? swaggerAuth { get; set; }
 }
 

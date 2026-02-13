@@ -308,9 +308,10 @@ exports.onExecutePostLogin = async (event, api) => {
 - Protected APIs require:
   - `Authorization: Bearer <access_token>`
   - APIs: FAQ Portal, Tenant Back Office, Tenant Portal
-- FAQ APIs require tenant context header:
+- FAQ Portal requires tenant context header:
   - `X-Tenant-Id: <tenant-guid>`
-  - APIs: FAQ Portal, FAQ Public
+- FAQ Public requires client context header:
+  - `X-Client-Key: <client-key>`
 
 ## Troubleshooting
 - `network bf-network declared as external, but could not be found`:
