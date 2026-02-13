@@ -7,9 +7,6 @@ namespace BaseFaq.Faq.Portal.Api.Extensions;
 
 public static class EventsServiceCollectionExtensions
 {
-    private const string ReadyCallbackQueueName = "faq.portal.generation.ready.v1";
-    private const string FailedCallbackQueueName = "faq.portal.generation.failed.v1";
-
     public static IServiceCollection AddEventsFeature(this IServiceCollection services, IConfiguration configuration)
     {
         var rabbitMqOption = configuration.GetSection(RabbitMqOption.Name).Get<RabbitMqOption>()
@@ -46,14 +43,14 @@ public static class EventsServiceCollectionExtensions
                 cfg.Publish<FaqGenerationFailedV1>(message =>
                     message.ExchangeType = GenerationEventNames.ExchangeType);
 
-                cfg.ReceiveEndpoint(ReadyCallbackQueueName, endpoint =>
+                cfg.ReceiveEndpoint(GenerationEventNames.ReadyCallbackQueue, endpoint =>
                 {
                     endpoint.PrefetchCount = (ushort)Math.Max(1, rabbitMqOption.PrefetchCount);
                     endpoint.ConcurrentMessageLimit = Math.Max(1, rabbitMqOption.ConcurrencyLimit);
                     endpoint.ConfigureConsumer<FaqGenerationReadyConsumer>(context);
                 });
 
-                cfg.ReceiveEndpoint(FailedCallbackQueueName, endpoint =>
+                cfg.ReceiveEndpoint(GenerationEventNames.FailedCallbackQueue, endpoint =>
                 {
                     endpoint.PrefetchCount = (ushort)Math.Max(1, rabbitMqOption.PrefetchCount);
                     endpoint.ConcurrentMessageLimit = Math.Max(1, rabbitMqOption.ConcurrencyLimit);
