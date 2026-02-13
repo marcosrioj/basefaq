@@ -8,7 +8,7 @@ namespace BaseFaq.Tenant.Portal.Business.User.Controllers;
 
 [Authorize]
 [ApiController]
-[Route("api/tenant/user")]
+[Route("api/user")]
 public class UserController(IUserProfileService userProfileService) : ControllerBase
 {
     [HttpGet("UserProfile")]
