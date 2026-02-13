@@ -322,11 +322,10 @@ dotnet/BaseFaq.AI.Common.Contracts/BaseFaq.AI.Common.Contracts.csproj
 - [x] Existing API hosts register new AI features without changing current boundaries.
 - [x] AI lifecycle entities and migrations added to `bf_ai_db` persistence.
 - [x] `AiDbContext` separated and wired independently from `FaqDbContext`.
-- [x] No tenant dependency remains in AI request processing.
 - [x] No FK relationship exists between AI and FAQ databases.
 - [x] Async generation event flow implemented end-to-end through RabbitMQ.
 - [x] Callback flow implemented (`Ready`/`Failed`) and consumed by FAQ Portal API.
-- [ ] FAQ integration write flow from AI services to FAQ DB is idempotent and validated.
+- [x] FAQ integration write flow from AI services to FAQ DB is idempotent and validated.
 - [ ] Matching endpoint implemented with synchronous response, it doenst need fallback behavior and consumed by FAQ Public API only the request.
 - [ ] Idempotency key support and dedupe table in place.
 - [ ] Retry and DLQ policies configured and validated.

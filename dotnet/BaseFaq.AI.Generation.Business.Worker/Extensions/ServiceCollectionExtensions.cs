@@ -1,5 +1,7 @@
 using BaseFaq.AI.Common.Contracts.Generation;
+using BaseFaq.AI.Generation.Business.Worker.Abstractions;
 using BaseFaq.AI.Generation.Business.Worker.Consumers;
+using BaseFaq.AI.Generation.Business.Worker.Service;
 using BaseFaq.Common.Infrastructure.MassTransit.Models;
 using MassTransit;
 using Microsoft.Extensions.Configuration;
@@ -13,6 +15,9 @@ public static class ServiceCollectionExtensions
     {
         var rabbitMqOption = configuration.GetSection(RabbitMqOption.Name).Get<RabbitMqOption>()
                              ?? throw new InvalidOperationException("RabbitMQ configuration is missing.");
+
+        services.AddScoped<IFaqIntegrationDbContextFactory, FaqIntegrationDbContextFactory>();
+        services.AddScoped<IGenerationFaqWriteService, GenerationFaqWriteService>();
 
         services.AddMassTransit(x =>
         {

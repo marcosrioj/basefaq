@@ -11,10 +11,11 @@ public sealed class FaqGenerationFailedConsumer(ILogger<FaqGenerationFailedConsu
         var message = context.Message;
 
         logger.LogWarning(
-            "Generation failed callback consumed. CorrelationId: {CorrelationId}, JobId: {JobId}, FaqId: {FaqId}, ErrorCode: {ErrorCode}, OccurredUtc: {OccurredUtc}",
+            "Generation failed callback consumed. CorrelationId: {CorrelationId}, JobId: {JobId}, FaqId: {FaqId}, TenantId: {TenantId}, ErrorCode: {ErrorCode}, OccurredUtc: {OccurredUtc}",
             message.CorrelationId,
             message.JobId,
             message.FaqId,
+            message.TenantId,
             message.ErrorCode,
             message.OccurredUtc);
 

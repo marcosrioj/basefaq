@@ -10,6 +10,8 @@
         <ProjectReference Include="..\BaseFaq.AI.Common.Contracts\BaseFaq.AI.Common.Contracts.csproj"/>
         <ProjectReference Include="..\BaseFaq.AI.Common.Persistence.AiDb\BaseFaq.AI.Common.Persistence.AiDb.csproj"/>
         <ProjectReference Include="..\BaseFaq.Common.Infrastructure.MassTransit\BaseFaq.Common.Infrastructure.MassTransit.csproj"/>
+        <ProjectReference Include="..\BaseFaq.Common.Infrastructure.Core\BaseFaq.Common.Infrastructure.Core.csproj"/>
+        <ProjectReference Include="..\BaseFaq.Faq.Common.Persistence.FaqDb\BaseFaq.Faq.Common.Persistence.FaqDb.csproj"/>
     </ItemGroup>
 
 </Project>

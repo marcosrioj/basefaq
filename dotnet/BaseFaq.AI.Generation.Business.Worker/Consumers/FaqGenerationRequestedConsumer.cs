@@ -1,11 +1,14 @@
 using BaseFaq.AI.Common.Contracts.Generation;
 using BaseFaq.AI.Common.Persistence.AiDb;
 using BaseFaq.AI.Common.Persistence.AiDb.Entities;
+using BaseFaq.AI.Generation.Business.Worker.Abstractions;
 using Microsoft.EntityFrameworkCore;
 
 namespace BaseFaq.AI.Generation.Business.Worker.Consumers;
 
-public sealed class FaqGenerationRequestedConsumer(AiDbContext aiDbContext)
+public sealed class FaqGenerationRequestedConsumer(
+    AiDbContext aiDbContext,
+    IGenerationFaqWriteService generationFaqWriteService)
     : MassTransit.IConsumer<FaqGenerationRequestedV1>
 {
     public async Task Consume(MassTransit.ConsumeContext<FaqGenerationRequestedV1> context)
@@ -53,6 +56,19 @@ public sealed class FaqGenerationRequestedConsumer(AiDbContext aiDbContext)
                 MetadataJson = "{}"
             });
 
+            await generationFaqWriteService.WriteAsync(new GenerationFaqWriteRequest(
+                    message.CorrelationId,
+                    message.FaqId,
+                    message.TenantId,
+                    "Generated draft question",
+                    $"Draft summary for FAQ {message.FaqId}",
+                    $"Generated draft placeholder for FAQ {message.FaqId}",
+                    null,
+                    null,
+                    null,
+                    80),
+                context.CancellationToken);
+
             job.Status = GenerationJobStatus.Succeeded;
             job.CompletedUtc = DateTime.UtcNow;
             job.ErrorCode = null;
@@ -66,6 +82,7 @@ public sealed class FaqGenerationRequestedConsumer(AiDbContext aiDbContext)
                 CorrelationId = message.CorrelationId,
                 JobId = job.Id,
                 FaqId = message.FaqId,
+                TenantId = message.TenantId,
                 OccurredUtc = DateTime.UtcNow
             }, context.CancellationToken);
         }
@@ -88,6 +105,7 @@ public sealed class FaqGenerationRequestedConsumer(AiDbContext aiDbContext)
                 CorrelationId = message.CorrelationId,
                 JobId = job.Id,
                 FaqId = message.FaqId,
+                TenantId = message.TenantId,
                 ErrorCode = errorCode,
                 ErrorMessage = errorMessage,
                 OccurredUtc = DateTime.UtcNow

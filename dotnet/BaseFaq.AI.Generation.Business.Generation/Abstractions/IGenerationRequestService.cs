@@ -7,6 +7,7 @@ public interface IGenerationRequestService
 
 public sealed record GenerationRequestDto(
     Guid FaqId,
+    Guid TenantId,
     string Language,
     string PromptProfile,
     string? IdempotencyKey,

@@ -11,10 +11,11 @@ public sealed class FaqGenerationReadyConsumer(ILogger<FaqGenerationReadyConsume
         var message = context.Message;
 
         logger.LogInformation(
-            "Generation ready callback consumed. CorrelationId: {CorrelationId}, JobId: {JobId}, FaqId: {FaqId}, OccurredUtc: {OccurredUtc}",
+            "Generation ready callback consumed. CorrelationId: {CorrelationId}, JobId: {JobId}, FaqId: {FaqId}, TenantId: {TenantId}, OccurredUtc: {OccurredUtc}",
             message.CorrelationId,
             message.JobId,
             message.FaqId,
+            message.TenantId,
             message.OccurredUtc);
 
         return Task.CompletedTask;
