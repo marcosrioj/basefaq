@@ -325,9 +325,9 @@ dotnet/BaseFaq.AI.Common.Contracts/BaseFaq.AI.Common.Contracts.csproj
 - [x] No tenant dependency remains in AI request processing.
 - [x] No FK relationship exists between AI and FAQ databases.
 - [x] Async generation event flow implemented end-to-end through RabbitMQ.
-- [ ] Callback flow implemented (`Ready`/`Failed`) and consumed by FAQ APIs.
+- [ ] Callback flow implemented (`Ready`/`Failed`) and consumed by FAQ Portal API.
 - [ ] FAQ integration write flow from AI services to FAQ DB is idempotent and validated.
-- [ ] Matching endpoint implemented with synchronous response and fallback behavior.
+- [ ] Matching endpoint implemented with synchronous response, it doenst need fallback behavior and consumed by FAQ Public API only the request.
 - [ ] Idempotency key support and dedupe table in place.
 - [ ] Retry and DLQ policies configured and validated.
 - [ ] Distributed tracing across API, broker, worker, AI DB, FAQ DB, provider enabled.
