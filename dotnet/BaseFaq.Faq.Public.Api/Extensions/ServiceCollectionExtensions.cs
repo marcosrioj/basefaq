@@ -1,5 +1,5 @@
 using BaseFaq.Faq.Public.Business.Faq.Extensions;
-using BaseFaq.Faq.AI.Matching.Business.Matching.Extensions;
+using BaseFaq.AI.Matching.Business.Matching.Extensions;
 using BaseFaq.Faq.Public.Business.FaqItem.Extensions;
 using BaseFaq.Faq.Public.Business.Vote.Extensions;
 using BaseFaq.Faq.Common.Persistence.FaqDb.Extensions;

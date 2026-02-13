@@ -1,7 +1,7 @@
 # BaseFAQ AI Architecture Proposal
 
 ## Executive Summary
-This document defines how `BaseFaq.Faq.AI.Generation` and `BaseFaq.Faq.AI.Matching` should be added to BaseFAQ with minimal incremental changes.
+This document defines how `BaseFaq.AI.Generation` and `BaseFaq.AI.Matching` should be added to BaseFAQ with minimal incremental changes.
 
 The proposal preserves the existing architecture model:
 - Existing API hosts remain composition roots.
@@ -10,9 +10,9 @@ The proposal preserves the existing architecture model:
 - Existing infrastructure conventions (tenant resolution, auth, Sentry, Redis, MassTransit package baseline) remain in place.
 
 The new AI capability is added under a dedicated root solution folder:
-- `BaseFaq.Faq.AI/Generation`
-- `BaseFaq.Faq.AI/Matching`
-- `BaseFaq.Faq.AI/Common`
+- `BaseFaq.AI/Generation`
+- `BaseFaq.AI/Matching`
+- `BaseFaq.AI/Common`
 
 ## Recommended Architecture (Aligned to Existing BaseFAQ Model)
 ### Architectural assumptions
@@ -52,11 +52,11 @@ The new AI capability is added under a dedicated root solution folder:
   - Add migrations using existing migration tooling.
 
 ### New components (added)
-- New AI projects under `BaseFaq.Faq.AI` only (no restructuring of existing modules).
+- New AI projects under `BaseFaq.AI` only (no restructuring of existing modules).
 - New worker processes for asynchronous generation and optional embedding refresh.
 - New contracts shared for AI events and provider abstractions.
 
-## BaseFaq.Faq.AI.Generation and BaseFaq.Faq.AI.Matching Project Divisions
+## BaseFaq.AI.Generation and BaseFaq.AI.Matching Project Divisions
 | Division | Responsibility | Recommended .NET technologies/libraries | Applicable patterns | Risks | Mitigations |
 |---|---|---|---|---|---|
 | API integration endpoints | Expose commands/queries in existing API model (`Portal` for generation, `Public` for matching) | ASP.NET Core controllers, existing auth/tenant middleware | Thin controller + application service | API bloat | Keep strict route namespace `api/faqs/ai/*` |
@@ -202,7 +202,7 @@ Recommended for BaseFAQ:
 
 ## Implementation Plan by Phase
 ### Phase 1: MVP
-- Create AI project skeleton under `BaseFaq.Faq.AI`.
+- Create AI project skeleton under `BaseFaq.AI`.
 - Implement generation command + async worker processing.
 - Implement generation status endpoint.
 - Add minimum persistence model for job + generated version.
@@ -259,34 +259,34 @@ public record FaqGenerationFailedV1(
 ### Solution/project folder structure
 ```text
 dotnet
-  /BaseFaq.Faq.AI.Generation.Api
-  /BaseFaq.Faq.AI.Generation.Business.Generation
-  /BaseFaq.Faq.AI.Generation.Business.Worker
-  /BaseFaq.Faq.AI.Generation.Test.IntegrationTests
-  /BaseFaq.Faq.AI.Matching.Api
-  /BaseFaq.Faq.AI.Matching.Business.Matching
-  /BaseFaq.Faq.AI.Matching.Business.Worker
-  /BaseFaq.Faq.AI.Matching.Test.IntegrationTests
-  /BaseFaq.Faq.AI.Common.Providers
-  /BaseFaq.Faq.AI.Common.VectorStore
-  /BaseFaq.Faq.AI.Common.Contracts
+  /BaseFaq.AI.Generation.Api
+  /BaseFaq.AI.Generation.Business.Generation
+  /BaseFaq.AI.Generation.Business.Worker
+  /BaseFaq.AI.Generation.Test.IntegrationTests
+  /BaseFaq.AI.Matching.Api
+  /BaseFaq.AI.Matching.Business.Matching
+  /BaseFaq.AI.Matching.Business.Worker
+  /BaseFaq.AI.Matching.Test.IntegrationTests
+  /BaseFaq.AI.Common.Providers
+  /BaseFaq.AI.Common.VectorStore
+  /BaseFaq.AI.Common.Contracts
 ```
 
 Suggested concrete project names:
 ```text
-dotnet/BaseFaq.Faq.AI.Generation.Api/BaseFaq.Faq.AI.Generation.Api.csproj
-dotnet/BaseFaq.Faq.AI.Generation.Business.Generation/BaseFaq.Faq.AI.Generation.Business.Generation.csproj
-dotnet/BaseFaq.Faq.AI.Generation.Business.Worker/BaseFaq.Faq.AI.Generation.Business.Worker.csproj
-dotnet/BaseFaq.Faq.AI.Generation.Test.IntegrationTests/BaseFaq.Faq.AI.Generation.Test.IntegrationTests.csproj
+dotnet/BaseFaq.AI.Generation.Api/BaseFaq.AI.Generation.Api.csproj
+dotnet/BaseFaq.AI.Generation.Business.Generation/BaseFaq.AI.Generation.Business.Generation.csproj
+dotnet/BaseFaq.AI.Generation.Business.Worker/BaseFaq.AI.Generation.Business.Worker.csproj
+dotnet/BaseFaq.AI.Generation.Test.IntegrationTests/BaseFaq.AI.Generation.Test.IntegrationTests.csproj
 
-dotnet/BaseFaq.Faq.AI.Matching.Api/BaseFaq.Faq.AI.Matching.Api.csproj
-dotnet/BaseFaq.Faq.AI.Matching.Business.Matching/BaseFaq.Faq.AI.Matching.Business.Matching.csproj
-dotnet/BaseFaq.Faq.AI.Matching.Business.Worker/BaseFaq.Faq.AI.Matching.Business.Worker.csproj
-dotnet/BaseFaq.Faq.AI.Matching.Test.IntegrationTests/BaseFaq.Faq.AI.Matching.Test.IntegrationTests.csproj
+dotnet/BaseFaq.AI.Matching.Api/BaseFaq.AI.Matching.Api.csproj
+dotnet/BaseFaq.AI.Matching.Business.Matching/BaseFaq.AI.Matching.Business.Matching.csproj
+dotnet/BaseFaq.AI.Matching.Business.Worker/BaseFaq.AI.Matching.Business.Worker.csproj
+dotnet/BaseFaq.AI.Matching.Test.IntegrationTests/BaseFaq.AI.Matching.Test.IntegrationTests.csproj
 
-dotnet/BaseFaq.Faq.AI.Common.Providers/BaseFaq.Faq.AI.Common.Providers.csproj
-dotnet/BaseFaq.Faq.AI.Common.VectorStore/BaseFaq.Faq.AI.Common.VectorStore.csproj
-dotnet/BaseFaq.Faq.AI.Common.Contracts/BaseFaq.Faq.AI.Common.Contracts.csproj
+dotnet/BaseFaq.AI.Common.Providers/BaseFaq.AI.Common.Providers.csproj
+dotnet/BaseFaq.AI.Common.VectorStore/BaseFaq.AI.Common.VectorStore.csproj
+dotnet/BaseFaq.AI.Common.Contracts/BaseFaq.AI.Common.Contracts.csproj
 ```
 
 ## Main Risks and Mitigations
@@ -300,7 +300,7 @@ dotnet/BaseFaq.Faq.AI.Common.Contracts/BaseFaq.Faq.AI.Common.Contracts.csproj
 | Queue backlog growth | SLA degradation | Queue depth alerts, scaling workers, backpressure controls |
 
 ## Final Technical Checklist
-- [x] `BaseFaq.Faq.AI` root folder and projects created.
+- [x] `BaseFaq.AI` root folder and projects created.
 - [x] `Generation` and `Matching` projects follow existing `Api/Business/Test` conventions.
 - [x] Existing API hosts register new AI features without changing current boundaries.
 - [ ] AI lifecycle entities and migrations added to FAQ persistence.

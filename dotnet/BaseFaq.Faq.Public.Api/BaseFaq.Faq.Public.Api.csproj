@@ -30,7 +30,7 @@
         <ProjectReference Include="..\BaseFaq.Faq.Public.Business.Faq\BaseFaq.Faq.Public.Business.Faq.csproj"/>
         <ProjectReference Include="..\BaseFaq.Faq.Public.Business.FaqItem\BaseFaq.Faq.Public.Business.FaqItem.csproj"/>
         <ProjectReference Include="..\BaseFaq.Faq.Public.Business.Vote\BaseFaq.Faq.Public.Business.Vote.csproj"/>
-        <ProjectReference Include="..\BaseFaq.Faq.AI.Matching.Business.Matching\BaseFaq.Faq.AI.Matching.Business.Matching.csproj"/>
+        <ProjectReference Include="..\BaseFaq.AI.Matching.Business.Matching\BaseFaq.AI.Matching.Business.Matching.csproj"/>
     </ItemGroup>
 
 </Project>
