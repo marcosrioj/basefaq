@@ -29,6 +29,7 @@
 
     <ItemGroup>
         <ProjectReference Include="..\BaseFaq.AI.Matching.Business.Matching\BaseFaq.AI.Matching.Business.Matching.csproj"/>
+        <ProjectReference Include="..\BaseFaq.AI.Matching.Business.Worker\BaseFaq.AI.Matching.Business.Worker.csproj"/>
     </ItemGroup>
 
 </Project>

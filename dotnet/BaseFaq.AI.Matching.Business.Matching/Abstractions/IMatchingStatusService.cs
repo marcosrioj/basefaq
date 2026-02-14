@@ -9,10 +9,19 @@ public interface IMatchingStatusService
 
 public interface IMatchingRequestService
 {
-    Task<MatchingRequestAcceptedResponse> EnqueueAsync(MatchingRequestDto request, CancellationToken token);
+    Task<MatchingRequestAcceptedResponse> EnqueueAsync(
+        MatchingRequestDto request,
+        string? idempotencyKey,
+        CancellationToken token);
 }
 
 public interface IMatchingFaqItemValidationService
 {
     Task EnsureFaqItemExistsAsync(Guid faqItemId, CancellationToken token);
+}
+
+public interface IMatchingRequestPublisher
+{
+    Task PublishAsync(MatchingRequestDto request, string idempotencyKey, Guid correlationId, DateTime queuedUtc,
+        CancellationToken token);
 }

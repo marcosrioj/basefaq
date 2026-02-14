@@ -36,8 +36,8 @@ The AI capability remains organized under:
 - Shared infrastructure utilities from `BaseFaq.Common.Infrastructure.*`.
 
 ### Target high-level model
-- `Generation`: asynchronous workflow driven by RabbitMQ events and worker consumers.
-- `Matching`: asynchronous workflow for end-user retrieval requests, with asynchronous background indexing/embedding refresh.
+- `Generation (ContentRef -> New FaqItems)`: asynchronous workflow driven by RabbitMQ events and worker consumers.
+- `Matching (New FaqItem -> Similar Existing FaqItems)`: separate workflow for duplicate/similarity checks.
 - `Common`: provider and vector abstractions shared by both modules.
 - `Persistence split`:
   - AI lifecycle and operational state in `bf_ai_db` via AI context.
@@ -82,7 +82,7 @@ The AI capability remains organized under:
 | Prompt governance and answer quality controls | Prompt versioning, policy checks, publication gates | Prompt registry (JSON/YAML + DB ref), evaluation runner (optional) | Prompt-as-code + human-in-the-loop | Hallucinations/quality drift | Quality rubric + approval workflow + fallback |
 
 ## Event Flow (Step-by-Step)
-### End-to-end
+### Process A: Generation (ContentRef -> New FaqItems)
 1. Client calls `POST /api/faqs/ai/generation-jobs` (Portal API).
 2. FAQ API validates request/user context and stores FAQ-side request metadata as `Requested`.
 3. FAQ API publishes `FaqGenerationRequestedV1` with correlation and idempotency metadata to RabbitMQ.
@@ -99,7 +99,14 @@ The AI capability remains organized under:
    - `Failed`.
 12. Worker publishes callback event (`FaqGenerationReadyV1` or `FaqGenerationFailedV1`) to RabbitMQ.
 13. FAQ API-side consumer receives callback and marks request as done/failed and ready to use.
-14. The cycle repeats for subsequent generation/matching requests.
+14. The cycle repeats for subsequent generation requests.
+
+### Process B: Matching (New FaqItem -> Similar Existing FaqItems)
+1. Client/API sends matching request with `FaqItemId` for a newly created FAQ item.
+2. Matching API validates the request and tenant access to that `FaqItemId`.
+3. Matching service enqueues/starts matching workflow and returns `202 Accepted`.
+4. Matching worker/process compares the new FAQ item against existing FAQ items.
+5. Matching result is stored/published for downstream use (for example review or merge decisions).
 
 ## Asynchronous Integration
 ### Use asynchronous when
@@ -108,8 +115,8 @@ The AI capability remains organized under:
 - API should return `202 Accepted` with job identifier and polling/subscription mechanism.
 
 ### Rule of thumb
-- `Generation`: async by default.
-- `Matching`: async request/response flow (job-based) + async index maintenance.
+- `Generation (ContentRef -> New FaqItems)`: async by default.
+- `Matching (New FaqItem -> Similar Existing FaqItems)`: separate async job flow.
 
 ## RabbitMQ and MassTransit Evaluation
 ### Scenario A: Use both together (recommended if already standardized)
@@ -203,11 +210,13 @@ Recommended for BaseFAQ:
 - Development: .NET User Secrets.
 - Production: managed secret manager (Azure Key Vault / AWS Secrets Manager / GCP Secret Manager).
 - Never store provider keys in repository `appsettings*.json`.
+- Implemented for Generation and Matching processes via `AiProvider` section with dual slots (`PrimaryApiKey` / `SecondaryApiKey`) and runtime slot selection (`ActiveKeySlot`).
 
 ### Key rotation
 - Support active/standby key references.
 - Rotate regularly (time-based) and on incident trigger.
 - Use `IOptionsMonitor` or equivalent config reload for zero-downtime key switch.
+- Runbook: `docs/secret-manager-key-rotation.md`.
 
 ### Log masking and no leakage
 - Redact:
@@ -330,7 +339,8 @@ dotnet/BaseFaq.AI.Common.Contracts/BaseFaq.AI.Common.Contracts.csproj
 - [x] Retry and DLQ policies configured and validated.
 - [x] Distributed tracing across API, broker, worker, AI DB, FAQ DB, provider enabled.
 - [x] Monitoring dashboard and alerts configured.
-- [ ] Secret manager integration and key rotation process implemented.
+- [x] Secret manager integration and key rotation implemented for Generation process.
+- [x] Secret manager integration and key rotation implemented for Matching process.
 - [ ] Logging redaction rules validated (no key leakage).
 - [ ] Prompt governance and quality gate process documented.
 - [ ] MVP, hardening, and scale backlog items created and tracked.

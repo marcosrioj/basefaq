@@ -11,6 +11,7 @@ namespace BaseFaq.AI.Generation.Business.Worker.Consumers;
 
 public sealed class FaqGenerationRequestedConsumer(
     AiDbContext aiDbContext,
+    IAiProviderCredentialAccessor aiProviderCredentialAccessor,
     IGenerationFaqWriteService generationFaqWriteService)
     : MassTransit.IConsumer<FaqGenerationRequestedV1>
 {
@@ -52,6 +53,7 @@ public sealed class FaqGenerationRequestedConsumer(
         }
 
         var now = DateTime.UtcNow;
+        var providerCredential = aiProviderCredentialAccessor.GetCurrent();
 
         var job = new GenerationJob
         {
@@ -65,8 +67,8 @@ public sealed class FaqGenerationRequestedConsumer(
             RequestedUtc = message.RequestedUtc,
             StartedUtc = now,
             Status = GenerationJobStatus.Processing,
-            Provider = "local-stub",
-            Model = "stub-v1"
+            Provider = providerCredential.Provider,
+            Model = providerCredential.Model
         };
 
         aiDbContext.GenerationJobs.Add(job);
@@ -93,8 +95,11 @@ public sealed class FaqGenerationRequestedConsumer(
                 GenerationWorkerTracing.ActivitySource.StartActivity("generation.provider.generate",
                     ActivityKind.Client);
 
-            providerActivity?.SetTag("gen_ai.system", "local-stub");
-            providerActivity?.SetTag("gen_ai.request.model", "stub-v1");
+            providerActivity?.SetTag("gen_ai.system", providerCredential.Provider);
+            providerActivity?.SetTag("gen_ai.request.model", providerCredential.Model);
+            providerActivity?.SetTag("basefaq.ai_key_slot", providerCredential.SelectedSlot);
+            providerActivity?.SetTag("basefaq.ai_key_configured",
+                !string.IsNullOrWhiteSpace(providerCredential.ApiKey));
             providerActivity?.SetTag("basefaq.correlation_id", message.CorrelationId.ToString("D"));
 
             job.Artifacts.Add(new GenerationArtifact

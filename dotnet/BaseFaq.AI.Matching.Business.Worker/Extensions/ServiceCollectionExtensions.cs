@@ -1,8 +1,8 @@
-using BaseFaq.AI.Common.Contracts.Generation;
-using BaseFaq.AI.Generation.Business.Worker.Abstractions;
-using BaseFaq.AI.Generation.Business.Worker.Consumers;
-using BaseFaq.AI.Generation.Business.Worker.Options;
-using BaseFaq.AI.Generation.Business.Worker.Service;
+using BaseFaq.AI.Common.Contracts.Matching;
+using BaseFaq.AI.Matching.Business.Worker.Abstractions;
+using BaseFaq.AI.Matching.Business.Worker.Consumers;
+using BaseFaq.AI.Matching.Business.Worker.Options;
+using BaseFaq.AI.Matching.Business.Worker.Service;
 using BaseFaq.Common.Infrastructure.MassTransit.Extensions;
 using BaseFaq.Common.Infrastructure.MassTransit.Models;
 using MassTransit;
@@ -10,11 +10,11 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
-namespace BaseFaq.AI.Generation.Business.Worker.Extensions;
+namespace BaseFaq.AI.Matching.Business.Worker.Extensions;
 
 public static class ServiceCollectionExtensions
 {
-    public static IServiceCollection AddGenerationWorker(this IServiceCollection services, IConfiguration configuration)
+    public static IServiceCollection AddMatchingWorker(this IServiceCollection services, IConfiguration configuration)
     {
         var rabbitMqOption = configuration.GetSection(RabbitMqOption.Name).Get<RabbitMqOption>()
                              ?? throw new InvalidOperationException("RabbitMQ configuration is missing.");
@@ -25,12 +25,11 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<IValidateOptions<AiProviderOptions>, AiProviderOptionsValidator>();
 
         services.AddScoped<IAiProviderCredentialAccessor, AiProviderCredentialAccessor>();
-        services.AddScoped<IFaqIntegrationDbContextFactory, FaqIntegrationDbContextFactory>();
-        services.AddScoped<IGenerationFaqWriteService, GenerationFaqWriteService>();
+        services.AddScoped<IMatchingFaqDbContextFactory, MatchingFaqDbContextFactory>();
 
         services.AddMassTransit(x =>
         {
-            x.AddConsumer<FaqGenerationRequestedConsumer>();
+            x.AddConsumer<FaqMatchingRequestedConsumer>();
 
             x.UsingRabbitMq((context, cfg) =>
             {
@@ -40,30 +39,30 @@ public static class ServiceCollectionExtensions
                     h.Password(rabbitMqOption.Password);
                 });
 
-                cfg.Message<FaqGenerationRequestedV1>(message =>
+                cfg.Message<FaqMatchingRequestedV1>(message =>
                     message.SetEntityName(rabbitMqOption.Exchange.Name));
 
-                cfg.Publish<FaqGenerationRequestedV1>(message =>
+                cfg.Publish<FaqMatchingRequestedV1>(message =>
                     message.ExchangeType = rabbitMqOption.Exchange.Type);
 
-                cfg.Message<FaqGenerationReadyV1>(message =>
-                    message.SetEntityName(GenerationEventNames.ReadyExchange));
+                cfg.Message<FaqMatchingCompletedV1>(message =>
+                    message.SetEntityName(MatchingEventNames.CompletedExchange));
 
-                cfg.Publish<FaqGenerationReadyV1>(message =>
-                    message.ExchangeType = GenerationEventNames.ExchangeType);
+                cfg.Publish<FaqMatchingCompletedV1>(message =>
+                    message.ExchangeType = MatchingEventNames.ExchangeType);
 
-                cfg.Message<FaqGenerationFailedV1>(message =>
-                    message.SetEntityName(GenerationEventNames.FailedExchange));
+                cfg.Message<FaqMatchingFailedV1>(message =>
+                    message.SetEntityName(MatchingEventNames.FailedExchange));
 
-                cfg.Publish<FaqGenerationFailedV1>(message =>
-                    message.ExchangeType = GenerationEventNames.ExchangeType);
+                cfg.Publish<FaqMatchingFailedV1>(message =>
+                    message.ExchangeType = MatchingEventNames.ExchangeType);
 
                 cfg.ReceiveEndpoint(rabbitMqOption.QueueName, endpoint =>
                 {
                     endpoint.PrefetchCount = (ushort)Math.Max(1, rabbitMqOption.PrefetchCount);
                     endpoint.ConcurrentMessageLimit = Math.Max(1, rabbitMqOption.ConcurrencyLimit);
                     endpoint.ConfigureResilience(rabbitMqOption);
-                    endpoint.ConfigureConsumer<FaqGenerationRequestedConsumer>(context);
+                    endpoint.ConfigureConsumer<FaqMatchingRequestedConsumer>(context);
                 });
             });
         });

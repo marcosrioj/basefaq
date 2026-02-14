@@ -3,25 +3,32 @@ using BaseFaq.Models.Ai.Dtos.Matching;
 
 namespace BaseFaq.AI.Matching.Business.Matching.Service;
 
-public sealed class MatchingRequestService(IMatchingFaqItemValidationService faqItemValidationService)
+public sealed class MatchingRequestService(
+    IMatchingFaqItemValidationService faqItemValidationService,
+    IMatchingRequestPublisher matchingRequestPublisher)
     : IMatchingRequestService
 {
     private const int MaxQueryLength = 2000;
     private const int MaxLanguageLength = 16;
     private const int MaxIdempotencyKeyLength = 128;
 
-    public async Task<MatchingRequestAcceptedResponse> EnqueueAsync(MatchingRequestDto request, CancellationToken token)
+    public async Task<MatchingRequestAcceptedResponse> EnqueueAsync(
+        MatchingRequestDto request,
+        string? idempotencyKey,
+        CancellationToken token)
     {
-        ValidateRequest(request);
+        var normalizedIdempotencyKey = ValidateRequest(request, idempotencyKey);
         await faqItemValidationService.EnsureFaqItemExistsAsync(request.FaqItemId, token);
 
         var queuedUtc = DateTime.UtcNow;
         var correlationId = Guid.NewGuid();
 
+        await matchingRequestPublisher.PublishAsync(request, normalizedIdempotencyKey, correlationId, queuedUtc, token);
+
         return new MatchingRequestAcceptedResponse(correlationId, queuedUtc);
     }
 
-    private static void ValidateRequest(MatchingRequestDto request)
+    private static string ValidateRequest(MatchingRequestDto request, string? idempotencyKey)
     {
         if (request.TenantId == Guid.Empty)
         {
@@ -47,12 +54,27 @@ public sealed class MatchingRequestService(IMatchingFaqItemValidationService faq
                 nameof(request));
         }
 
-        if (!string.IsNullOrWhiteSpace(request.IdempotencyKey) &&
-            request.IdempotencyKey.Length > MaxIdempotencyKeyLength)
+        if (string.IsNullOrWhiteSpace(idempotencyKey))
+        {
+            throw new ArgumentException("Idempotency-Key header is required.", nameof(idempotencyKey));
+        }
+
+        var normalizedIdempotencyKey = idempotencyKey.Trim();
+        if (normalizedIdempotencyKey.Length > MaxIdempotencyKeyLength)
         {
             throw new ArgumentException(
                 $"IdempotencyKey must have at most {MaxIdempotencyKeyLength} characters.",
+                nameof(idempotencyKey));
+        }
+
+        if (!string.IsNullOrWhiteSpace(request.IdempotencyKey) &&
+            !string.Equals(request.IdempotencyKey, normalizedIdempotencyKey, StringComparison.Ordinal))
+        {
+            throw new ArgumentException(
+                "Request body idempotency key does not match Idempotency-Key header.",
                 nameof(request));
         }
+
+        return normalizedIdempotencyKey;
     }
 }

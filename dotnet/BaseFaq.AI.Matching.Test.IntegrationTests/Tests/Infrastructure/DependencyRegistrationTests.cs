@@ -20,9 +20,12 @@ public class DependencyRegistrationTests
             x.ServiceType == typeof(IMatchingFaqItemValidationService));
         var requestServiceDescriptor = services.SingleOrDefault(x =>
             x.ServiceType == typeof(IMatchingRequestService));
+        var requestPublisherDescriptor = services.SingleOrDefault(x =>
+            x.ServiceType == typeof(IMatchingRequestPublisher));
 
         Assert.NotNull(statusServiceDescriptor);
         Assert.NotNull(faqItemValidationServiceDescriptor);
         Assert.NotNull(requestServiceDescriptor);
+        Assert.NotNull(requestPublisherDescriptor);
     }
 }

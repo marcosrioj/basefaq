@@ -21,10 +21,11 @@ public class MatchingController(IMatchingStatusService matchingStatusService) : 
     [ProducesResponseType(typeof(MatchingRequestAcceptedResponse), StatusCodes.Status202Accepted)]
     public async Task<IActionResult> RequestMatching(
         [FromBody] MatchingRequestDto request,
+        [FromHeader(Name = "Idempotency-Key")] string? idempotencyKey,
         [FromServices] IMatchingRequestService matchingRequestService,
         CancellationToken token)
     {
-        var result = await matchingRequestService.EnqueueAsync(request, token);
+        var result = await matchingRequestService.EnqueueAsync(request, idempotencyKey, token);
         return Accepted(result);
     }
 }

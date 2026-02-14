@@ -10,6 +10,7 @@ public static class ServiceCollectionExtensions
     {
         services.AddScoped<IMatchingStatusService, MatchingStatusService>();
         services.AddScoped<IMatchingFaqItemValidationService, MatchingFaqItemValidationService>();
+        services.AddScoped<IMatchingRequestPublisher, MatchingRequestPublisher>();
         services.AddScoped<IMatchingRequestService, MatchingRequestService>();
         services.AddMediatR(config =>
             config.RegisterServicesFromAssembly(typeof(MatchingStatusService).Assembly));

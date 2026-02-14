@@ -5,6 +5,7 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+        <UserSecretsId>basefaq-ai-generation-api</UserSecretsId>
     </PropertyGroup>
 
     <ItemGroup>
