@@ -329,7 +329,7 @@ dotnet/BaseFaq.AI.Common.Contracts/BaseFaq.AI.Common.Contracts.csproj
 - [x] Idempotency key support and dedupe table in place.
 - [x] Retry and DLQ policies configured and validated.
 - [x] Distributed tracing across API, broker, worker, AI DB, FAQ DB, provider enabled.
-- [ ] Monitoring dashboard and alerts configured.
+- [x] Monitoring dashboard and alerts configured.
 - [ ] Secret manager integration and key rotation process implemented.
 - [ ] Logging redaction rules validated (no key leakage).
 - [ ] Prompt governance and quality gate process documented.

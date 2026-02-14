@@ -8,6 +8,8 @@ volumes:
   cache:
   smtp4dev-data:
   postgres:
+  prometheus-data:
+  grafana-data:
 
 services:
   postgres:
@@ -63,6 +65,76 @@ services:
       - bf-network
     environment:
       - RABBITMQ_MANAGEMENT_DISABLE_HTTP_AUTH=true
+
+  rabbitmq-exporter:
+    container_name: rabbitmq-exporter
+    restart: always
+    image: kbudde/rabbitmq-exporter:v1.0.0-RC19
+    ports:
+      - "9419:9419"
+    environment:
+      - RABBIT_URL=http://rabbitmq:15672
+      - RABBIT_USER=guest
+      - RABBIT_PASSWORD=guest
+      - PUBLISH_PORT=9419
+      - OUTPUT_FORMAT=TTY
+    depends_on:
+      - rabbitmq
+    networks:
+      - bf-network
+
+  alertmanager:
+    container_name: alertmanager
+    restart: always
+    image: prom/alertmanager:v0.28.0
+    ports:
+      - "9093:9093"
+    volumes:
+      - ./observability/alertmanager/alertmanager.yml:/etc/alertmanager/alertmanager.yml:ro
+    command:
+      - --config.file=/etc/alertmanager/alertmanager.yml
+      - --storage.path=/alertmanager
+    networks:
+      - bf-network
+
+  prometheus:
+    container_name: prometheus
+    restart: always
+    image: prom/prometheus:v2.55.1
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./observability/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./observability/prometheus/alerts:/etc/prometheus/alerts:ro
+      - prometheus-data:/prometheus
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --storage.tsdb.path=/prometheus
+      - --web.enable-lifecycle
+    depends_on:
+      - rabbitmq-exporter
+      - alertmanager
+    networks:
+      - bf-network
+
+  grafana:
+    container_name: grafana
+    restart: always
+    image: grafana/grafana:11.2.0
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_USERS_ALLOW_SIGN_UP=false
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./observability/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./observability/grafana/dashboards:/var/lib/grafana/dashboards:ro
+    depends_on:
+      - prometheus
+    networks:
+      - bf-network
 
   cache:
     container_name: redis

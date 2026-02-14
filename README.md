@@ -11,7 +11,7 @@ BaseFaq is a multi-tenant FAQ platform with APIs for tenant administration, auth
 - Shared infrastructure libraries (Swagger/OpenAPI, Sentry, MediatR logging, API error handling)
 - AI persistence library (`AiDbContext` / `bf_ai_db`)
 - Tooling apps (`BaseFaq.Tools.Seed`, `BaseFaq.Tools.Migration`)
-- Base services via Docker (PostgreSQL, RabbitMQ, Redis, SMTP4Dev)
+- Base services via Docker (PostgreSQL, RabbitMQ, Redis, SMTP4Dev, Jaeger, Prometheus, Alertmanager, Grafana)
 
 ## Prerequisites
 - Docker Engine + Docker Compose v2
@@ -39,7 +39,7 @@ dotnet restore BaseFaq.sln
 dotnet build BaseFaq.sln
 ```
 
-## 1) Start base services (PostgreSQL, RabbitMQ, Redis, SMTP, Jaeger/OTEL)
+## 1) Start base services (PostgreSQL, RabbitMQ, Redis, SMTP, Jaeger/OTEL, monitoring stack)
 From the repo root:
 
 macOS / Linux:
@@ -59,6 +59,9 @@ Notes:
 - It starts the base services using `docker/docker-compose.baseservices.yml` and creates:
   `bf_tenant_db`, `bf_faq_db_01`, `bf_faq_db_02`, and `bf_ai_db`.
 - It also starts Jaeger with OTLP enabled (`http://localhost:16686`, OTLP gRPC `localhost:4317`).
+- It starts Prometheus (`http://localhost:9090`), Alertmanager (`http://localhost:9093`), and Grafana (`http://localhost:3000`).
+- Grafana default development credentials: `admin` / `admin`.
+- Grafana auto-provisions the `BaseFaq RabbitMQ Overview` dashboard and Prometheus datasource.
 - PostgreSQL password is `Pass123$` (the compose file uses `$$` to escape `$`).
 - If PowerShell blocks script execution, run:
   `Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser`
@@ -286,6 +289,10 @@ Note: the script removes the BaseFaq Docker images and prunes dangling Docker im
 - SMTP4Dev UI: `http://localhost:4590` (SMTP on `1025`)
 - RabbitMQ UI: `http://localhost:15672` (AMQP on `5672`, auth disabled)
 - Jaeger UI (traces): `http://localhost:16686` (OTLP gRPC `4317`, OTLP HTTP `4318`)
+- Prometheus UI: `http://localhost:9090`
+- Alertmanager UI: `http://localhost:9093`
+- Grafana UI: `http://localhost:3000` (default `admin` / `admin`)
+- RabbitMQ Exporter metrics endpoint: `http://localhost:9419/metrics`
 - Redis: `localhost:6379`
 - FAQ Portal API (Docker): `http://localhost:5010`
 - Tenant Back Office API (Docker): `http://localhost:5000`
