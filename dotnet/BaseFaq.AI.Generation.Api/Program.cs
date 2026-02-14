@@ -1,10 +1,12 @@
+using BaseFaq.AI.Generation.Api.Extensions;
+using BaseFaq.AI.Generation.Business.Worker.Observability;
+using BaseFaq.Common.Infrasctructure.Telemetry.Extensions;
 using BaseFaq.Common.Infrastructure.ApiErrorHandling.Extensions;
 using BaseFaq.Common.Infrastructure.Core.Extensions;
 using BaseFaq.Common.Infrastructure.MediatR.Extensions;
 using BaseFaq.Common.Infrastructure.Mvc.Filters;
 using BaseFaq.Common.Infrastructure.Sentry.Extensions;
 using BaseFaq.Common.Infrastructure.Swagger.Extensions;
-using BaseFaq.AI.Generation.Api.Extensions;
 
 namespace BaseFaq.AI.Generation.Api;
 
@@ -31,6 +33,10 @@ public class Program
         });
 
         builder.Services.AddEndpointsApiExplorer();
+        builder.Services.AddTelemetry(
+            builder.Configuration,
+            builder.Environment,
+            GenerationWorkerTracing.SourceName);
         builder.Services.AddFeatures(builder.Configuration);
         builder.Services.AddMediatRLogging();
         builder.WebHost.AddConfiguredSentry();

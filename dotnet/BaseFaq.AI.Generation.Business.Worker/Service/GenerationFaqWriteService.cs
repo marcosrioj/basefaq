@@ -1,7 +1,9 @@
 using BaseFaq.AI.Generation.Business.Worker.Abstractions;
+using BaseFaq.AI.Generation.Business.Worker.Observability;
 using BaseFaq.Faq.Common.Persistence.FaqDb.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using System.Diagnostics;
 
 namespace BaseFaq.AI.Generation.Business.Worker.Service;
 
@@ -12,6 +14,15 @@ public sealed class GenerationFaqWriteService(
     public async Task WriteAsync(GenerationFaqWriteRequest request, CancellationToken cancellationToken)
     {
         ValidateRequest(request);
+
+        using var writeActivity =
+            GenerationWorkerTracing.ActivitySource.StartActivity("generation.faq_db.write",
+                ActivityKind.Internal);
+        writeActivity?.SetTag("db.system", "postgresql");
+        writeActivity?.SetTag("db.name", "bf_faq_db");
+        writeActivity?.SetTag("basefaq.correlation_id", request.CorrelationId.ToString("D"));
+        writeActivity?.SetTag("basefaq.tenant_id", request.TenantId.ToString("D"));
+        writeActivity?.SetTag("basefaq.faq_id", request.FaqId.ToString("D"));
 
         await using var faqDbContext = faqIntegrationDbContextFactory.Create(request.TenantId);
 

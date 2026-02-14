@@ -39,7 +39,7 @@ dotnet restore BaseFaq.sln
 dotnet build BaseFaq.sln
 ```
 
-## 1) Start base services (PostgreSQL, RabbitMQ, Redis, SMTP)
+## 1) Start base services (PostgreSQL, RabbitMQ, Redis, SMTP, Jaeger/OTEL)
 From the repo root:
 
 macOS / Linux:
@@ -58,6 +58,7 @@ Notes:
 - The script only stops/removes containers in the `bf_baseservices` compose project.
 - It starts the base services using `docker/docker-compose.baseservices.yml` and creates:
   `bf_tenant_db`, `bf_faq_db_01`, `bf_faq_db_02`, and `bf_ai_db`.
+- It also starts Jaeger with OTLP enabled (`http://localhost:16686`, OTLP gRPC `localhost:4317`).
 - PostgreSQL password is `Pass123$` (the compose file uses `$$` to escape `$`).
 - If PowerShell blocks script execution, run:
   `Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser`
@@ -246,10 +247,23 @@ This compose file:
   - `basefaq.tenant.backoffice.api`
   - `basefaq.tenant.portal.api`
   - `basefaq.faq.public.api`
+  - `basefaq.ai.generation.api`
+  - `basefaq.ai.matching.api`
 - Wires the service to the `bf-network` network created by the base services.
 - Uses the repo root as the build context, so run the command from the repo root.
 
 If you run APIs in Docker, this repo defaults to `host.docker.internal` in `appsettings.json` so the same values work for host + Docker.
+
+## Telemetry (OpenTelemetry)
+- Shared baseline lives in `dotnet/BaseFaq.Common.Infrasctructure.Telemetry`.
+- Use `AddTelemetry(...)` from `BaseFaq.Common.Infrasctructure.Telemetry.Extensions` in API startup.
+- Keep this common project generic; app-specific `ActivitySource` names must be passed via the
+  `additionalActivitySources` parameter.
+- OTLP endpoint is read from app config:
+  - `OpenTelemetry:Otlp:Endpoint`
+  - Current default (Generation API): `http://host.docker.internal:4317`
+- Local trace UI is available in Jaeger:
+  - `http://localhost:16686`
 
 You can also use the helper script:
 
@@ -271,11 +285,14 @@ Note: the script removes the BaseFaq Docker images and prunes dangling Docker im
 - PostgreSQL: `localhost:5432` (databases `bf_tenant_db`, `bf_faq_db_01`, `bf_faq_db_02`, `bf_ai_db`)
 - SMTP4Dev UI: `http://localhost:4590` (SMTP on `1025`)
 - RabbitMQ UI: `http://localhost:15672` (AMQP on `5672`, auth disabled)
+- Jaeger UI (traces): `http://localhost:16686` (OTLP gRPC `4317`, OTLP HTTP `4318`)
 - Redis: `localhost:6379`
 - FAQ Portal API (Docker): `http://localhost:5010`
 - Tenant Back Office API (Docker): `http://localhost:5000`
 - Tenant Portal API (Docker): `http://localhost:5002`
 - FAQ Public API (Docker): `http://localhost:5020`
+- FAQ AI Generation API (Docker): `http://localhost:5030`
+- FAQ AI Matching API (Docker): `http://localhost:5040`
 
 ## Redis cache
 Clear all Redis databases:

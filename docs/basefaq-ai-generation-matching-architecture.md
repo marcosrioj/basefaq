@@ -178,6 +178,10 @@ Recommended for BaseFAQ:
   - Provider API call.
   - AI DB persistence.
   - FAQ DB integration write.
+- Implementation convention:
+  - Shared baseline telemetry wiring in `BaseFaq.Common.Infrasctructure.Telemetry` via `AddTelemetry(...)`.
+  - Keep the shared telemetry project generic (no service-specific sources hardcoded).
+  - Pass service-specific `ActivitySource` names from each API/worker when registering telemetry.
 
 ### Monitoring and alerting
 - Metrics:
@@ -324,7 +328,7 @@ dotnet/BaseFaq.AI.Common.Contracts/BaseFaq.AI.Common.Contracts.csproj
 - [x] Matching endpoint implemented with asynchronous response for FAQ item retrieval, validates `FaqItemId` (required, non-empty, and existence/access in FAQ DB for current tenant), no fallback behavior required, and consumed only by FAQ Public API requests.
 - [x] Idempotency key support and dedupe table in place.
 - [x] Retry and DLQ policies configured and validated.
-- [ ] Distributed tracing across API, broker, worker, AI DB, FAQ DB, provider enabled.
+- [x] Distributed tracing across API, broker, worker, AI DB, FAQ DB, provider enabled.
 - [ ] Monitoring dashboard and alerts configured.
 - [ ] Secret manager integration and key rotation process implemented.
 - [ ] Logging redaction rules validated (no key leakage).

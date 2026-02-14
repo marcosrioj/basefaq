@@ -2,8 +2,10 @@ using BaseFaq.AI.Common.Contracts.Generation;
 using BaseFaq.AI.Common.Persistence.AiDb;
 using BaseFaq.AI.Common.Persistence.AiDb.Entities;
 using BaseFaq.AI.Generation.Business.Worker.Abstractions;
+using BaseFaq.AI.Generation.Business.Worker.Observability;
 using BaseFaq.Models.Ai.Enums;
 using Microsoft.EntityFrameworkCore;
+using System.Diagnostics;
 
 namespace BaseFaq.AI.Generation.Business.Worker.Consumers;
 
@@ -14,8 +16,20 @@ public sealed class FaqGenerationRequestedConsumer(
 {
     public async Task Consume(MassTransit.ConsumeContext<FaqGenerationRequestedV1> context)
     {
+        using var consumeActivity =
+            GenerationWorkerTracing.ActivitySource.StartActivity("generation.worker.consume",
+                ActivityKind.Consumer);
+
         var handlerName = nameof(FaqGenerationRequestedConsumer);
         var messageId = context.MessageId?.ToString("N") ?? context.Message.CorrelationId.ToString("N");
+        var message = context.Message;
+
+        consumeActivity?.SetTag("messaging.system", "rabbitmq");
+        consumeActivity?.SetTag("messaging.operation.name", "process");
+        consumeActivity?.SetTag("messaging.message.id", messageId);
+        consumeActivity?.SetTag("messaging.conversation_id", message.CorrelationId.ToString("D"));
+        consumeActivity?.SetTag("basefaq.tenant_id", message.TenantId.ToString("D"));
+        consumeActivity?.SetTag("basefaq.faq_id", message.FaqId.ToString("D"));
 
         var processedMessageExists = await aiDbContext.ProcessedMessages
             .AnyAsync(x => x.HandlerName == handlerName && x.MessageId == messageId, context.CancellationToken);
@@ -24,8 +38,6 @@ public sealed class FaqGenerationRequestedConsumer(
         {
             return;
         }
-
-        var message = context.Message;
 
         var alreadyExists = await aiDbContext.GenerationJobs
             .AnyAsync(x =>
@@ -60,6 +72,13 @@ public sealed class FaqGenerationRequestedConsumer(
         aiDbContext.GenerationJobs.Add(job);
         try
         {
+            using var createJobActivity =
+                GenerationWorkerTracing.ActivitySource.StartActivity("generation.ai_db.job_create",
+                    ActivityKind.Internal);
+
+            createJobActivity?.SetTag("db.system", "postgresql");
+            createJobActivity?.SetTag("db.name", "bf_ai_db");
+
             await aiDbContext.SaveChangesAsync(context.CancellationToken);
         }
         catch (DbUpdateException ex) when (IsDuplicateJobException(ex))
@@ -70,6 +89,14 @@ public sealed class FaqGenerationRequestedConsumer(
 
         try
         {
+            using var providerActivity =
+                GenerationWorkerTracing.ActivitySource.StartActivity("generation.provider.generate",
+                    ActivityKind.Client);
+
+            providerActivity?.SetTag("gen_ai.system", "local-stub");
+            providerActivity?.SetTag("gen_ai.request.model", "stub-v1");
+            providerActivity?.SetTag("basefaq.correlation_id", message.CorrelationId.ToString("D"));
+
             job.Artifacts.Add(new GenerationArtifact
             {
                 GenerationJobId = job.Id,
@@ -97,6 +124,13 @@ public sealed class FaqGenerationRequestedConsumer(
             job.ErrorCode = null;
             job.ErrorMessage = null;
 
+            using var completeJobActivity =
+                GenerationWorkerTracing.ActivitySource.StartActivity("generation.ai_db.job_complete",
+                    ActivityKind.Internal);
+
+            completeJobActivity?.SetTag("db.system", "postgresql");
+            completeJobActivity?.SetTag("db.name", "bf_ai_db");
+
             await aiDbContext.SaveChangesAsync(context.CancellationToken);
 
             await context.Publish(new FaqGenerationReadyV1
@@ -119,6 +153,14 @@ public sealed class FaqGenerationRequestedConsumer(
                 : ex.Message[..GenerationJob.MaxErrorMessageLength];
             job.ErrorCode = errorCode;
             job.ErrorMessage = errorMessage;
+
+            using var failJobActivity =
+                GenerationWorkerTracing.ActivitySource.StartActivity("generation.ai_db.job_fail",
+                    ActivityKind.Internal);
+
+            failJobActivity?.SetTag("db.system", "postgresql");
+            failJobActivity?.SetTag("db.name", "bf_ai_db");
+            failJobActivity?.SetTag("exception.type", ex.GetType().Name);
 
             await aiDbContext.SaveChangesAsync(context.CancellationToken);
 

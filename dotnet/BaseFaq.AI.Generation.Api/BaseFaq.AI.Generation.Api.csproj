@@ -25,6 +25,7 @@
         <ProjectReference Include="..\BaseFaq.Common.Infrastructure.Mvc\BaseFaq.Common.Infrastructure.Mvc.csproj"/>
         <ProjectReference Include="..\BaseFaq.Common.Infrastructure.Sentry\BaseFaq.Common.Infrastructure.Sentry.csproj"/>
         <ProjectReference Include="..\BaseFaq.Common.Infrastructure.Swagger\BaseFaq.Common.Infrastructure.Swagger.csproj"/>
+        <ProjectReference Include="..\BaseFaq.Common.Infrasctructure.Telemetry\BaseFaq.Common.Infrasctructure.Telemetry.csproj"/>
         <ProjectReference Include="..\BaseFaq.Common.EntityFramework.Tenant\BaseFaq.Common.EntityFramework.Tenant.csproj"/>
         <ProjectReference Include="..\BaseFaq.AI.Generation.Business.Generation\BaseFaq.AI.Generation.Business.Generation.csproj"/>
         <ProjectReference Include="..\BaseFaq.AI.Generation.Business.Worker\BaseFaq.AI.Generation.Business.Worker.csproj"/>
