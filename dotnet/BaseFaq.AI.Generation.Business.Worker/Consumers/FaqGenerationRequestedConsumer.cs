@@ -5,15 +5,19 @@ using BaseFaq.AI.Common.Persistence.AiDb.Entities;
 using BaseFaq.AI.Common.Providers.Abstractions;
 using BaseFaq.AI.Generation.Business.Worker.Abstractions;
 using BaseFaq.AI.Generation.Business.Worker.Observability;
+using BaseFaq.AI.Generation.Business.Worker.Service;
 using BaseFaq.Models.Ai.Enums;
+using BaseFaq.Models.Faq.Enums;
 using MassTransit;
 using Microsoft.EntityFrameworkCore;
+using System.Text.Json;
 
 namespace BaseFaq.AI.Generation.Business.Worker.Consumers;
 
 public sealed class FaqGenerationRequestedConsumer(
     AiDbContext aiDbContext,
     IAiProviderCredentialAccessor aiProviderCredentialAccessor,
+    IFaqIntegrationDbContextFactory faqIntegrationDbContextFactory,
     IGenerationFaqWriteService generationFaqWriteService)
     : IConsumer<FaqGenerationRequestedV1>
 {
@@ -93,6 +97,21 @@ public sealed class FaqGenerationRequestedConsumer(
 
         try
         {
+            await using var faqDbContext = faqIntegrationDbContextFactory.Create(message.TenantId);
+            var contentRefs = await faqDbContext.FaqContentRefs
+                .AsNoTracking()
+                .Where(x => x.FaqId == message.FaqId && x.TenantId == message.TenantId)
+                .Select(x => new ContentRefStudyInput(x.ContentRef.Kind, x.ContentRef.Locator))
+                .ToListAsync(context.CancellationToken);
+
+            if (contentRefs.Count == 0)
+            {
+                throw new InvalidOperationException(
+                    $"FAQ '{message.FaqId}' must have at least one ContentRef to continue generation.");
+            }
+
+            var studiedRefs = ContentRefStudyService.Study(contentRefs);
+
             using var providerActivity =
                 GenerationWorkerTracing.ActivitySource.StartActivity("generation.provider.generate",
                     ActivityKind.Client);
@@ -103,23 +122,34 @@ public sealed class FaqGenerationRequestedConsumer(
             providerActivity?.SetTag("basefaq.ai_key_configured",
                 !string.IsNullOrWhiteSpace(providerCredential.ApiKey));
             providerActivity?.SetTag("basefaq.correlation_id", message.CorrelationId.ToString("D"));
+            providerActivity?.SetTag("basefaq.content_ref.total_count", studiedRefs.TotalCount);
+            providerActivity?.SetTag("basefaq.content_ref.processed_count", studiedRefs.ProcessedCount);
+            providerActivity?.SetTag("basefaq.content_ref.skipped_count", studiedRefs.SkippedCount);
 
             job.Artifacts.Add(new GenerationArtifact
             {
                 GenerationJobId = job.Id,
                 ArtifactType = GenerationArtifactType.Draft,
                 Sequence = 1,
-                Content = $"Generated draft placeholder for FAQ {message.FaqId}",
-                MetadataJson = "{}"
+                Content = Truncate(BuildDraftContent(message.FaqId, studiedRefs), GenerationArtifact.MaxContentLength),
+                MetadataJson = Truncate(
+                    JsonSerializer.Serialize(new
+                    {
+                        contentRefTotal = studiedRefs.TotalCount,
+                        contentRefProcessed = studiedRefs.ProcessedCount,
+                        contentRefSkipped = studiedRefs.SkippedCount,
+                        processedKinds = studiedRefs.StudiedRefs.Select(x => x.Kind.ToString()).ToArray()
+                    }),
+                    GenerationArtifact.MaxMetadataJsonLength)
             });
 
             await generationFaqWriteService.WriteAsync(new GenerationFaqWriteRequest(
                     message.CorrelationId,
                     message.FaqId,
                     message.TenantId,
-                    "Generated draft question",
-                    $"Draft summary for FAQ {message.FaqId}",
-                    $"Generated draft placeholder for FAQ {message.FaqId}",
+                    Truncate(BuildDraftQuestion(studiedRefs), 1000),
+                    Truncate(BuildDraftSummary(message.FaqId, studiedRefs), 250),
+                    Truncate(BuildDraftContent(message.FaqId, studiedRefs), 5000),
                     null,
                     null,
                     null,
@@ -212,5 +242,42 @@ public sealed class FaqGenerationRequestedConsumer(
 
         return message.Contains("IX_GenerationJob_CorrelationId", StringComparison.Ordinal) ||
                message.Contains("IX_GenerationJob_FaqId_IdempotencyKey", StringComparison.Ordinal);
+    }
+
+    private static string BuildDraftQuestion(ContentRefStudyResult studyResult)
+    {
+        if (studyResult.ProcessedCount == 0)
+        {
+            return "Generated draft question based on available content references";
+        }
+
+        var kinds = string.Join(", ", studyResult.StudiedRefs.Select(x => x.Kind.ToString()));
+        return $"Generated draft question based on: {kinds}";
+    }
+
+    private static string BuildDraftSummary(Guid faqId, ContentRefStudyResult studyResult)
+    {
+        return
+            $"Draft summary for FAQ {faqId}. ContentRefs total={studyResult.TotalCount}, processed={studyResult.ProcessedCount}, skipped={studyResult.SkippedCount}.";
+    }
+
+    private static string BuildDraftContent(Guid faqId, ContentRefStudyResult studyResult)
+    {
+        if (studyResult.ProcessedCount == 0)
+        {
+            return
+                $"Generated draft placeholder for FAQ {faqId}. No processable ContentRef kind was found (all were skipped by business rules).";
+        }
+
+        var lines = studyResult.StudiedRefs
+            .Select(x => $"{x.Kind} ({x.Locator}): {x.MainSubject}");
+
+        return
+            $"Generated draft placeholder for FAQ {faqId}. Source study:{Environment.NewLine}{string.Join(Environment.NewLine, lines)}";
+    }
+
+    private static string Truncate(string value, int maxLength)
+    {
+        return value.Length <= maxLength ? value : value[..maxLength];
     }
 }
