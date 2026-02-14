@@ -1,4 +1,4 @@
-namespace BaseFaq.AI.Matching.Business.Worker.Models;
+namespace BaseFaq.AI.Common.Providers.Models;
 
 public sealed record AiProviderCredential(
     string Provider,

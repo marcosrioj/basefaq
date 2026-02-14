@@ -1,5 +1,5 @@
-using BaseFaq.AI.Matching.Business.Worker.Options;
-using BaseFaq.AI.Matching.Business.Worker.Service;
+using BaseFaq.AI.Common.Providers.Options;
+using BaseFaq.AI.Common.Providers.Service;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using Xunit;

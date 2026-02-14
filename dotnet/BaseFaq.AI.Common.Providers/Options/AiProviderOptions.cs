@@ -1,4 +1,4 @@
-namespace BaseFaq.AI.Matching.Business.Worker.Options;
+namespace BaseFaq.AI.Common.Providers.Options;
 
 public sealed class AiProviderOptions
 {
@@ -7,9 +7,9 @@ public sealed class AiProviderOptions
     public const string SecondarySlot = "Secondary";
 
     public string Provider { get; set; } = "openai";
-    public string Model { get; set; } = "text-embedding-3-small";
+    public string Model { get; set; } = "gpt-4o-mini";
     public string ActiveKeySlot { get; set; } = PrimarySlot;
     public string? PrimaryApiKey { get; set; }
     public string? SecondaryApiKey { get; set; }
-    public bool RequireApiKey { get; set; } = false;
+    public bool RequireApiKey { get; set; }
 }

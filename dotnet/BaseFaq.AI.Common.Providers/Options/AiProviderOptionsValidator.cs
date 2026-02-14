@@ -1,7 +1,7 @@
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 
-namespace BaseFaq.AI.Matching.Business.Worker.Options;
+namespace BaseFaq.AI.Common.Providers.Options;
 
 public sealed class AiProviderOptionsValidator(IHostEnvironment hostEnvironment) : IValidateOptions<AiProviderOptions>
 {

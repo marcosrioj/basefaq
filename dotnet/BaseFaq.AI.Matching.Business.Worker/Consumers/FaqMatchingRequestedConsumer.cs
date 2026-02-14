@@ -1,4 +1,5 @@
 using BaseFaq.AI.Common.Contracts.Matching;
+using BaseFaq.AI.Common.Providers.Abstractions;
 using BaseFaq.AI.Common.Persistence.AiDb;
 using BaseFaq.AI.Common.Persistence.AiDb.Entities;
 using BaseFaq.AI.Matching.Business.Worker.Abstractions;

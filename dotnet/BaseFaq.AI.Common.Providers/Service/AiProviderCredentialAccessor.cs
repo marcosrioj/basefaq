@@ -1,9 +1,9 @@
-using BaseFaq.AI.Generation.Business.Worker.Abstractions;
-using BaseFaq.AI.Generation.Business.Worker.Models;
-using BaseFaq.AI.Generation.Business.Worker.Options;
+using BaseFaq.AI.Common.Providers.Abstractions;
+using BaseFaq.AI.Common.Providers.Models;
+using BaseFaq.AI.Common.Providers.Options;
 using Microsoft.Extensions.Options;
 
-namespace BaseFaq.AI.Generation.Business.Worker.Service;
+namespace BaseFaq.AI.Common.Providers.Service;
 
 public sealed class AiProviderCredentialAccessor(IOptionsMonitor<AiProviderOptions> optionsMonitor)
     : IAiProviderCredentialAccessor

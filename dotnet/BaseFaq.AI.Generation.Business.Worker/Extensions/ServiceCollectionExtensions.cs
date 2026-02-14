@@ -1,7 +1,9 @@
 using BaseFaq.AI.Common.Contracts.Generation;
-using BaseFaq.AI.Generation.Business.Worker.Abstractions;
+using BaseFaq.AI.Common.Providers.Abstractions;
+using BaseFaq.AI.Common.Providers.Options;
+using BaseFaq.AI.Common.Providers.Service;
 using BaseFaq.AI.Generation.Business.Worker.Consumers;
-using BaseFaq.AI.Generation.Business.Worker.Options;
+using BaseFaq.AI.Generation.Business.Worker.Abstractions;
 using BaseFaq.AI.Generation.Business.Worker.Service;
 using BaseFaq.Common.Infrastructure.MassTransit.Extensions;
 using BaseFaq.Common.Infrastructure.MassTransit.Models;

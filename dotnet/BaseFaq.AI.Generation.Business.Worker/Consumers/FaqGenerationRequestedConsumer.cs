@@ -1,11 +1,13 @@
+using System.Diagnostics;
 using BaseFaq.AI.Common.Contracts.Generation;
 using BaseFaq.AI.Common.Persistence.AiDb;
 using BaseFaq.AI.Common.Persistence.AiDb.Entities;
+using BaseFaq.AI.Common.Providers.Abstractions;
 using BaseFaq.AI.Generation.Business.Worker.Abstractions;
 using BaseFaq.AI.Generation.Business.Worker.Observability;
 using BaseFaq.Models.Ai.Enums;
+using MassTransit;
 using Microsoft.EntityFrameworkCore;
-using System.Diagnostics;
 
 namespace BaseFaq.AI.Generation.Business.Worker.Consumers;
 
@@ -13,9 +15,9 @@ public sealed class FaqGenerationRequestedConsumer(
     AiDbContext aiDbContext,
     IAiProviderCredentialAccessor aiProviderCredentialAccessor,
     IGenerationFaqWriteService generationFaqWriteService)
-    : MassTransit.IConsumer<FaqGenerationRequestedV1>
+    : IConsumer<FaqGenerationRequestedV1>
 {
-    public async Task Consume(MassTransit.ConsumeContext<FaqGenerationRequestedV1> context)
+    public async Task Consume(ConsumeContext<FaqGenerationRequestedV1> context)
     {
         using var consumeActivity =
             GenerationWorkerTracing.ActivitySource.StartActivity("generation.worker.consume",
