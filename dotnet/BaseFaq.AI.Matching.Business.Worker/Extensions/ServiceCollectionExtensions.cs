@@ -3,6 +3,7 @@ using BaseFaq.AI.Common.Providers.Abstractions;
 using BaseFaq.AI.Common.Providers.Options;
 using BaseFaq.AI.Common.Providers.Service;
 using BaseFaq.AI.Matching.Business.Worker.Abstractions;
+using BaseFaq.AI.Matching.Business.Worker.Commands.ProcessFaqMatchingRequested;
 using BaseFaq.AI.Matching.Business.Worker.Consumers;
 using BaseFaq.AI.Matching.Business.Worker.Service;
 using BaseFaq.Common.Infrastructure.MassTransit.Extensions;
@@ -28,6 +29,8 @@ public static class ServiceCollectionExtensions
 
         services.AddScoped<IAiProviderCredentialAccessor, AiProviderCredentialAccessor>();
         services.AddScoped<IMatchingFaqDbContextFactory, MatchingFaqDbContextFactory>();
+        services.AddMediatR(config =>
+            config.RegisterServicesFromAssemblyContaining<ProcessFaqMatchingRequestedCommandHandler>());
 
         services.AddMassTransit(x =>
         {

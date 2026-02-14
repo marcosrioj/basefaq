@@ -2,7 +2,7 @@ using BaseFaq.AI.Matching.Business.Matching.Abstractions;
 using BaseFaq.Faq.Common.Persistence.FaqDb;
 using Microsoft.EntityFrameworkCore;
 
-namespace BaseFaq.AI.Matching.Business.Matching.Service;
+namespace BaseFaq.AI.Matching.Business.Matching.Infrastructure;
 
 public sealed class MatchingFaqItemValidationService(FaqDbContext faqDbContext) : IMatchingFaqItemValidationService
 {

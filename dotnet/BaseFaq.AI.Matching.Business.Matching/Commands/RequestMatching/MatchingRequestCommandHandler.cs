@@ -1,29 +1,37 @@
 using BaseFaq.AI.Matching.Business.Matching.Abstractions;
 using BaseFaq.Models.Ai.Dtos.Matching;
+using MediatR;
 
-namespace BaseFaq.AI.Matching.Business.Matching.Service;
+namespace BaseFaq.AI.Matching.Business.Matching.Commands.RequestMatching;
 
-public sealed class MatchingRequestService(
+public sealed class MatchingRequestCommandHandler(
     IMatchingFaqItemValidationService faqItemValidationService,
     IMatchingRequestPublisher matchingRequestPublisher)
-    : IMatchingRequestService
+    : IRequestHandler<MatchingRequestCommand, MatchingRequestAcceptedResponse>
 {
     private const int MaxQueryLength = 2000;
     private const int MaxLanguageLength = 16;
     private const int MaxIdempotencyKeyLength = 128;
 
-    public async Task<MatchingRequestAcceptedResponse> EnqueueAsync(
-        MatchingRequestDto request,
-        string? idempotencyKey,
-        CancellationToken token)
+    public async Task<MatchingRequestAcceptedResponse> Handle(
+        MatchingRequestCommand command,
+        CancellationToken cancellationToken)
     {
-        var normalizedIdempotencyKey = ValidateRequest(request, idempotencyKey);
-        await faqItemValidationService.EnsureFaqItemExistsAsync(request.FaqItemId, token);
+        ArgumentNullException.ThrowIfNull(command);
+        ArgumentNullException.ThrowIfNull(command.Request);
+
+        var normalizedIdempotencyKey = ValidateRequest(command.Request, command.IdempotencyKey);
+        await faqItemValidationService.EnsureFaqItemExistsAsync(command.Request.FaqItemId, cancellationToken);
 
         var queuedUtc = DateTime.UtcNow;
         var correlationId = Guid.NewGuid();
 
-        await matchingRequestPublisher.PublishAsync(request, normalizedIdempotencyKey, correlationId, queuedUtc, token);
+        await matchingRequestPublisher.PublishAsync(
+            command.Request,
+            normalizedIdempotencyKey,
+            correlationId,
+            queuedUtc,
+            cancellationToken);
 
         return new MatchingRequestAcceptedResponse(correlationId, queuedUtc);
     }

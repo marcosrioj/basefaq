@@ -1,22 +1,25 @@
 using BaseFaq.AI.Common.Contracts.Generation;
-using BaseFaq.AI.Generation.Business.Generation.Abstractions;
 using BaseFaq.Models.Ai.Dtos.Generation;
 using MassTransit;
+using MediatR;
 
-namespace BaseFaq.AI.Generation.Business.Generation.Service;
+namespace BaseFaq.AI.Generation.Business.Generation.Commands.RequestGeneration;
 
-public sealed class GenerationRequestService(IPublishEndpoint publishEndpoint) : IGenerationRequestService
+public sealed class GenerationRequestCommandHandler(IPublishEndpoint publishEndpoint)
+    : IRequestHandler<GenerationRequestCommand, GenerationRequestAcceptedResponse>
 {
     private const int MaxLanguageLength = 16;
     private const int MaxPromptProfileLength = 128;
     private const int MaxIdempotencyKeyLength = 128;
 
-    public async Task<GenerationRequestAcceptedResponse> EnqueueAsync(
-        GenerationRequestDto request,
-        string? idempotencyKey,
-        CancellationToken token)
+    public async Task<GenerationRequestAcceptedResponse> Handle(
+        GenerationRequestCommand command,
+        CancellationToken cancellationToken)
     {
-        var normalizedIdempotencyKey = ValidateRequest(request, idempotencyKey);
+        ArgumentNullException.ThrowIfNull(command);
+        ArgumentNullException.ThrowIfNull(command.Request);
+
+        var normalizedIdempotencyKey = ValidateRequest(command.Request, command.IdempotencyKey);
 
         var queuedUtc = DateTime.UtcNow;
         var correlationId = Guid.NewGuid();
@@ -24,16 +27,16 @@ public sealed class GenerationRequestService(IPublishEndpoint publishEndpoint) :
         var message = new FaqGenerationRequestedV1
         {
             CorrelationId = correlationId,
-            FaqId = request.FaqId,
-            TenantId = request.TenantId,
-            RequestedByUserId = request.RequestedByUserId ?? Guid.Empty,
-            Language = request.Language,
-            PromptProfile = request.PromptProfile,
+            FaqId = command.Request.FaqId,
+            TenantId = command.Request.TenantId,
+            RequestedByUserId = command.Request.RequestedByUserId ?? Guid.Empty,
+            Language = command.Request.Language,
+            PromptProfile = command.Request.PromptProfile,
             IdempotencyKey = normalizedIdempotencyKey,
             RequestedUtc = queuedUtc
         };
 
-        await publishEndpoint.Publish(message, token);
+        await publishEndpoint.Publish(message, cancellationToken);
 
         return new GenerationRequestAcceptedResponse(correlationId, queuedUtc);
     }

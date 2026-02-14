@@ -3,7 +3,7 @@ using BaseFaq.AI.Matching.Business.Matching.Abstractions;
 using BaseFaq.Models.Ai.Dtos.Matching;
 using MassTransit;
 
-namespace BaseFaq.AI.Matching.Business.Matching.Service;
+namespace BaseFaq.AI.Matching.Business.Matching.Infrastructure;
 
 public sealed class MatchingRequestPublisher(IPublishEndpoint publishEndpoint) : IMatchingRequestPublisher
 {

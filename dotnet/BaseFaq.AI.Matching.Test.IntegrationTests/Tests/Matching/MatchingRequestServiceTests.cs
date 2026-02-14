@@ -1,80 +1,80 @@
 using BaseFaq.AI.Matching.Business.Matching.Abstractions;
-using BaseFaq.AI.Matching.Business.Matching.Service;
+using BaseFaq.AI.Matching.Business.Matching.Commands.RequestMatching;
 using BaseFaq.Models.Ai.Dtos.Matching;
 using Xunit;
 
 namespace BaseFaq.AI.Matching.Test.IntegrationTests.Tests.Matching;
 
-public class MatchingRequestServiceTests
+public class MatchingRequestCommandHandlerTests
 {
     [Fact]
-    public async Task EnqueueAsync_ThrowsWhenFaqItemIdMissing()
+    public async Task Handle_ThrowsWhenFaqItemIdMissing()
     {
-        var service = new MatchingRequestService(
+        var handler = new MatchingRequestCommandHandler(
             new FakeFaqItemValidationService(),
             new FakeMatchingRequestPublisher());
-        var request = new MatchingRequestDto(
+        var command = new MatchingRequestCommand(new MatchingRequestDto(
             Guid.NewGuid(),
             Guid.Empty,
             "shipping details",
             "en",
             null,
-            null);
+            null), "idem-header-1");
 
         await Assert.ThrowsAsync<ArgumentException>(() =>
-            service.EnqueueAsync(request, "idem-header-1", CancellationToken.None));
+            handler.Handle(command, CancellationToken.None));
     }
 
     [Fact]
-    public async Task EnqueueAsync_ThrowsWhenFaqItemValidationFails()
+    public async Task Handle_ThrowsWhenFaqItemValidationFails()
     {
-        var service = new MatchingRequestService(
+        var handler = new MatchingRequestCommandHandler(
             new FakeFaqItemValidationService(shouldThrow: true),
             new FakeMatchingRequestPublisher());
-        var request = new MatchingRequestDto(
+        var command = new MatchingRequestCommand(new MatchingRequestDto(
             Guid.NewGuid(),
             Guid.NewGuid(),
             "shipping details",
             "en",
             null,
-            null);
+            null), "idem-header-2");
 
         await Assert.ThrowsAsync<ArgumentException>(() =>
-            service.EnqueueAsync(request, "idem-header-2", CancellationToken.None));
+            handler.Handle(command, CancellationToken.None));
     }
 
     [Fact]
-    public async Task EnqueueAsync_ThrowsWhenIdempotencyHeaderMissing()
+    public async Task Handle_ThrowsWhenIdempotencyHeaderMissing()
     {
-        var service = new MatchingRequestService(
+        var handler = new MatchingRequestCommandHandler(
             new FakeFaqItemValidationService(),
             new FakeMatchingRequestPublisher());
-        var request = new MatchingRequestDto(
+        var command = new MatchingRequestCommand(new MatchingRequestDto(
             Guid.NewGuid(),
             Guid.NewGuid(),
             "shipping details",
             "en",
             null,
-            null);
+            null), null);
 
-        await Assert.ThrowsAsync<ArgumentException>(() => service.EnqueueAsync(request, null, CancellationToken.None));
+        await Assert.ThrowsAsync<ArgumentException>(() => handler.Handle(command, CancellationToken.None));
     }
 
     [Fact]
-    public async Task EnqueueAsync_ReturnsAcceptedWhenRequestIsValid()
+    public async Task Handle_ReturnsAcceptedWhenRequestIsValid()
     {
-        var service = new MatchingRequestService(
+        var handler = new MatchingRequestCommandHandler(
             new FakeFaqItemValidationService(),
             new FakeMatchingRequestPublisher());
-        var request = new MatchingRequestDto(
+        var command = new MatchingRequestCommand(new MatchingRequestDto(
             Guid.NewGuid(),
             Guid.NewGuid(),
             "shipping details",
             "en",
             "idem-key-1",
-            Guid.NewGuid());
+            Guid.NewGuid()), "idem-key-1");
 
-        var result = await service.EnqueueAsync(request, "idem-key-1", CancellationToken.None);
+        var result = await handler.Handle(command, CancellationToken.None);
 
         Assert.NotEqual(Guid.Empty, result.CorrelationId);
         Assert.True(result.QueuedUtc <= DateTime.UtcNow);
