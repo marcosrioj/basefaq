@@ -11,10 +11,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="MassTransit.Abstractions" Version="9.0.1"/>
-    </ItemGroup>
-
-    <ItemGroup>
+        <ProjectReference Include="..\BaseFaq.Common.Infrastructure.MassTransit\BaseFaq.Common.Infrastructure.MassTransit.csproj"/>
         <ProjectReference Include="..\BaseFaq.Common.Infrastructure.MediatR\BaseFaq.Common.Infrastructure.MediatR.csproj"/>
         <ProjectReference Include="..\BaseFaq.AI.Common.Contracts\BaseFaq.AI.Common.Contracts.csproj"/>
         <ProjectReference Include="..\BaseFaq.Models.Ai\BaseFaq.Models.Ai.csproj"/>

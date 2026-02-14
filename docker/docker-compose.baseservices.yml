@@ -69,7 +69,7 @@ services:
   rabbitmq-exporter:
     container_name: rabbitmq-exporter
     restart: always
-    image: kbudde/rabbitmq-exporter:v1.0.0-RC19
+    image: kbudde/rabbitmq-exporter:latest
     ports:
       - "9419:9419"
     environment:
