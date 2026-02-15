@@ -369,6 +369,37 @@ dotnet/BaseFaq.AI.Common.Contracts/BaseFaq.AI.Common.Contracts.csproj
   - roll back to last known good version
   - requeue failed jobs when safe
 
+## Delivery Backlog (Tracked)
+Tracking convention:
+- IDs use `AI-MVP-*`, `AI-HARD-*`, and `AI-SCALE-*`.
+- Status values: `Todo`, `In Progress`, `Done`.
+- Source of truth: this section until external board migration is completed.
+
+### MVP backlog
+| ID | Item | Status | Target Artifact |
+|---|---|---|---|
+| `AI-MVP-01` | Generation request/worker happy-path integration test coverage completion | `Done` | `dotnet/BaseFaq.AI.Generation.Test.IntegrationTests` |
+| `AI-MVP-02` | Matching async request/status contract verification suite | `Done` | `dotnet/BaseFaq.AI.Matching.Test.IntegrationTests` |
+| `AI-MVP-03` | FAQ write idempotency validation under duplicate event delivery | `Done` | `dotnet/BaseFaq.AI.Generation.Test.IntegrationTests/Tests/Infrastructure/GenerationFaqWriteIdempotencyTests.cs` |
+
+### Hardening backlog
+| ID | Item | Status | Target Artifact |
+|---|---|---|---|
+| `AI-HARD-01` | Retry policy and DLQ handling validation for worker consumers | `Done` | `dotnet/BaseFaq.AI.Generation.Test.IntegrationTests/Tests/Infrastructure/RetryAndDlqPolicyTests.cs` |
+| `AI-HARD-02` | Secret manager + dual-slot key rotation verification for AI providers | `Done` | `docs/secret-manager-key-rotation.md` |
+| `AI-HARD-03` | Logging redaction and sensitive field masking guardrails | `Done` | `dotnet/BaseFaq.AI.Generation.Test.IntegrationTests/Tests/Infrastructure/LoggingRedactionTests.cs` |
+
+### Scale backlog
+| ID | Item | Status | Target Artifact |
+|---|---|---|---|
+| `AI-SCALE-01` | Worker split for generation/matching workloads and throughput baselines | `Todo` | `dotnet/BaseFaq.AI.Generation.Business.Worker`, `dotnet/BaseFaq.AI.Matching.Business.Worker` |
+| `AI-SCALE-02` | Adaptive concurrency controls with queue-depth feedback | `Todo` | `dotnet/BaseFaq.AI.Generation.Business.Worker` |
+| `AI-SCALE-03` | Provider routing and cost control policy implementation | `Todo` | `dotnet/BaseFaq.AI.Common.Providers` |
+
+Review cadence:
+- Weekly backlog triage in architecture review.
+- Any `Todo` item moving to implementation must be linked in PR description by backlog ID.
+
 ## Final Technical Checklist
 - [x] `BaseFaq.AI` root folder and projects created.
 - [x] `Generation` and `Matching` projects follow existing `Api/Business/Test` conventions.
@@ -388,4 +419,4 @@ dotnet/BaseFaq.AI.Common.Contracts/BaseFaq.AI.Common.Contracts.csproj
 - [x] Secret manager integration and key rotation implemented for Matching process.
 - [x] Logging redaction rules validated (no key leakage).
 - [x] Prompt governance and quality gate process documented.
-- [ ] MVP, hardening, and scale backlog items created and tracked.
+- [x] MVP, hardening, and scale backlog items created and tracked.
