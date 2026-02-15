@@ -341,6 +341,6 @@ dotnet/BaseFaq.AI.Common.Contracts/BaseFaq.AI.Common.Contracts.csproj
 - [x] Monitoring dashboard and alerts configured.
 - [x] Secret manager integration and key rotation implemented for Generation process.
 - [x] Secret manager integration and key rotation implemented for Matching process.
-- [ ] Logging redaction rules validated (no key leakage).
+- [x] Logging redaction rules validated (no key leakage).
 - [ ] Prompt governance and quality gate process documented.
 - [ ] MVP, hardening, and scale backlog items created and tracked.

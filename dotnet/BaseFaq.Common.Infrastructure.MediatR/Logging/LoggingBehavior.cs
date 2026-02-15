@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using MediatR;
 using Microsoft.Extensions.Logging;
 
@@ -7,6 +8,23 @@ namespace BaseFaq.Common.Infrastructure.MediatR.Logging;
 
 public class LoggingBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse> where TRequest : notnull
 {
+    private const string RedactedValue = "[REDACTED]";
+
+    private static readonly string[] SensitiveNameParts =
+    [
+        "apikey",
+        "api_key",
+        "token",
+        "secret",
+        "password",
+        "clientkey",
+        "client_key",
+        "authorization",
+        "connectionstring",
+        "connection_string"
+    ];
+
+    private static readonly JsonSerializerOptions JsonSerializerOptions = new(JsonSerializerDefaults.Web);
     private readonly ILogger<LoggingBehavior<TRequest, TResponse>> _logger;
 
     public LoggingBehavior(ILogger<LoggingBehavior<TRequest, TResponse>> logger)
@@ -24,7 +42,7 @@ public class LoggingBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, 
         var requestNameWithGuid = $"{requestName} [{requestGuid}]";
 
         _logger.LogInformation("===================================================================================");
-        _logger.LogInformation($"[START] Handling {requestNameWithGuid}");
+        _logger.LogInformation("[START] Handling {RequestNameWithGuid}", requestNameWithGuid);
 
         var stopwatch = Stopwatch.StartNew();
         TResponse response;
@@ -34,18 +52,21 @@ public class LoggingBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, 
             try
             {
                 _logger.LogDebug("===================================================================================");
-                _logger.LogDebug($"Handling {requestNameWithGuid} - Parameters: {JsonSerializer.Serialize(request)}");
+                _logger.LogDebug("Handling {RequestNameWithGuid} - Parameters: {RequestPayload}",
+                    requestNameWithGuid,
+                    SerializeWithRedaction(request));
                 _logger.LogDebug("===================================================================================");
             }
             catch (NotSupportedException)
             {
-                _logger.LogWarning($"[Serialization ERROR] {requestNameWithGuid} Could not serialize the request.");
+                _logger.LogWarning("[Serialization ERROR] {RequestNameWithGuid} Could not serialize the request.",
+                    requestNameWithGuid);
             }
             catch (Exception ex)
             {
-                _logger.LogWarning(
-                    $"[Serialization ERROR] {requestNameWithGuid} Could not serialize the request with error: {ex.Message}.",
-                    ex);
+                _logger.LogWarning(ex,
+                    "[Serialization ERROR] {RequestNameWithGuid} Could not serialize the request.",
+                    requestNameWithGuid);
             }
 
 
@@ -55,24 +76,25 @@ public class LoggingBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, 
             try
             {
                 _logger.LogDebug("===================================================================================");
-                _logger.LogDebug($"Handled Response: {JsonSerializer.Serialize(response)}");
+                _logger.LogDebug("Handled Response: {ResponsePayload}", SerializeWithRedaction(response));
                 _logger.LogDebug("===================================================================================");
             }
             catch (NotSupportedException)
             {
-                _logger.LogWarning($"[Serialization ERROR] {requestNameWithGuid} Could not serialize the response.");
+                _logger.LogWarning("[Serialization ERROR] {RequestNameWithGuid} Could not serialize the response.",
+                    requestNameWithGuid);
             }
             catch (Exception ex)
             {
-                _logger.LogWarning(
-                    $"[Serialization ERROR] {requestNameWithGuid} Could not serialize the response with error: {ex.Message}",
-                    ex);
+                _logger.LogWarning(ex,
+                    "[Serialization ERROR] {RequestNameWithGuid} Could not serialize the response.",
+                    requestNameWithGuid);
             }
         }
         catch (Exception ex)
         {
             _logger.LogError("===================================================================================");
-            _logger.LogError(ex, $"Error handling {requestNameWithGuid} - Exception: {ex.Message}");
+            _logger.LogError(ex, "Error handling {RequestNameWithGuid}", requestNameWithGuid);
             _logger.LogError("===================================================================================");
 
 
@@ -81,11 +103,57 @@ public class LoggingBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, 
         finally
         {
             stopwatch.Stop();
-            _logger.LogInformation($"[END] Handled {requestNameWithGuid} in {stopwatch.Elapsed.TotalMilliseconds} ms");
+            _logger.LogInformation("[END] Handled {RequestNameWithGuid} in {ElapsedMilliseconds} ms",
+                requestNameWithGuid,
+                stopwatch.Elapsed.TotalMilliseconds);
             _logger.LogInformation(
                 "===================================================================================");
         }
 
         return response;
+    }
+
+    private static string SerializeWithRedaction<T>(T value)
+    {
+        var jsonNode = JsonSerializer.SerializeToNode(value, JsonSerializerOptions);
+        RedactNode(jsonNode);
+        return jsonNode?.ToJsonString(JsonSerializerOptions) ?? "null";
+    }
+
+    private static void RedactNode(JsonNode? node)
+    {
+        if (node is JsonObject jsonObject)
+        {
+            foreach (var property in jsonObject.ToArray())
+            {
+                if (IsSensitiveProperty(property.Key))
+                {
+                    jsonObject[property.Key] = RedactedValue;
+                    continue;
+                }
+
+                RedactNode(property.Value);
+            }
+
+            return;
+        }
+
+        if (node is JsonArray jsonArray)
+        {
+            foreach (var child in jsonArray)
+            {
+                RedactNode(child);
+            }
+        }
+    }
+
+    private static bool IsSensitiveProperty(string propertyName)
+    {
+        var normalized = propertyName.Replace("-", string.Empty, StringComparison.Ordinal)
+            .Replace("_", string.Empty, StringComparison.Ordinal)
+            .ToLowerInvariant();
+
+        return SensitiveNameParts.Any(part =>
+            normalized.Contains(part.Replace("_", string.Empty, StringComparison.Ordinal), StringComparison.Ordinal));
     }
 }
