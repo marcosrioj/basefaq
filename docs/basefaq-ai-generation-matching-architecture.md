@@ -324,6 +324,51 @@ dotnet/BaseFaq.AI.Common.Contracts/BaseFaq.AI.Common.Contracts.csproj
 | Secret leakage | Security incident | Secret manager, strict redaction, no secrets in source config |
 | Queue backlog growth | SLA degradation | Queue depth alerts, scaling workers, backpressure controls |
 
+## Prompt Governance and Quality Gate Process
+### Governance model
+- Prompt definitions are managed as code in versioned files under source control.
+- Every prompt change requires a pull request with:
+  - owner, rationale, and expected behavior delta
+  - rollback plan to previous prompt version
+  - linked evaluation run (offline or staging)
+- Prompts are immutable by version ID after publish; new changes create a new version.
+- Runtime requests persist prompt metadata in `bf_ai_db` (`PromptProfile`, prompt version, model ID, and correlation ID) for auditability.
+
+### Quality gate stages
+1. `Draft`
+- Prompt authored and locally validated for syntax/template variable coverage.
+2. `Review`
+- At least one engineer reviewer and one product/content reviewer approve semantics and policy alignment.
+3. `Evaluation`
+- Run regression dataset checks against baseline prompt/model pair.
+- Minimum pass criteria:
+  - no policy/safety violations
+  - factuality and instruction-following score at or above baseline threshold
+  - no regressions on blocked test scenarios
+4. `Staging`
+- Deploy behind a feature flag with limited tenant or percentage rollout.
+- Validate operational SLOs (latency, failure rate, token cost budget).
+5. `Publish`
+- Promote prompt version to active for production traffic.
+- Keep previous stable version available for immediate rollback.
+
+### Runtime enforcement
+- Generation/Matching workers resolve prompts by explicit `PromptProfile` + version mapping.
+- If prompt profile/version is missing or disabled, fail fast and publish failure callback event.
+- High-risk outputs are marked `RequiresHumanReview` and cannot auto-publish to FAQ DB.
+- Automated quality checks run before FAQ integration writes:
+  - schema/format validation
+  - banned-content and policy filters
+  - confidence/quality rubric threshold
+
+### Audit and operations
+- Required telemetry dimensions: `PromptProfile`, `PromptVersion`, `Model`, `Tenant`, `JobId`, `CorrelationId`.
+- Dashboards track quality score drift, human-review rate, rollback events, and publish failure causes.
+- Incident response runbook:
+  - disable active prompt version flag
+  - roll back to last known good version
+  - requeue failed jobs when safe
+
 ## Final Technical Checklist
 - [x] `BaseFaq.AI` root folder and projects created.
 - [x] `Generation` and `Matching` projects follow existing `Api/Business/Test` conventions.
@@ -342,5 +387,5 @@ dotnet/BaseFaq.AI.Common.Contracts/BaseFaq.AI.Common.Contracts.csproj
 - [x] Secret manager integration and key rotation implemented for Generation process.
 - [x] Secret manager integration and key rotation implemented for Matching process.
 - [x] Logging redaction rules validated (no key leakage).
-- [ ] Prompt governance and quality gate process documented.
+- [x] Prompt governance and quality gate process documented.
 - [ ] MVP, hardening, and scale backlog items created and tracked.
