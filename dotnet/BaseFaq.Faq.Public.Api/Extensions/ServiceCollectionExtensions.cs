@@ -15,6 +15,6 @@ public static class ServiceCollectionExtensions
         services.AddFaqItemBusiness();
         services.AddVoteBusiness();
         services.AddMatchingBusiness();
-        //services.AddEventsFeature();
+        services.AddEventsFeature(configuration);
     }
 }
