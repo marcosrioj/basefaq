@@ -1,8 +1,8 @@
+using System.Net;
 using BaseFaq.Common.Infrastructure.ApiErrorHandling.Exception;
 using BaseFaq.Models.Common.Dtos;
 using BaseFaq.Models.Faq.Dtos.Vote;
 using MediatR;
-using System.Net;
 using BaseFaq.Faq.Portal.Business.Vote.Abstractions;
 using BaseFaq.Faq.Portal.Business.Vote.Commands.CreateVote;
 using BaseFaq.Faq.Portal.Business.Vote.Commands.DeleteVote;
@@ -14,7 +14,7 @@ namespace BaseFaq.Faq.Portal.Business.Vote.Service;
 
 public class VoteService(IMediator mediator) : IVoteService
 {
-    public async Task<VoteDto> Create(VoteCreateRequestDto requestDto, CancellationToken token)
+    public async Task<Guid> Create(VoteCreateRequestDto requestDto, CancellationToken token)
     {
         ArgumentNullException.ThrowIfNull(requestDto);
 
@@ -25,17 +25,7 @@ public class VoteService(IMediator mediator) : IVoteService
             FaqItemId = requestDto.FaqItemId
         };
 
-        var id = await mediator.Send(command, token);
-
-        var result = await mediator.Send(new VotesGetVoteQuery { Id = id }, token);
-        if (result is null)
-        {
-            throw new ApiErrorException(
-                $"Created vote '{id}' was not found.",
-                errorCode: (int)HttpStatusCode.InternalServerError);
-        }
-
-        return result;
+        return await mediator.Send(command, token);
     }
 
     public Task<PagedResultDto<VoteDto>> GetAll(VoteGetAllRequestDto requestDto, CancellationToken token)
@@ -63,7 +53,7 @@ public class VoteService(IMediator mediator) : IVoteService
         return result;
     }
 
-    public async Task<VoteDto> Update(Guid id, VoteUpdateRequestDto requestDto, CancellationToken token)
+    public async Task<Guid> Update(Guid id, VoteUpdateRequestDto requestDto, CancellationToken token)
     {
         ArgumentNullException.ThrowIfNull(requestDto);
 
@@ -76,7 +66,6 @@ public class VoteService(IMediator mediator) : IVoteService
         };
 
         await mediator.Send(command, token);
-
-        return await GetById(id, token);
+        return id;
     }
 }

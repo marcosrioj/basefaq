@@ -1,8 +1,8 @@
+using System.Net;
 using BaseFaq.Common.Infrastructure.ApiErrorHandling.Exception;
 using BaseFaq.Models.Common.Dtos;
 using BaseFaq.Models.Faq.Dtos.Tag;
 using MediatR;
-using System.Net;
 using BaseFaq.Faq.Portal.Business.Tag.Abstractions;
 using BaseFaq.Faq.Portal.Business.Tag.Commands.CreateTag;
 using BaseFaq.Faq.Portal.Business.Tag.Commands.DeleteTag;
@@ -14,7 +14,7 @@ namespace BaseFaq.Faq.Portal.Business.Tag.Service;
 
 public class TagService(IMediator mediator) : ITagService
 {
-    public async Task<TagDto> Create(TagCreateRequestDto requestDto, CancellationToken token)
+    public async Task<Guid> Create(TagCreateRequestDto requestDto, CancellationToken token)
     {
         ArgumentNullException.ThrowIfNull(requestDto);
 
@@ -23,17 +23,7 @@ public class TagService(IMediator mediator) : ITagService
             Value = requestDto.Value
         };
 
-        var id = await mediator.Send(command, token);
-
-        var result = await mediator.Send(new TagsGetTagQuery { Id = id }, token);
-        if (result is null)
-        {
-            throw new ApiErrorException(
-                $"Created tag '{id}' was not found.",
-                errorCode: (int)HttpStatusCode.InternalServerError);
-        }
-
-        return result;
+        return await mediator.Send(command, token);
     }
 
     public Task<PagedResultDto<TagDto>> GetAll(TagGetAllRequestDto requestDto, CancellationToken token)
@@ -61,7 +51,7 @@ public class TagService(IMediator mediator) : ITagService
         return result;
     }
 
-    public async Task<TagDto> Update(Guid id, TagUpdateRequestDto requestDto, CancellationToken token)
+    public async Task<Guid> Update(Guid id, TagUpdateRequestDto requestDto, CancellationToken token)
     {
         ArgumentNullException.ThrowIfNull(requestDto);
 
@@ -72,7 +62,6 @@ public class TagService(IMediator mediator) : ITagService
         };
 
         await mediator.Send(command, token);
-
-        return await GetById(id, token);
+        return id;
     }
 }

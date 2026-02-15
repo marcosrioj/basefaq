@@ -21,7 +21,7 @@ public class GenerationController(
     }
 
     [HttpPost("requests")]
-    [ProducesResponseType(typeof(GenerationRequestAcceptedResponse), StatusCodes.Status202Accepted)]
+    [ProducesResponseType(typeof(Guid), StatusCodes.Status202Accepted)]
     public async Task<IActionResult> RequestGeneration(
         [FromBody] GenerationRequestDto request,
         [FromHeader(Name = "Idempotency-Key")] string? idempotencyKey,

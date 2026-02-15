@@ -5,4 +5,4 @@ namespace BaseFaq.AI.Generation.Business.Generation.Commands.RequestGeneration;
 
 public sealed record GenerationRequestCommand(
     GenerationRequestDto Request,
-    string? IdempotencyKey) : IRequest<GenerationRequestAcceptedResponse>;
+    string? IdempotencyKey) : IRequest<Guid>;

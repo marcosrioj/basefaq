@@ -1,10 +1,10 @@
+using System.Net;
 using BaseFaq.Common.Infrastructure.Core.Abstractions;
 using BaseFaq.Models.Common.Enums;
 using BaseFaq.Models.Common.Dtos;
 using BaseFaq.Models.User.Dtos.User;
 using BaseFaq.Common.Infrastructure.ApiErrorHandling.Exception;
 using MediatR;
-using System.Net;
 using BaseFaq.Tenant.BackOffice.Business.User.Abstractions;
 using BaseFaq.Tenant.BackOffice.Business.User.Commands.CreateUser;
 using BaseFaq.Tenant.BackOffice.Business.User.Commands.DeleteUser;
@@ -16,7 +16,7 @@ namespace BaseFaq.Tenant.BackOffice.Business.User.Service;
 
 public class UserService(IMediator mediator) : IUserService
 {
-    public async Task<UserDto> Create(UserCreateRequestDto requestDto, CancellationToken token)
+    public async Task<Guid> Create(UserCreateRequestDto requestDto, CancellationToken token)
     {
         ArgumentNullException.ThrowIfNull(requestDto);
 
@@ -30,17 +30,7 @@ public class UserService(IMediator mediator) : IUserService
             Role = requestDto.Role
         };
 
-        var id = await mediator.Send(command, token);
-
-        var result = await mediator.Send(new UsersGetUserQuery { Id = id }, token);
-        if (result is null)
-        {
-            throw new ApiErrorException(
-                $"Created user '{id}' was not found.",
-                errorCode: (int)HttpStatusCode.InternalServerError);
-        }
-
-        return result;
+        return await mediator.Send(command, token);
     }
 
     public Task<PagedResultDto<UserDto>> GetAll(UserGetAllRequestDto requestDto, CancellationToken token)
@@ -68,7 +58,7 @@ public class UserService(IMediator mediator) : IUserService
         return result;
     }
 
-    public async Task<UserDto> Update(Guid id, UserUpdateRequestDto requestDto, CancellationToken token)
+    public async Task<Guid> Update(Guid id, UserUpdateRequestDto requestDto, CancellationToken token)
     {
         ArgumentNullException.ThrowIfNull(requestDto);
 
@@ -84,7 +74,6 @@ public class UserService(IMediator mediator) : IUserService
         };
 
         await mediator.Send(command, token);
-
-        return await GetById(id, token);
+        return id;
     }
 }

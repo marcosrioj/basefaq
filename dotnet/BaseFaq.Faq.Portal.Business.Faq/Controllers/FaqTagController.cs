@@ -29,16 +29,15 @@ public class FaqTagController(IFaqTagService faqTagService) : ControllerBase
     }
 
     [HttpPost]
-    [ProducesResponseType(typeof(FaqTagDto), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(Guid), StatusCodes.Status201Created)]
     public async Task<IActionResult> Create([FromBody] FaqTagCreateRequestDto dto, CancellationToken token)
     {
         var result = await faqTagService.Create(dto, token);
-
-        return CreatedAtAction(nameof(GetById), new { id = result.Id }, result);
+        return StatusCode(StatusCodes.Status201Created, result);
     }
 
     [HttpPut("{id:guid}")]
-    [ProducesResponseType(typeof(FaqTagDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(Guid), StatusCodes.Status200OK)]
     public async Task<IActionResult> Update(Guid id, [FromBody] FaqTagUpdateRequestDto dto, CancellationToken token)
     {
         var result = await faqTagService.Update(id, dto, token);

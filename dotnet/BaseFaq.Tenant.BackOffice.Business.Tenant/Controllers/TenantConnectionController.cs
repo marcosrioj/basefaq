@@ -30,17 +30,16 @@ public class TenantConnectionController(ITenantConnectionService tenantConnectio
     }
 
     [HttpPost]
-    [ProducesResponseType(typeof(TenantConnectionDto), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(Guid), StatusCodes.Status201Created)]
     public async Task<IActionResult> Create([FromBody] TenantConnectionCreateRequestDto dto,
         CancellationToken token)
     {
         var result = await tenantConnectionService.Create(dto, token);
-
-        return CreatedAtAction(nameof(GetById), new { id = result.Id }, result);
+        return StatusCode(StatusCodes.Status201Created, result);
     }
 
     [HttpPut("{id:guid}")]
-    [ProducesResponseType(typeof(TenantConnectionDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(Guid), StatusCodes.Status200OK)]
     public async Task<IActionResult> Update(Guid id, [FromBody] TenantConnectionUpdateRequestDto dto,
         CancellationToken token)
     {

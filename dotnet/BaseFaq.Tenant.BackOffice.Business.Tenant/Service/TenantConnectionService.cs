@@ -1,8 +1,8 @@
+using System.Net;
 using BaseFaq.Models.Common.Dtos;
 using BaseFaq.Models.Tenant.Dtos.TenantConnection;
 using BaseFaq.Common.Infrastructure.ApiErrorHandling.Exception;
 using MediatR;
-using System.Net;
 using BaseFaq.Tenant.BackOffice.Business.Tenant.Abstractions;
 using BaseFaq.Tenant.BackOffice.Business.Tenant.Commands.CreateTenantConnection;
 using BaseFaq.Tenant.BackOffice.Business.Tenant.Commands.DeleteTenantConnection;
@@ -14,7 +14,7 @@ namespace BaseFaq.Tenant.BackOffice.Business.Tenant.Service;
 
 public class TenantConnectionService(IMediator mediator) : ITenantConnectionService
 {
-    public async Task<TenantConnectionDto> Create(TenantConnectionCreateRequestDto requestDto, CancellationToken token)
+    public async Task<Guid> Create(TenantConnectionCreateRequestDto requestDto, CancellationToken token)
     {
         ArgumentNullException.ThrowIfNull(requestDto);
 
@@ -25,17 +25,7 @@ public class TenantConnectionService(IMediator mediator) : ITenantConnectionServ
             IsCurrent = requestDto.IsCurrent
         };
 
-        var id = await mediator.Send(command, token);
-
-        var result = await mediator.Send(new TenantConnectionsGetTenantConnectionQuery { Id = id }, token);
-        if (result is null)
-        {
-            throw new ApiErrorException(
-                $"Created tenant connection '{id}' was not found.",
-                errorCode: (int)HttpStatusCode.InternalServerError);
-        }
-
-        return result;
+        return await mediator.Send(command, token);
     }
 
     public Task<PagedResultDto<TenantConnectionDto>> GetAll(TenantConnectionGetAllRequestDto requestDto,
@@ -64,7 +54,7 @@ public class TenantConnectionService(IMediator mediator) : ITenantConnectionServ
         return result;
     }
 
-    public async Task<TenantConnectionDto> Update(Guid id, TenantConnectionUpdateRequestDto requestDto,
+    public async Task<Guid> Update(Guid id, TenantConnectionUpdateRequestDto requestDto,
         CancellationToken token)
     {
         ArgumentNullException.ThrowIfNull(requestDto);
@@ -78,7 +68,6 @@ public class TenantConnectionService(IMediator mediator) : ITenantConnectionServ
         };
 
         await mediator.Send(command, token);
-
-        return await GetById(id, token);
+        return id;
     }
 }

@@ -29,16 +29,15 @@ public class ContentRefController(IContentRefService contentRefService) : Contro
     }
 
     [HttpPost]
-    [ProducesResponseType(typeof(ContentRefDto), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(Guid), StatusCodes.Status201Created)]
     public async Task<IActionResult> Create([FromBody] ContentRefCreateRequestDto dto, CancellationToken token)
     {
         var result = await contentRefService.Create(dto, token);
-
-        return CreatedAtAction(nameof(GetById), new { id = result.Id }, result);
+        return StatusCode(StatusCodes.Status201Created, result);
     }
 
     [HttpPut("{id:guid}")]
-    [ProducesResponseType(typeof(ContentRefDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(Guid), StatusCodes.Status200OK)]
     public async Task<IActionResult> Update(Guid id, [FromBody] ContentRefUpdateRequestDto dto, CancellationToken token)
     {
         var result = await contentRefService.Update(id, dto, token);

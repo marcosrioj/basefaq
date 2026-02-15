@@ -7,13 +7,13 @@ namespace BaseFaq.AI.Matching.Business.Matching.Commands.RequestMatching;
 public sealed class MatchingRequestCommandHandler(
     IMatchingFaqItemValidationService faqItemValidationService,
     IMatchingRequestPublisher matchingRequestPublisher)
-    : IRequestHandler<MatchingRequestCommand, MatchingRequestAcceptedResponse>
+    : IRequestHandler<MatchingRequestCommand, Guid>
 {
     private const int MaxQueryLength = 2000;
     private const int MaxLanguageLength = 16;
     private const int MaxIdempotencyKeyLength = 128;
 
-    public async Task<MatchingRequestAcceptedResponse> Handle(
+    public async Task<Guid> Handle(
         MatchingRequestCommand command,
         CancellationToken cancellationToken)
     {
@@ -33,7 +33,7 @@ public sealed class MatchingRequestCommandHandler(
             queuedUtc,
             cancellationToken);
 
-        return new MatchingRequestAcceptedResponse(correlationId, queuedUtc);
+        return correlationId;
     }
 
     private static string ValidateRequest(MatchingRequestDto request, string? idempotencyKey)

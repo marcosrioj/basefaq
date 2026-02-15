@@ -5,6 +5,6 @@ namespace BaseFaq.Faq.Public.Business.FaqItem.Abstractions;
 
 public interface IFaqItemService
 {
-    Task<FaqItemDto> Create(FaqItemCreateRequestDto requestDto, CancellationToken token);
+    Task<Guid> Create(FaqItemCreateRequestDto requestDto, CancellationToken token);
     Task<PagedResultDto<FaqItemDto>> Search(FaqItemSearchRequestDto requestDto, CancellationToken token);
 }

@@ -44,7 +44,7 @@ public class FaqItemController(IMediator mediator) : ControllerBase
     }
 
     [HttpPost]
-    [ProducesResponseType(typeof(FaqItemDto), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(Guid), StatusCodes.Status201Created)]
     public async Task<IActionResult> Create([FromBody] FaqItemCreateRequestDto dto, CancellationToken token)
     {
         ArgumentNullException.ThrowIfNull(dto);
@@ -65,19 +65,11 @@ public class FaqItemController(IMediator mediator) : ControllerBase
             ContentRefId = dto.ContentRefId
         }, token);
 
-        var result = await mediator.Send(new FaqItemsGetFaqItemQuery { Id = id }, token);
-        if (result is null)
-        {
-            throw new ApiErrorException(
-                $"Created FAQ item '{id}' was not found.",
-                errorCode: (int)HttpStatusCode.InternalServerError);
-        }
-
-        return CreatedAtAction(nameof(GetById), new { id = result.Id }, result);
+        return StatusCode(StatusCodes.Status201Created, id);
     }
 
     [HttpPut("{id:guid}")]
-    [ProducesResponseType(typeof(FaqItemDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(Guid), StatusCodes.Status200OK)]
     public async Task<IActionResult> Update(Guid id, [FromBody] FaqItemUpdateRequestDto dto, CancellationToken token)
     {
         ArgumentNullException.ThrowIfNull(dto);
@@ -99,15 +91,7 @@ public class FaqItemController(IMediator mediator) : ControllerBase
             ContentRefId = dto.ContentRefId
         }, token);
 
-        var result = await mediator.Send(new FaqItemsGetFaqItemQuery { Id = id }, token);
-        if (result is null)
-        {
-            throw new ApiErrorException(
-                $"FAQ item '{id}' was not found.",
-                errorCode: (int)HttpStatusCode.NotFound);
-        }
-
-        return Ok(result);
+        return Ok(id);
     }
 
     [HttpDelete("{id:guid}")]

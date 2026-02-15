@@ -13,11 +13,10 @@ namespace BaseFaq.Faq.Public.Business.FaqItem.Controllers;
 public class FaqItemController(IFaqItemService faqItemService) : ControllerBase
 {
     [HttpPost]
-    [ProducesResponseType(typeof(FaqItemDto), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(Guid), StatusCodes.Status201Created)]
     public async Task<IActionResult> Create([FromBody] FaqItemCreateRequestDto dto, CancellationToken token)
     {
         var result = await faqItemService.Create(dto, token);
-
         return StatusCode(StatusCodes.Status201Created, result);
     }
 

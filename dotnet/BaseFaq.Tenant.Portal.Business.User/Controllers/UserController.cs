@@ -20,10 +20,10 @@ public class UserController(IUserProfileService userProfileService) : Controller
     }
 
     [HttpPut("UserProfile")]
-    [ProducesResponseType(typeof(UserProfileDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
     public async Task<IActionResult> UserProfile([FromBody] UserProfileUpdateRequestDto dto, CancellationToken token)
     {
-        var result = await userProfileService.UpdateUserProfile(dto, token);
-        return Ok(result);
+        await userProfileService.UpdateUserProfile(dto, token);
+        return Ok(true);
     }
 }

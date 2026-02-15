@@ -29,16 +29,15 @@ public class TagController(ITagService tagService) : ControllerBase
     }
 
     [HttpPost]
-    [ProducesResponseType(typeof(TagDto), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(Guid), StatusCodes.Status201Created)]
     public async Task<IActionResult> Create([FromBody] TagCreateRequestDto dto, CancellationToken token)
     {
         var result = await tagService.Create(dto, token);
-
-        return CreatedAtAction(nameof(GetById), new { id = result.Id }, result);
+        return StatusCode(StatusCodes.Status201Created, result);
     }
 
     [HttpPut("{id:guid}")]
-    [ProducesResponseType(typeof(TagDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(Guid), StatusCodes.Status200OK)]
     public async Task<IActionResult> Update(Guid id, [FromBody] TagUpdateRequestDto dto, CancellationToken token)
     {
         var result = await tagService.Update(id, dto, token);

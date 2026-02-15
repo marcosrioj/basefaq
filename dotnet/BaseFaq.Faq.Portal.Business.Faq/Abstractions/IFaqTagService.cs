@@ -5,9 +5,9 @@ namespace BaseFaq.Faq.Portal.Business.Faq.Abstractions;
 
 public interface IFaqTagService
 {
-    Task<FaqTagDto> Create(FaqTagCreateRequestDto dto, CancellationToken token);
+    Task<Guid> Create(FaqTagCreateRequestDto dto, CancellationToken token);
     Task Delete(Guid id, CancellationToken token);
     Task<PagedResultDto<FaqTagDto>> GetAll(FaqTagGetAllRequestDto requestDto, CancellationToken token);
     Task<FaqTagDto> GetById(Guid id, CancellationToken token);
-    Task<FaqTagDto> Update(Guid id, FaqTagUpdateRequestDto dto, CancellationToken token);
+    Task<Guid> Update(Guid id, FaqTagUpdateRequestDto dto, CancellationToken token);
 }

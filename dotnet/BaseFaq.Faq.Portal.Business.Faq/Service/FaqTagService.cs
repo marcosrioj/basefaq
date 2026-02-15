@@ -1,8 +1,8 @@
+using System.Net;
 using BaseFaq.Common.Infrastructure.ApiErrorHandling.Exception;
 using BaseFaq.Models.Common.Dtos;
 using BaseFaq.Models.Faq.Dtos.FaqTag;
 using MediatR;
-using System.Net;
 using BaseFaq.Faq.Portal.Business.Faq.Abstractions;
 using BaseFaq.Faq.Portal.Business.Faq.Commands.CreateFaqTag;
 using BaseFaq.Faq.Portal.Business.Faq.Commands.DeleteFaqTag;
@@ -14,7 +14,7 @@ namespace BaseFaq.Faq.Portal.Business.Faq.Service;
 
 public class FaqTagService(IMediator mediator) : IFaqTagService
 {
-    public async Task<FaqTagDto> Create(FaqTagCreateRequestDto requestDto, CancellationToken token)
+    public async Task<Guid> Create(FaqTagCreateRequestDto requestDto, CancellationToken token)
     {
         ArgumentNullException.ThrowIfNull(requestDto);
 
@@ -24,17 +24,7 @@ public class FaqTagService(IMediator mediator) : IFaqTagService
             TagId = requestDto.TagId
         };
 
-        var id = await mediator.Send(command, token);
-
-        var result = await mediator.Send(new FaqTagsGetFaqTagQuery { Id = id }, token);
-        if (result is null)
-        {
-            throw new ApiErrorException(
-                $"Created FAQ tag '{id}' was not found.",
-                errorCode: (int)HttpStatusCode.InternalServerError);
-        }
-
-        return result;
+        return await mediator.Send(command, token);
     }
 
     public Task<PagedResultDto<FaqTagDto>> GetAll(FaqTagGetAllRequestDto requestDto, CancellationToken token)
@@ -62,7 +52,7 @@ public class FaqTagService(IMediator mediator) : IFaqTagService
         return result;
     }
 
-    public async Task<FaqTagDto> Update(Guid id, FaqTagUpdateRequestDto requestDto, CancellationToken token)
+    public async Task<Guid> Update(Guid id, FaqTagUpdateRequestDto requestDto, CancellationToken token)
     {
         ArgumentNullException.ThrowIfNull(requestDto);
 
@@ -74,7 +64,6 @@ public class FaqTagService(IMediator mediator) : IFaqTagService
         };
 
         await mediator.Send(command, token);
-
-        return await GetById(id, token);
+        return id;
     }
 }

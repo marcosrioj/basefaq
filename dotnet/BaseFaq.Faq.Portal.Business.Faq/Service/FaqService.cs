@@ -1,14 +1,13 @@
+using System.Net;
 using BaseFaq.Common.Infrastructure.ApiErrorHandling.Exception;
 using BaseFaq.Models.Common.Dtos;
 using BaseFaq.Models.Faq.Dtos.Faq;
 using MediatR;
-using System.Net;
 using BaseFaq.Faq.Portal.Business.Faq.Abstractions;
 using BaseFaq.Faq.Portal.Business.Faq.Commands.CreateFaq;
 using BaseFaq.Faq.Portal.Business.Faq.Commands.DeleteFaq;
 using BaseFaq.Faq.Portal.Business.Faq.Commands.RequestGeneration;
 using BaseFaq.Faq.Portal.Business.Faq.Commands.UpdateFaq;
-using BaseFaq.Faq.Portal.Business.Faq.Dtos;
 using BaseFaq.Faq.Portal.Business.Faq.Queries.GetFaq;
 using BaseFaq.Faq.Portal.Business.Faq.Queries.GetFaqList;
 
@@ -16,7 +15,7 @@ namespace BaseFaq.Faq.Portal.Business.Faq.Service;
 
 public class FaqService(IMediator mediator) : IFaqService
 {
-    public async Task<FaqDto> Create(FaqCreateRequestDto requestDto, CancellationToken token)
+    public async Task<Guid> Create(FaqCreateRequestDto requestDto, CancellationToken token)
     {
         ArgumentNullException.ThrowIfNull(requestDto);
 
@@ -30,17 +29,7 @@ public class FaqService(IMediator mediator) : IFaqService
             CtaTarget = requestDto.CtaTarget
         };
 
-        var id = await mediator.Send(command, token);
-
-        var result = await mediator.Send(new FaqsGetFaqQuery { Id = id }, token);
-        if (result is null)
-        {
-            throw new ApiErrorException(
-                $"Created FAQ '{id}' was not found.",
-                errorCode: (int)HttpStatusCode.InternalServerError);
-        }
-
-        return result;
+        return await mediator.Send(command, token);
     }
 
     public Task<PagedResultDto<FaqDto>> GetAll(FaqGetAllRequestDto requestDto, CancellationToken token)
@@ -55,7 +44,7 @@ public class FaqService(IMediator mediator) : IFaqService
         return mediator.Send(new FaqsDeleteFaqCommand { Id = id }, token);
     }
 
-    public async Task<FaqGenerationRequestAcceptedDto> RequestGeneration(Guid faqId, CancellationToken token)
+    public async Task<Guid> RequestGeneration(Guid faqId, CancellationToken token)
     {
         return await mediator.Send(new FaqsRequestGenerationCommand { FaqId = faqId }, token);
     }
@@ -73,7 +62,7 @@ public class FaqService(IMediator mediator) : IFaqService
         return result;
     }
 
-    public async Task<FaqDto> Update(Guid id, FaqUpdateRequestDto requestDto, CancellationToken token)
+    public async Task<Guid> Update(Guid id, FaqUpdateRequestDto requestDto, CancellationToken token)
     {
         ArgumentNullException.ThrowIfNull(requestDto);
 
@@ -89,7 +78,6 @@ public class FaqService(IMediator mediator) : IFaqService
         };
 
         await mediator.Send(command, token);
-
-        return await GetById(id, token);
+        return id;
     }
 }

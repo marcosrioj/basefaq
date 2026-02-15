@@ -4,5 +4,5 @@ namespace BaseFaq.Faq.Public.Business.Vote.Abstractions;
 
 public interface IVoteService
 {
-    Task<VoteDto> Vote(VoteCreateRequestDto requestDto, CancellationToken token);
+    Task<Guid> Vote(VoteCreateRequestDto requestDto, CancellationToken token);
 }

@@ -15,7 +15,7 @@ public class TenantService(IMediator mediator) : ITenantService
         return mediator.Send(new TenantsGetAllTenantsQuery(), token);
     }
 
-    public Task<List<TenantSummaryDto>> CreateOrUpdate(TenantCreateOrUpdateRequestDto requestDto,
+    public Task<bool> CreateOrUpdate(TenantCreateOrUpdateRequestDto requestDto,
         CancellationToken token)
     {
         ArgumentNullException.ThrowIfNull(requestDto);

@@ -1,18 +1,15 @@
-using BaseFaq.Common.Infrastructure.ApiErrorHandling.Exception;
 using BaseFaq.Faq.Public.Business.FaqItem.Abstractions;
 using BaseFaq.Faq.Public.Business.FaqItem.Commands.CreateFaqItem;
-using BaseFaq.Faq.Public.Business.FaqItem.Queries.GetFaqItem;
 using BaseFaq.Faq.Public.Business.FaqItem.Queries.SearchFaqItem;
 using BaseFaq.Models.Common.Dtos;
 using BaseFaq.Models.Faq.Dtos.FaqItem;
 using MediatR;
-using System.Net;
 
 namespace BaseFaq.Faq.Public.Business.FaqItem.Service;
 
 public class FaqItemService(IMediator mediator) : IFaqItemService
 {
-    public async Task<FaqItemDto> Create(FaqItemCreateRequestDto requestDto, CancellationToken token)
+    public async Task<Guid> Create(FaqItemCreateRequestDto requestDto, CancellationToken token)
     {
         ArgumentNullException.ThrowIfNull(requestDto);
 
@@ -32,16 +29,7 @@ public class FaqItemService(IMediator mediator) : IFaqItemService
             ContentRefId = requestDto.ContentRefId
         };
 
-        var id = await mediator.Send(command, token);
-        var result = await mediator.Send(new FaqItemsGetFaqItemQuery { Id = id }, token);
-        if (result is null)
-        {
-            throw new ApiErrorException(
-                $"Created FAQ item '{id}' was not found.",
-                errorCode: (int)HttpStatusCode.InternalServerError);
-        }
-
-        return result;
+        return await mediator.Send(command, token);
     }
 
     public Task<PagedResultDto<FaqItemDto>> Search(FaqItemSearchRequestDto requestDto, CancellationToken token)

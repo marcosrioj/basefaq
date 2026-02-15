@@ -62,7 +62,7 @@ public class TenantCommandQueryTests
 
         var result = await handler.Handle(request, CancellationToken.None);
 
-        Assert.Single(result);
+        Assert.True(result);
         var tenant = await context.DbContext.Tenants.FirstOrDefaultAsync(item => item.UserId == currentUserId);
         Assert.NotNull(tenant);
         Assert.Equal("Portal Tenant", tenant!.Name);
@@ -105,7 +105,7 @@ public class TenantCommandQueryTests
 
         var result = await handler.Handle(request, CancellationToken.None);
 
-        Assert.Single(result);
+        Assert.True(result);
         var updated = await context.DbContext.Tenants.FindAsync(existing.Id);
         Assert.NotNull(updated);
         Assert.Equal(existing.Id, updated!.Id);
@@ -138,7 +138,7 @@ public class TenantCommandQueryTests
 
         var result = await handler.Handle(request, CancellationToken.None);
 
-        Assert.Empty(result);
+        Assert.True(result);
         var tenantCount = await context.DbContext.Tenants.CountAsync(item => item.UserId == currentUserId);
         Assert.Equal(0, tenantCount);
     }

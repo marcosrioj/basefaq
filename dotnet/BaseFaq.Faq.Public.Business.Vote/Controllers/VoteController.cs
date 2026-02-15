@@ -12,11 +12,10 @@ namespace BaseFaq.Faq.Public.Business.Vote.Controllers;
 public class VoteController(IVoteService voteService) : ControllerBase
 {
     [HttpPost]
-    [ProducesResponseType(typeof(VoteDto), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(Guid), StatusCodes.Status201Created)]
     public async Task<IActionResult> Vote([FromBody] VoteCreateRequestDto dto, CancellationToken token)
     {
         var result = await voteService.Vote(dto, token);
-
         return StatusCode(StatusCodes.Status201Created, result);
     }
 }

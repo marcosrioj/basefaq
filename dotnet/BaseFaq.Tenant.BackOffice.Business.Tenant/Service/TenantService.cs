@@ -1,8 +1,8 @@
+using System.Net;
 using BaseFaq.Models.Common.Dtos;
 using BaseFaq.Models.Tenant.Dtos.Tenant;
 using BaseFaq.Common.Infrastructure.ApiErrorHandling.Exception;
 using MediatR;
-using System.Net;
 using BaseFaq.Tenant.BackOffice.Business.Tenant.Abstractions;
 using BaseFaq.Tenant.BackOffice.Business.Tenant.Commands.CreateTenant;
 using BaseFaq.Tenant.BackOffice.Business.Tenant.Commands.DeleteTenant;
@@ -14,7 +14,7 @@ namespace BaseFaq.Tenant.BackOffice.Business.Tenant.Service;
 
 public class TenantService(IMediator mediator) : ITenantService
 {
-    public async Task<TenantDto> Create(TenantCreateRequestDto requestDto, CancellationToken token)
+    public async Task<Guid> Create(TenantCreateRequestDto requestDto, CancellationToken token)
     {
         ArgumentNullException.ThrowIfNull(requestDto);
 
@@ -29,17 +29,7 @@ public class TenantService(IMediator mediator) : ITenantService
             UserId = requestDto.UserId
         };
 
-        var id = await mediator.Send(command, token);
-
-        var result = await mediator.Send(new TenantsGetTenantQuery { Id = id }, token);
-        if (result is null)
-        {
-            throw new ApiErrorException(
-                $"Created tenant '{id}' was not found.",
-                errorCode: (int)HttpStatusCode.InternalServerError);
-        }
-
-        return result;
+        return await mediator.Send(command, token);
     }
 
     public Task<PagedResultDto<TenantDto>> GetAll(TenantGetAllRequestDto requestDto, CancellationToken token)
@@ -67,7 +57,7 @@ public class TenantService(IMediator mediator) : ITenantService
         return result;
     }
 
-    public async Task<TenantDto> Update(Guid id, TenantUpdateRequestDto requestDto, CancellationToken token)
+    public async Task<Guid> Update(Guid id, TenantUpdateRequestDto requestDto, CancellationToken token)
     {
         ArgumentNullException.ThrowIfNull(requestDto);
 
@@ -83,7 +73,6 @@ public class TenantService(IMediator mediator) : ITenantService
         };
 
         await mediator.Send(command, token);
-
-        return await GetById(id, token);
+        return id;
     }
 }

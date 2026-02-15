@@ -5,4 +5,4 @@ namespace BaseFaq.AI.Matching.Business.Matching.Commands.RequestMatching;
 
 public sealed record MatchingRequestCommand(
     MatchingRequestDto Request,
-    string? IdempotencyKey) : IRequest<MatchingRequestAcceptedResponse>;
+    string? IdempotencyKey) : IRequest<Guid>;

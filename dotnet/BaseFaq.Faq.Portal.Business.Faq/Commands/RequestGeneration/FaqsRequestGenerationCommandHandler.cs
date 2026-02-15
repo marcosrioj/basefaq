@@ -3,7 +3,6 @@ using BaseFaq.AI.Common.Contracts.Generation;
 using BaseFaq.Common.Infrastructure.ApiErrorHandling.Exception;
 using BaseFaq.Common.Infrastructure.Core.Abstractions;
 using BaseFaq.Faq.Common.Persistence.FaqDb;
-using BaseFaq.Faq.Portal.Business.Faq.Dtos;
 using BaseFaq.Models.Common.Enums;
 using BaseFaq.Models.Faq.Enums;
 using MassTransit;
@@ -17,7 +16,7 @@ public sealed class FaqsRequestGenerationCommandHandler(
     FaqDbContext dbContext,
     ISessionService sessionService,
     IPublishEndpoint publishEndpoint,
-    IConfiguration configuration) : IRequestHandler<FaqsRequestGenerationCommand, FaqGenerationRequestAcceptedDto>
+    IConfiguration configuration) : IRequestHandler<FaqsRequestGenerationCommand, Guid>
 {
     private static readonly ContentRefKind[] ProcessableContentRefKinds =
     [
@@ -31,7 +30,7 @@ public sealed class FaqsRequestGenerationCommandHandler(
     private const int MaxPromptProfileLength = 128;
     private const string DefaultPromptProfile = "default";
 
-    public async Task<FaqGenerationRequestAcceptedDto> Handle(
+    public async Task<Guid> Handle(
         FaqsRequestGenerationCommand request,
         CancellationToken cancellationToken)
     {
@@ -88,7 +87,7 @@ public sealed class FaqsRequestGenerationCommandHandler(
                 errorCode: (int)HttpStatusCode.BadRequest);
         }
 
-        var queuedUtc = DateTime.UtcNow;
+        var requestedUtc = DateTime.UtcNow;
         var correlationId = Guid.NewGuid();
 
         await publishEndpoint.Publish(new FaqGenerationRequestedV1
@@ -100,9 +99,9 @@ public sealed class FaqsRequestGenerationCommandHandler(
             Language = faq.Language,
             PromptProfile = promptProfile,
             IdempotencyKey = $"faq-generation-{faqId:N}-{correlationId:N}",
-            RequestedUtc = queuedUtc
+            RequestedUtc = requestedUtc
         }, cancellationToken);
 
-        return new FaqGenerationRequestAcceptedDto(correlationId, queuedUtc);
+        return correlationId;
     }
 }

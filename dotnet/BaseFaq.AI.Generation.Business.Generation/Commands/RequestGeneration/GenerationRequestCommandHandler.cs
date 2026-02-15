@@ -6,13 +6,13 @@ using MediatR;
 namespace BaseFaq.AI.Generation.Business.Generation.Commands.RequestGeneration;
 
 public sealed class GenerationRequestCommandHandler(IPublishEndpoint publishEndpoint)
-    : IRequestHandler<GenerationRequestCommand, GenerationRequestAcceptedResponse>
+    : IRequestHandler<GenerationRequestCommand, Guid>
 {
     private const int MaxLanguageLength = 16;
     private const int MaxPromptProfileLength = 128;
     private const int MaxIdempotencyKeyLength = 128;
 
-    public async Task<GenerationRequestAcceptedResponse> Handle(
+    public async Task<Guid> Handle(
         GenerationRequestCommand command,
         CancellationToken cancellationToken)
     {
@@ -21,7 +21,7 @@ public sealed class GenerationRequestCommandHandler(IPublishEndpoint publishEndp
 
         var normalizedIdempotencyKey = ValidateRequest(command.Request, command.IdempotencyKey);
 
-        var queuedUtc = DateTime.UtcNow;
+        var requestedUtc = DateTime.UtcNow;
         var correlationId = Guid.NewGuid();
 
         var message = new FaqGenerationRequestedV1
@@ -33,12 +33,12 @@ public sealed class GenerationRequestCommandHandler(IPublishEndpoint publishEndp
             Language = command.Request.Language,
             PromptProfile = command.Request.PromptProfile,
             IdempotencyKey = normalizedIdempotencyKey,
-            RequestedUtc = queuedUtc
+            RequestedUtc = requestedUtc
         };
 
         await publishEndpoint.Publish(message, cancellationToken);
 
-        return new GenerationRequestAcceptedResponse(correlationId, queuedUtc);
+        return correlationId;
     }
 
     private static string ValidateRequest(GenerationRequestDto request, string? idempotencyKey)

@@ -29,16 +29,15 @@ public class TenantController(ITenantService tenantService) : ControllerBase
     }
 
     [HttpPost]
-    [ProducesResponseType(typeof(TenantDto), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(Guid), StatusCodes.Status201Created)]
     public async Task<IActionResult> Create([FromBody] TenantCreateRequestDto dto, CancellationToken token)
     {
         var result = await tenantService.Create(dto, token);
-
-        return CreatedAtAction(nameof(GetById), new { id = result.Id }, result);
+        return StatusCode(StatusCodes.Status201Created, result);
     }
 
     [HttpPut("{id:guid}")]
-    [ProducesResponseType(typeof(TenantDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(Guid), StatusCodes.Status200OK)]
     public async Task<IActionResult> Update(Guid id, [FromBody] TenantUpdateRequestDto dto, CancellationToken token)
     {
         var result = await tenantService.Update(id, dto, token);

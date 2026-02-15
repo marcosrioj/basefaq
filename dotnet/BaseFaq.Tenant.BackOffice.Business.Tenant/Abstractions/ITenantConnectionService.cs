@@ -5,7 +5,7 @@ namespace BaseFaq.Tenant.BackOffice.Business.Tenant.Abstractions;
 
 public interface ITenantConnectionService
 {
-    Task<TenantConnectionDto> Create(TenantConnectionCreateRequestDto requestDto, CancellationToken token);
+    Task<Guid> Create(TenantConnectionCreateRequestDto requestDto, CancellationToken token);
 
     Task Delete(Guid id, CancellationToken token);
 
@@ -13,5 +13,5 @@ public interface ITenantConnectionService
         CancellationToken token);
 
     Task<TenantConnectionDto> GetById(Guid id, CancellationToken token);
-    Task<TenantConnectionDto> Update(Guid id, TenantConnectionUpdateRequestDto requestDto, CancellationToken token);
+    Task<Guid> Update(Guid id, TenantConnectionUpdateRequestDto requestDto, CancellationToken token);
 }

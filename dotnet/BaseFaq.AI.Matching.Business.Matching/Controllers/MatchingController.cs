@@ -20,7 +20,7 @@ public class MatchingController(IMediator mediator) : ControllerBase
     }
 
     [HttpPost("requests")]
-    [ProducesResponseType(typeof(MatchingRequestAcceptedResponse), StatusCodes.Status202Accepted)]
+    [ProducesResponseType(typeof(Guid), StatusCodes.Status202Accepted)]
     public async Task<IActionResult> RequestMatching(
         [FromBody] MatchingRequestDto request,
         [FromHeader(Name = "Idempotency-Key")] string? idempotencyKey,

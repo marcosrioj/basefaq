@@ -20,7 +20,7 @@ public class TenantController(ITenantService tenantService) : ControllerBase
     }
 
     [HttpPost("CreateOrUpdate")]
-    [ProducesResponseType(typeof(List<TenantSummaryDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
     public async Task<IActionResult> CreateOrUpdate([FromBody] TenantCreateOrUpdateRequestDto dto,
         CancellationToken token)
     {

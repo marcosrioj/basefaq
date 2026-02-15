@@ -1,5 +1,4 @@
 using BaseFaq.Faq.Portal.Business.Faq.Abstractions;
-using BaseFaq.Faq.Portal.Business.Faq.Dtos;
 using BaseFaq.Models.Common.Dtos;
 using BaseFaq.Models.Faq.Dtos.Faq;
 using Microsoft.AspNetCore.Authorization;
@@ -30,16 +29,15 @@ public class FaqController(IFaqService faqService) : ControllerBase
     }
 
     [HttpPost]
-    [ProducesResponseType(typeof(FaqDto), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(Guid), StatusCodes.Status201Created)]
     public async Task<IActionResult> Create([FromBody] FaqCreateRequestDto dto, CancellationToken token)
     {
         var result = await faqService.Create(dto, token);
-
-        return CreatedAtAction(nameof(GetById), new { id = result.Id }, result);
+        return StatusCode(StatusCodes.Status201Created, result);
     }
 
     [HttpPut("{id:guid}")]
-    [ProducesResponseType(typeof(FaqDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(Guid), StatusCodes.Status200OK)]
     public async Task<IActionResult> Update(Guid id, [FromBody] FaqUpdateRequestDto dto, CancellationToken token)
     {
         var result = await faqService.Update(id, dto, token);
@@ -47,11 +45,11 @@ public class FaqController(IFaqService faqService) : ControllerBase
     }
 
     [HttpPost("{id:guid}/generation-request")]
-    [ProducesResponseType(typeof(FaqGenerationRequestAcceptedDto), StatusCodes.Status202Accepted)]
+    [ProducesResponseType(typeof(Guid), StatusCodes.Status202Accepted)]
     public async Task<IActionResult> RequestGeneration(Guid id, CancellationToken token)
     {
-        var result = await faqService.RequestGeneration(id, token);
-        return Accepted(result);
+        var correlationId = await faqService.RequestGeneration(id, token);
+        return Accepted(correlationId);
     }
 
     [HttpDelete("{id:guid}")]

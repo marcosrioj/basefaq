@@ -5,9 +5,9 @@ namespace BaseFaq.Faq.Portal.Business.Faq.Abstractions;
 
 public interface IFaqContentRefService
 {
-    Task<FaqContentRefDto> Create(FaqContentRefCreateRequestDto dto, CancellationToken token);
+    Task<Guid> Create(FaqContentRefCreateRequestDto dto, CancellationToken token);
     Task Delete(Guid id, CancellationToken token);
     Task<PagedResultDto<FaqContentRefDto>> GetAll(FaqContentRefGetAllRequestDto requestDto, CancellationToken token);
     Task<FaqContentRefDto> GetById(Guid id, CancellationToken token);
-    Task<FaqContentRefDto> Update(Guid id, FaqContentRefUpdateRequestDto dto, CancellationToken token);
+    Task<Guid> Update(Guid id, FaqContentRefUpdateRequestDto dto, CancellationToken token);
 }

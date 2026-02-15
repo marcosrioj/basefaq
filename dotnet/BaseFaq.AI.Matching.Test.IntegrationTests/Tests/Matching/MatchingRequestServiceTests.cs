@@ -75,9 +75,7 @@ public class MatchingRequestCommandHandlerTests
             Guid.NewGuid()), "idem-key-1");
 
         var result = await handler.Handle(command, CancellationToken.None);
-
-        Assert.NotEqual(Guid.Empty, result.CorrelationId);
-        Assert.True(result.QueuedUtc <= DateTime.UtcNow);
+        Assert.NotEqual(Guid.Empty, result);
     }
 
     private sealed class FakeFaqItemValidationService(bool shouldThrow = false) : IMatchingFaqItemValidationService

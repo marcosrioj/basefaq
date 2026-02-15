@@ -1,8 +1,8 @@
+using System.Net;
 using BaseFaq.Common.Infrastructure.ApiErrorHandling.Exception;
 using BaseFaq.Models.Common.Dtos;
 using BaseFaq.Models.Faq.Dtos.FaqContentRef;
 using MediatR;
-using System.Net;
 using BaseFaq.Faq.Portal.Business.Faq.Abstractions;
 using BaseFaq.Faq.Portal.Business.Faq.Commands.CreateFaqContentRef;
 using BaseFaq.Faq.Portal.Business.Faq.Commands.DeleteFaqContentRef;
@@ -14,7 +14,7 @@ namespace BaseFaq.Faq.Portal.Business.Faq.Service;
 
 public class FaqContentRefService(IMediator mediator) : IFaqContentRefService
 {
-    public async Task<FaqContentRefDto> Create(FaqContentRefCreateRequestDto requestDto, CancellationToken token)
+    public async Task<Guid> Create(FaqContentRefCreateRequestDto requestDto, CancellationToken token)
     {
         ArgumentNullException.ThrowIfNull(requestDto);
 
@@ -24,17 +24,7 @@ public class FaqContentRefService(IMediator mediator) : IFaqContentRefService
             ContentRefId = requestDto.ContentRefId
         };
 
-        var id = await mediator.Send(command, token);
-
-        var result = await mediator.Send(new FaqContentRefsGetFaqContentRefQuery { Id = id }, token);
-        if (result is null)
-        {
-            throw new ApiErrorException(
-                $"Created FAQ content reference '{id}' was not found.",
-                errorCode: (int)HttpStatusCode.InternalServerError);
-        }
-
-        return result;
+        return await mediator.Send(command, token);
     }
 
     public Task<PagedResultDto<FaqContentRefDto>> GetAll(
@@ -64,7 +54,7 @@ public class FaqContentRefService(IMediator mediator) : IFaqContentRefService
         return result;
     }
 
-    public async Task<FaqContentRefDto> Update(Guid id, FaqContentRefUpdateRequestDto requestDto,
+    public async Task<Guid> Update(Guid id, FaqContentRefUpdateRequestDto requestDto,
         CancellationToken token)
     {
         ArgumentNullException.ThrowIfNull(requestDto);
@@ -77,7 +67,6 @@ public class FaqContentRefService(IMediator mediator) : IFaqContentRefService
         };
 
         await mediator.Send(command, token);
-
-        return await GetById(id, token);
+        return id;
     }
 }

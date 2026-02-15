@@ -25,7 +25,7 @@ public class DependencyRegistrationTests
         var statusHandlerDescriptor = services.SingleOrDefault(x =>
             x.ServiceType == typeof(IRequestHandler<MatchingGetStatusQuery, MatchingStatusResponse>));
         var requestHandlerDescriptor = services.SingleOrDefault(x =>
-            x.ServiceType == typeof(IRequestHandler<MatchingRequestCommand, MatchingRequestAcceptedResponse>));
+            x.ServiceType == typeof(IRequestHandler<MatchingRequestCommand, Guid>));
 
         Assert.NotNull(faqItemValidationServiceDescriptor);
         Assert.NotNull(requestPublisherDescriptor);

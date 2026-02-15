@@ -31,7 +31,7 @@ public class DependencyRegistrationTests
         services.AddGenerationBusiness();
 
         var serviceDescriptor = services.SingleOrDefault(x =>
-            x.ServiceType == typeof(IRequestHandler<GenerationRequestCommand, GenerationRequestAcceptedResponse>));
+            x.ServiceType == typeof(IRequestHandler<GenerationRequestCommand, Guid>));
 
         Assert.NotNull(serviceDescriptor);
     }
