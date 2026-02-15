@@ -1,5 +1,30 @@
 # Integration Testing Strategy (BaseFaq)
 
+## Document purpose
+Provide a business-aligned and technically rigorous integration testing strategy for BaseFAQ, including risk prioritization, execution tiers, and concrete implementation targets.
+
+## Intended audience
+- Engineers implementing integration suites
+- Technical leads and architects approving quality gates
+- QA and release stakeholders validating production readiness
+
+## Business outcomes
+- Prevent tenant data leaks and authorization regressions before release.
+- Reduce release risk through deterministic CI coverage and staged resilience testing.
+- Improve incident response quality through observability-oriented assertions.
+
+## Technical outcomes
+- Use real PostgreSQL and EF migrations as baseline integration infrastructure.
+- Validate middleware/session/auth behavior across realistic boundaries.
+- Enforce repeatable CI/nightly/pre-release execution tiers.
+
+## Reading order
+1. Scope and assumptions.
+2. Environment and data strategy.
+3. Advanced techniques and resilience patterns.
+4. Risk matrix and concrete test catalog.
+5. Tooling, gates, and immediate backlog.
+
 ## Concise Summary
 - Integration tests in this solution should validate real behavior across module boundaries with real PostgreSQL, real EF migrations, and production-like middleware/session rules.
 - Current suites are strongest on command/query + DB persistence and tenant/soft-delete filters; biggest gaps are API auth flows, tenant-resolution middleware behavior, observability assertions, resilience/fault-injection, and third-party integration boundaries.
@@ -9,7 +34,7 @@
   - Pre-release: full regression including auth and sandbox-provider checks.
 - This plan defines environment/data strategy, risk matrix, and 30 concrete test cases with assertions/logging expectations.
 
-## 1) Architecture Assumptions & Scope
+## 1) Scope, Architecture Assumptions, and Boundaries
 ### Assumptions (explicit)
 - Platform is multi-service but codebase currently exposes 4 APIs:
   - `BaseFaq.Faq.Portal.Api`
@@ -55,7 +80,7 @@
 - Pre-release:
   - Full integration pack + provider sandbox checks + backward compatibility + observability assertions.
 
-## 2) Environment & Data Strategy
+## 2) Environment and Data Strategy
 ### Ephemeral environments
 - Local and CI should run isolated ephemeral infrastructure:
   - Preferred: docker compose project per pipeline run (`bf_baseservices_<runId>`).
@@ -380,7 +405,7 @@
 - Assert: either both persisted or none.
 - Log/trace: retry/rollback details.
 
-## 6) Tooling & Automation
+## 6) Tooling and Automation
 ### Recommended libraries/patterns
 - Test framework: xUnit (already used).
 - Assertions: FluentAssertions (optional for readable object graph assertions).
@@ -414,7 +439,7 @@
 - Require root-cause issue for any quarantined test.
 - Track top flake causes: timing, shared state, environment instability.
 
-## 7) Exit Criteria & Quality Gates
+## 7) Exit Criteria and Quality Gates
 ### Pass/fail criteria
 - 0 failed tests in required CI integration suite.
 - No severity-1 flaky tests in blocking set.
@@ -439,7 +464,7 @@
 - [ ] External provider sandbox checks green or approved exception.
 - [ ] No untriaged flaky failures.
 
-## Recommended Immediate Additions (next PRs)
+## 8) Recommended Immediate Additions (next PRs)
 - Add API-level integration suite with `WebApplicationFactory` for auth + middleware assertions.
 - Add Redis-backed `IAllowedTenantStore` integration tests using containerized Redis.
 - Add migration drift check job in nightly.

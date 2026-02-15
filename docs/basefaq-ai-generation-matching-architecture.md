@@ -1,5 +1,29 @@
 # BaseFAQ AI Architecture Proposal
 
+## Document purpose
+Define the target architecture, integration model, delivery phases, and operational controls for `BaseFaq.AI.Generation` and `BaseFaq.AI.Matching`.
+
+## Intended audience
+- Engineers implementing AI services and integration flows
+- Architects reviewing service boundaries and persistence ownership
+- Platform/operations teams running messaging, observability, and secret-management controls
+
+## Business outcomes
+- Deliver asynchronous AI generation and matching with reliable callback completion semantics.
+- Preserve existing BaseFAQ boundaries while expanding AI capability.
+- Minimize delivery risk through phased rollout and explicit operational safeguards.
+
+## Technical outcomes
+- Keep `bf_ai_db` as the AI lifecycle source of truth.
+- Maintain FAQ domain ownership in FAQ DB with explicit integration-write paths.
+- Ensure reliability through idempotency, retry, DLQ, tracing, and monitoring patterns.
+
+## How to read this document
+1. Use the Executive Summary and Recommended Architecture for direction.
+2. Use Event Flow and Asynchronous Integration sections for implementation design.
+3. Use Idempotency/Retry/Tracing/Security sections for production hardening.
+4. Use Implementation Plan, Backlog, and Checklist sections for delivery governance.
+
 ## Executive Summary
 This document defines how `BaseFaq.AI.Generation` and `BaseFaq.AI.Matching` should be added to BaseFAQ with minimal incremental changes while respecting the new AI service boundaries.
 
@@ -21,7 +45,7 @@ The AI capability remains organized under:
 - `BaseFaq.AI/Matching`
 - `BaseFaq.AI/Common`
 
-## Recommended Architecture (Aligned to Existing BaseFAQ Model)
+## 1) Recommended Architecture (Aligned to Existing BaseFAQ Model)
 ### Architectural assumptions
 - No active production-grade queue consumers are currently implemented.
 - AI generation and matching are delivered as AI services integrated with FAQ APIs through RabbitMQ.
@@ -43,7 +67,7 @@ The AI capability remains organized under:
   - AI lifecycle and operational state in `bf_ai_db` via AI context.
   - FAQ product data in FAQ DB via `FaqDbContext`.
 
-## Current Solution Style + Incremental Additions
+## 2) Current Solution Style + Incremental Additions
 ### Existing BaseFAQ components (unchanged)
 - `BaseFaq.Faq.Portal.Api` and `BaseFaq.Faq.Public.Api` startup conventions.
 - Existing middleware: auth, API error handling, Sentry.
@@ -68,7 +92,7 @@ The AI capability remains organized under:
 - New contracts shared for AI events and provider abstractions.
 - New AI persistence layer with dedicated context and migrations for `bf_ai_db`.
 
-## BaseFaq.AI.Generation and BaseFaq.AI.Matching Project Divisions
+## 3) BaseFaq.AI.Generation and BaseFaq.AI.Matching Project Divisions
 | Division | Responsibility | Recommended .NET technologies/libraries | Applicable patterns | Risks | Mitigations |
 |---|---|---|---|---|---|
 | API integration endpoints | Expose commands/queries in existing API model (`Portal` for generation, `Public` for matching) | ASP.NET Core controllers, existing auth middleware | Thin controller + application service | API bloat | Keep strict route namespace `api/faqs/ai/*` |
@@ -81,7 +105,7 @@ The AI capability remains organized under:
 | Observability and operations | Visibility across APIs, workers, broker, DB, provider calls | Sentry (existing), OpenTelemetry, HealthChecks, structured logs | Correlation tracing + SLO monitoring | Blind failure modes | End-to-end tracing + alerting thresholds |
 | Prompt governance and answer quality controls | Prompt versioning, policy checks, publication gates | Prompt registry (JSON/YAML + DB ref), evaluation runner (optional) | Prompt-as-code + human-in-the-loop | Hallucinations/quality drift | Quality rubric + approval workflow + fallback |
 
-## Event Flow (Step-by-Step)
+## 4) Event Flow (Step-by-Step)
 ### Process A: Generation (ContentRef -> New FaqItems)
 1. Client calls `POST /api/faqs/ai/generation-jobs` (Portal API).
 2. FAQ API validates request/user context and stores FAQ-side request metadata as `Requested`.
@@ -108,7 +132,7 @@ The AI capability remains organized under:
 4. Matching worker/process compares the new FAQ item against existing FAQ items.
 5. Matching result is stored/published for downstream use (for example review or merge decisions).
 
-## Asynchronous Integration
+## 5) Asynchronous Integration
 ### Use asynchronous when
 - Work is compute-heavy, long-running, expensive, or failure-prone.
 - Example: FAQ generation, matching, re-generation, bulk embedding refresh.
@@ -118,7 +142,7 @@ The AI capability remains organized under:
 - `Generation (ContentRef -> New FaqItems)`: async by default.
 - `Matching (New FaqItem -> Similar Existing FaqItems)`: separate async job flow.
 
-## RabbitMQ and MassTransit Evaluation
+## 6) RabbitMQ and MassTransit Evaluation
 ### Scenario A: Use both together (recommended if already standardized)
 - Use RabbitMQ as transport broker.
 - Use MassTransit as .NET messaging abstraction/runtime.
@@ -155,7 +179,7 @@ Recommended for BaseFAQ:
 - Keep RabbitMQ as broker and service communication channel.
 - Use MassTransit where it accelerates delivery and reliability in .NET services.
 
-## Idempotency, Retry, DLQ, Tracing, Monitoring
+## 7) Idempotency, Retry, DLQ, Tracing, Monitoring
 ### Idempotency strategy
 - Require `Idempotency-Key` on generation command API.
 - Persist unique key at job creation (`FaqId + IdempotencyKey` unique index, or `JobId` uniqueness).
@@ -205,7 +229,7 @@ Recommended for BaseFAQ:
   - Provider error spikes / rate limiting spikes.
   - Repeated callback publish failures.
 
-## OpenAI API Key Security Strategy
+## 8) OpenAI API Key Security Strategy
 ### Secret manager
 - Development: .NET User Secrets.
 - Production: managed secret manager (Azure Key Vault / AWS Secrets Manager / GCP Secret Manager).
@@ -226,7 +250,7 @@ Recommended for BaseFAQ:
 - Disable verbose provider request/response logs in production.
 - Add logging guard middleware/sinks with explicit masking rules.
 
-## Implementation Plan by Phase
+## 9) Implementation Plan by Phase
 ### Phase 1: MVP
 - Create AI project skeleton under `BaseFaq.AI`.
 - Implement generation command + async worker processing.
@@ -250,7 +274,7 @@ Recommended for BaseFAQ:
 - Add cost controls and provider routing strategy.
 - Improve relevance quality via hybrid retrieval and re-ranking.
 
-## Practical Artifacts
+## 10) Practical Artifacts
 ### Event contract examples
 ```csharp
 public record FaqGenerationRequestedV1(
@@ -314,7 +338,7 @@ dotnet/BaseFaq.AI.Common.VectorStore/BaseFaq.AI.Common.VectorStore.csproj
 dotnet/BaseFaq.AI.Common.Contracts/BaseFaq.AI.Common.Contracts.csproj
 ```
 
-## Main Risks and Mitigations
+## 11) Main Risks and Mitigations
 | Risk | Impact | Mitigation |
 |---|---|---|
 | Cross-database update inconsistency (`bf_ai_db` success, FAQ DB write failure) | Callback may not represent real final state | Retry with idempotent upsert, reconciliation worker, failure callback if threshold exceeded |
@@ -324,7 +348,7 @@ dotnet/BaseFaq.AI.Common.Contracts/BaseFaq.AI.Common.Contracts.csproj
 | Secret leakage | Security incident | Secret manager, strict redaction, no secrets in source config |
 | Queue backlog growth | SLA degradation | Queue depth alerts, scaling workers, backpressure controls |
 
-## Prompt Governance and Quality Gate Process
+## 12) Prompt Governance and Quality Gate Process
 ### Governance model
 - Prompt definitions are managed as code in versioned files under source control.
 - Every prompt change requires a pull request with:
@@ -369,7 +393,7 @@ dotnet/BaseFaq.AI.Common.Contracts/BaseFaq.AI.Common.Contracts.csproj
   - roll back to last known good version
   - requeue failed jobs when safe
 
-## Delivery Backlog (Tracked)
+## 13) Delivery Backlog (Tracked)
 Tracking convention:
 - IDs use `AI-MVP-*`, `AI-HARD-*`, and `AI-SCALE-*`.
 - Status values: `Todo`, `In Progress`, `Done`.
@@ -400,7 +424,7 @@ Review cadence:
 - Weekly backlog triage in architecture review.
 - Any `Todo` item moving to implementation must be linked in PR description by backlog ID.
 
-## Final Technical Checklist
+## 14) Final Technical Checklist
 - [x] `BaseFaq.AI` root folder and projects created.
 - [x] `Generation` and `Matching` projects follow existing `Api/Business/Test` conventions.
 - [x] Existing API hosts register new AI features without changing current boundaries.
