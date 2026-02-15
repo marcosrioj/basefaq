@@ -1,5 +1,6 @@
 using BaseFaq.Models.Common.Dtos;
 using BaseFaq.Models.Faq.Dtos.Faq;
+using BaseFaq.Faq.Portal.Business.Faq.Dtos;
 
 namespace BaseFaq.Faq.Portal.Business.Faq.Abstractions;
 
@@ -9,5 +10,6 @@ public interface IFaqService
     Task Delete(Guid id, CancellationToken token);
     Task<PagedResultDto<FaqDto>> GetAll(FaqGetAllRequestDto requestDto, CancellationToken token);
     Task<FaqDto> GetById(Guid id, CancellationToken token);
+    Task<FaqGenerationRequestAcceptedDto> RequestGeneration(Guid faqId, CancellationToken token);
     Task<FaqDto> Update(Guid id, FaqUpdateRequestDto dto, CancellationToken token);
 }

@@ -1,5 +1,4 @@
 using BaseFaq.Faq.Portal.Business.ContentRef.Extensions;
-using BaseFaq.AI.Generation.Business.Generation.Extensions;
 using BaseFaq.Faq.Portal.Business.Faq.Extensions;
 using BaseFaq.Faq.Portal.Business.FaqItem.Extensions;
 using BaseFaq.Faq.Portal.Business.Tag.Extensions;
@@ -18,7 +17,6 @@ public static class ServiceCollectionExtensions
         services.AddTagBusiness();
         services.AddContentRefBusiness();
         services.AddVoteBusiness();
-        services.AddGenerationBusiness();
         services.AddEventsFeature(configuration);
     }
 }

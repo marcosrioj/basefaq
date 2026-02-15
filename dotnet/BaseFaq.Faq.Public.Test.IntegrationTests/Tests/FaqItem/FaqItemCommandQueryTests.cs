@@ -3,6 +3,8 @@ using BaseFaq.Faq.Public.Business.FaqItem.Queries.SearchFaqItem;
 using BaseFaq.Faq.Public.Test.IntegrationTests.Helpers;
 using BaseFaq.Models.Faq.Dtos.FaqItem;
 using BaseFaq.Models.Faq.Enums;
+using MassTransit;
+using Moq;
 using Xunit;
 
 namespace BaseFaq.Faq.Public.Test.IntegrationTests.Tests.FaqItem;
@@ -18,11 +20,13 @@ public class FaqItemCommandQueryTests
         var clientKeyContextService = new TestClientKeyContextService(context.ClientKey);
         var tenantClientKeyResolver =
             new TestTenantClientKeyResolver(context.TenantId, context.ClientKey);
+        var publishEndpoint = new Mock<IPublishEndpoint>().Object;
         var handler = new FaqItemsCreateFaqItemCommandHandler(
             context.DbContext,
             clientKeyContextService,
             tenantClientKeyResolver,
-            context.HttpContextAccessor);
+            context.HttpContextAccessor,
+            publishEndpoint);
         var request = new FaqItemsCreateFaqItemCommand
         {
             Question = "How to sign in?",

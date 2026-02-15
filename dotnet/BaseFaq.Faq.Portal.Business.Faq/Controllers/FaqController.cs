@@ -1,4 +1,5 @@
 using BaseFaq.Faq.Portal.Business.Faq.Abstractions;
+using BaseFaq.Faq.Portal.Business.Faq.Dtos;
 using BaseFaq.Models.Common.Dtos;
 using BaseFaq.Models.Faq.Dtos.Faq;
 using Microsoft.AspNetCore.Authorization;
@@ -43,6 +44,14 @@ public class FaqController(IFaqService faqService) : ControllerBase
     {
         var result = await faqService.Update(id, dto, token);
         return Ok(result);
+    }
+
+    [HttpPost("{id:guid}/generation-request")]
+    [ProducesResponseType(typeof(FaqGenerationRequestAcceptedDto), StatusCodes.Status202Accepted)]
+    public async Task<IActionResult> RequestGeneration(Guid id, CancellationToken token)
+    {
+        var result = await faqService.RequestGeneration(id, token);
+        return Accepted(result);
     }
 
     [HttpDelete("{id:guid}")]
