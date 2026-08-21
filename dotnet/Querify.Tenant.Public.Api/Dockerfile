@@ -1,3 +1,5 @@
+# syntax=docker/dockerfile:1.7
+
 FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS base
 USER $APP_UID
 WORKDIR /app
@@ -8,14 +10,17 @@ FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
 COPY ["dotnet/Querify.Tenant.Public.Api/Querify.Tenant.Public.Api.csproj", "dotnet/Querify.Tenant.Public.Api/"]
-RUN dotnet restore "dotnet/Querify.Tenant.Public.Api/Querify.Tenant.Public.Api.csproj"
 COPY . .
 WORKDIR "/src/dotnet/Querify.Tenant.Public.Api"
-RUN dotnet build "./Querify.Tenant.Public.Api.csproj" -c $BUILD_CONFIGURATION -o /app/build
+RUN --mount=type=cache,id=querify-nuget,target=/root/.nuget/packages,sharing=locked \
+    dotnet restore "./Querify.Tenant.Public.Api.csproj" --disable-parallel
+RUN --mount=type=cache,id=querify-nuget,target=/root/.nuget/packages,sharing=locked \
+    dotnet build "./Querify.Tenant.Public.Api.csproj" -c $BUILD_CONFIGURATION -o /app/build --no-restore
 
 FROM build AS publish
 ARG BUILD_CONFIGURATION=Release
-RUN dotnet publish "./Querify.Tenant.Public.Api.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
+RUN --mount=type=cache,id=querify-nuget,target=/root/.nuget/packages,sharing=locked \
+    dotnet publish "./Querify.Tenant.Public.Api.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false --no-restore
 
 FROM base AS final
 WORKDIR /app
