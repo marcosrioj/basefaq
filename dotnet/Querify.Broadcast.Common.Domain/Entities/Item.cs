@@ -2,7 +2,7 @@ using Querify.Common.EntityFramework.Core.Abstractions;
 using Querify.Common.EntityFramework.Core.Entities;
 using Querify.Models.Broadcast.Enums;
 
-namespace Querify.Broadcast.Common.Persistence.BroadcastDb.Entities;
+namespace Querify.Broadcast.Common.Domain.Entities;
 
 /// <summary>
 /// Represents one captured item inside a Broadcast thread.
@@ -20,11 +20,6 @@ public class Item : BaseEntity, IMustHaveTenant
     /// Navigation to the owning thread used for persistence relationship tracking and tenant validation.
     /// </summary>
     public Thread Thread { get; set; } = null!;
-
-    /// <summary>
-    /// Captured item shape used to distinguish posts, comments, shared messages, and fallback public interaction entries.
-    /// </summary>
-    public required ItemKind Kind { get; set; }
 
     /// <summary>
     /// Author role used to separate external audience activity, brand responses, and system entries.

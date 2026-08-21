@@ -1,7 +1,7 @@
-using Querify.Broadcast.Common.Persistence.BroadcastDb.Entities;
+using Querify.Broadcast.Common.Domain.Entities;
 using Querify.Common.EntityFramework.Core.Tenant.DbContext.TenantIntegrity;
 using Microsoft.EntityFrameworkCore;
-using Thread = Querify.Broadcast.Common.Persistence.BroadcastDb.Entities.Thread;
+using Thread = Querify.Broadcast.Common.Domain.Entities.Thread;
 
 namespace Querify.Broadcast.Common.Persistence.BroadcastDb.DbContext.TenantIntegrity;
 

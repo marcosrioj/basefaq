@@ -1,6 +1,6 @@
 using Querify.Common.EntityFramework.Core.Tenant.DbContext.TenantIntegrity;
-using Querify.Direct.Common.Persistence.DirectDb.Entities;
 using Microsoft.EntityFrameworkCore;
+using Querify.Direct.Common.Domain.Entities;
 
 namespace Querify.Direct.Common.Persistence.DirectDb.DbContext.TenantIntegrity;
 

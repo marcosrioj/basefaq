@@ -13,6 +13,7 @@
         <ProjectReference Include="..\Querify.Common.EntityFramework.Core\Querify.Common.EntityFramework.Core.csproj"/>
         <ProjectReference Include="..\Querify.Common.EntityFramework.Tenant\Querify.Common.EntityFramework.Tenant.csproj"/>
         <ProjectReference Include="..\Querify.Common.Infrastructure.Core\Querify.Common.Infrastructure.Core.csproj"/>
+        <ProjectReference Include="..\Querify.Direct.Common.Domain\Querify.Direct.Common.Domain.csproj" />
         <ProjectReference Include="..\Querify.Models.Direct\Querify.Models.Direct.csproj" />
     </ItemGroup>
 

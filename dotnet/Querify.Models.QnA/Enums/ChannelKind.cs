@@ -33,5 +33,5 @@ public enum ChannelKind
     /// <summary>
     /// Fallback for uncommon or not-yet-classified channels.
     /// </summary>
-    Other = 26
+    Other = 99
 }

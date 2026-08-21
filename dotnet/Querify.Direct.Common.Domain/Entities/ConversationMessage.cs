@@ -2,7 +2,7 @@ using Querify.Common.EntityFramework.Core.Abstractions;
 using Querify.Common.EntityFramework.Core.Entities;
 using Querify.Models.Direct.Enums;
 
-namespace Querify.Direct.Common.Persistence.DirectDb.Entities;
+namespace Querify.Direct.Common.Domain.Entities;
 
 /// <summary>
 /// Represents one message inside a Direct conversation.

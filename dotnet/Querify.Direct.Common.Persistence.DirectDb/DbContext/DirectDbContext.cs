@@ -2,12 +2,12 @@ using Querify.Common.EntityFramework.Core;
 using Querify.Common.EntityFramework.Core.Tenant.DbContext.TenantIntegrity;
 using Querify.Common.Infrastructure.Core.Abstractions;
 using Querify.Direct.Common.Persistence.DirectDb.DbContext.TenantIntegrity;
-using Querify.Direct.Common.Persistence.DirectDb.Entities;
 using Querify.Models.Common.Enums;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
-using ConversationMessageEntity = Querify.Direct.Common.Persistence.DirectDb.Entities.ConversationMessage;
+using Querify.Direct.Common.Domain.Entities;
+using ConversationMessageEntity = Querify.Direct.Common.Domain.Entities.ConversationMessage;
 
 namespace Querify.Direct.Common.Persistence.DirectDb.DbContext;
 

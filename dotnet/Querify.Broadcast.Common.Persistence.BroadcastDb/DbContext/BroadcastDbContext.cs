@@ -1,5 +1,5 @@
 using Querify.Broadcast.Common.Persistence.BroadcastDb.DbContext.TenantIntegrity;
-using Querify.Broadcast.Common.Persistence.BroadcastDb.Entities;
+using Querify.Broadcast.Common.Domain.Entities;
 using Querify.Common.EntityFramework.Core;
 using Querify.Common.EntityFramework.Core.Tenant.DbContext.TenantIntegrity;
 using Querify.Common.Infrastructure.Core.Abstractions;

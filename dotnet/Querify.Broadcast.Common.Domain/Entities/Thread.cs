@@ -1,8 +1,9 @@
 using Querify.Common.EntityFramework.Core.Abstractions;
 using Querify.Common.EntityFramework.Core.Entities;
+using Querify.Common.EntityFramework.Tenant.Entities;
 using Querify.Models.Broadcast.Enums;
 
-namespace Querify.Broadcast.Common.Persistence.BroadcastDb.Entities;
+namespace Querify.Broadcast.Common.Domain.Entities;
 
 /// <summary>
 /// Represents a public or community interaction thread captured by Broadcast.
@@ -10,11 +11,6 @@ namespace Querify.Broadcast.Common.Persistence.BroadcastDb.Entities;
 public class Thread : BaseEntity, IMustHaveTenant
 {
     public const int MaxTitleLength = 1000;
-
-    /// <summary>
-    /// Broad public interaction channel family used to route thread behavior without coupling to a specific provider.
-    /// </summary>
-    public required ChannelKind Channel { get; set; }
 
     /// <summary>
     /// Current lifecycle state used to decide whether the thread remains active or has been completed.
@@ -25,6 +21,8 @@ public class Thread : BaseEntity, IMustHaveTenant
     /// Optional topic or provider title used for display and lookup when the source channel supplies one.
     /// </summary>
     public string? Title { get; set; }
+
+    public required ChannelConnection ChannelConnection { get; set; }
 
     /// <summary>
     /// Broadcast items owned by this thread; tenant integrity is enforced through the parent relationship.

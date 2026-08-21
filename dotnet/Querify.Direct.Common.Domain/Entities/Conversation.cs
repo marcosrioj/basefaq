@@ -1,8 +1,9 @@
 using Querify.Common.EntityFramework.Core.Abstractions;
 using Querify.Common.EntityFramework.Core.Entities;
+using Querify.Common.EntityFramework.Tenant.Entities;
 using Querify.Models.Direct.Enums;
 
-namespace Querify.Direct.Common.Persistence.DirectDb.Entities;
+namespace Querify.Direct.Common.Domain.Entities;
 
 /// <summary>
 /// Represents a 1:1 support conversation owned by Direct.
@@ -14,7 +15,7 @@ public class Conversation : BaseEntity, IMustHaveTenant
     /// <summary>
     /// Entry surface used to route support conversation behavior without storing QnA channel state.
     /// </summary>
-    public required ConversationChannel Channel { get; set; }
+    public required ChannelConnectionKind Channel { get; set; }
 
     /// <summary>
     /// Current lifecycle state used to decide whether the conversation is still active or already completed.
@@ -25,6 +26,12 @@ public class Conversation : BaseEntity, IMustHaveTenant
     /// Optional human-readable topic supplied by the support channel; it is not required to identify the conversation.
     /// </summary>
     public string? Subject { get; set; }
+
+    public required Guid ContactId { get; set; }
+    public required Contact Contact { get; set; }
+    
+    public required Guid ChannelConnectionId { get; set; }
+    public required ChannelConnection ChannelConnection { get; set; }
 
     /// <summary>
     /// Messages owned by this conversation; tenant integrity is enforced through the parent relationship.
