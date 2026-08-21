@@ -7,7 +7,7 @@ using Querify.Models.Common.Enums;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
-using Thread = System.Threading.Thread;
+using BroadcastThread = Querify.Broadcast.Common.Domain.Entities.Thread;
 
 namespace Querify.Broadcast.Common.Persistence.BroadcastDb.DbContext;
 
@@ -28,8 +28,8 @@ public class BroadcastDbContext : BaseDbContext<BroadcastDbContext>
     {
     }
 
-    public DbSet<Thread> Threads { get; set; }
-    public DbSet<Item> Items { get; set; }
+    public DbSet<BroadcastThread> Threads { get; set; } = null!;
+    public DbSet<Item> Items { get; set; } = null!;
 
     protected override IEnumerable<string> ConfigurationNamespaces =>
     [

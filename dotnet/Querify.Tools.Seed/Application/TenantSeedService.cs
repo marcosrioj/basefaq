@@ -149,9 +149,11 @@ public sealed class TenantSeedService : ITenantSeedService
 
         if (tenant is null)
         {
+            var tenantId = Guid.NewGuid();
             tenant = new Tenant
             {
-                Id = Guid.NewGuid(),
+                Id = tenantId,
+                WorkspaceId = tenantId,
                 Slug = SeedTenantSlug,
                 Name = SeedTenantName,
                 Edition = TenantEdition.Free,
@@ -164,6 +166,7 @@ public sealed class TenantSeedService : ITenantSeedService
         }
 
         RestoreEntity(tenant);
+        tenant.WorkspaceId = tenant.Id;
         tenant.Slug = SeedTenantSlug;
         tenant.Name = SeedTenantName;
         tenant.Edition = TenantEdition.Free;

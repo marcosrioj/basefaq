@@ -27,6 +27,8 @@ TENANT_PORTAL_PORT="${TENANT_PORTAL_PORT:-5002}"
 PORTAL_APP_PORT="${PORTAL_APP_PORT:-5500}"
 QNA_PORTAL_PORT="${QNA_PORTAL_PORT:-5010}"
 QNA_PUBLIC_PORT="${QNA_PUBLIC_PORT:-5020}"
+DIRECT_PORTAL_PORT="${DIRECT_PORTAL_PORT:-5040}"
+BROADCAST_PORTAL_PORT="${BROADCAST_PORTAL_PORT:-5050}"
 TEST_PORT="${TEST_PORT:-5999}"
 OBJECT_STORAGE_ENDPOINT_HOST="${OBJECT_STORAGE_ENDPOINT_HOST:-}"
 OBJECT_STORAGE_ENDPOINT_PORT="${OBJECT_STORAGE_ENDPOINT_PORT:-9000}"
@@ -151,6 +153,28 @@ server {
 
     location /api/qna/ {
         proxy_pass http://$UPSTREAM_HOST:$QNA_PORTAL_PORT;
+        proxy_http_version 1.1;
+        proxy_set_header Host \$host;
+        proxy_set_header X-Real-IP \$remote_addr;
+        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto \$scheme;
+        proxy_set_header Upgrade \$http_upgrade;
+        proxy_set_header Connection \$connection_upgrade;
+    }
+
+    location /api/direct/ {
+        proxy_pass http://$UPSTREAM_HOST:$DIRECT_PORTAL_PORT;
+        proxy_http_version 1.1;
+        proxy_set_header Host \$host;
+        proxy_set_header X-Real-IP \$remote_addr;
+        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto \$scheme;
+        proxy_set_header Upgrade \$http_upgrade;
+        proxy_set_header Connection \$connection_upgrade;
+    }
+
+    location /api/broadcast/ {
+        proxy_pass http://$UPSTREAM_HOST:$BROADCAST_PORTAL_PORT;
         proxy_http_version 1.1;
         proxy_set_header Host \$host;
         proxy_set_header X-Real-IP \$remote_addr;
@@ -371,6 +395,8 @@ print_summary() {
   echo "  dev.portal.querify.net/api/tenant -> $UPSTREAM_HOST:$TENANT_PORTAL_PORT"
   echo "  dev.portal.querify.net/api/user   -> $UPSTREAM_HOST:$TENANT_PORTAL_PORT"
   echo "  dev.portal.querify.net/api/qna    -> $UPSTREAM_HOST:$QNA_PORTAL_PORT"
+  echo "  dev.portal.querify.net/api/direct -> $UPSTREAM_HOST:$DIRECT_PORTAL_PORT"
+  echo "  dev.portal.querify.net/api/broadcast -> $UPSTREAM_HOST:$BROADCAST_PORTAL_PORT"
   echo "  dev.portal.querify.net/s3         -> $OBJECT_STORAGE_ENDPOINT_HOST:$OBJECT_STORAGE_ENDPOINT_PORT"
   echo "  dev.tenant.backoffice.querify.net -> $UPSTREAM_HOST:$TENANT_BACKOFFICE_PORT"
   echo "  dev.tenant.public.querify.net     -> $UPSTREAM_HOST:$TENANT_PUBLIC_PORT"

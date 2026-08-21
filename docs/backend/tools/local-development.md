@@ -115,6 +115,8 @@ dotnet run --project dotnet/Querify.Tenant.Portal.Api
 dotnet run --project dotnet/Querify.Tenant.Public.Api
 dotnet run --project dotnet/Querify.QnA.Portal.Api
 dotnet run --project dotnet/Querify.QnA.Public.Api
+dotnet run --project dotnet/Querify.Direct.Portal.Api
+dotnet run --project dotnet/Querify.Broadcast.Portal.Api
 dotnet run --project dotnet/Querify.Tenant.Worker.Api
 dotnet run --project dotnet/Querify.QnA.Worker.Api
 ```
@@ -162,7 +164,7 @@ Notes:
 - the app/API stack expects the external Docker network `qf-network`, which is created by the base-services stack
 - the application images use the repository root as the Docker build context
 - the default appsettings values use `host.docker.internal`, which keeps host and container networking aligned
-- `devops/local/docker/docker-compose.backend.yml` boots the APIs plus the Tenant and QnA worker hosts
+- `devops/local/docker/docker-compose.backend.yml` boots the Tenant, QnA, Direct, and Broadcast APIs plus the Tenant and QnA worker hosts
 - `devops/local/docker/docker-compose.frontend.yml` boots only `querify.portal.app`
 - `./devops/local/docker/docker.sh` combines `devops/local/docker/docker-compose.backend.yml` and `devops/local/docker/docker-compose.frontend.yml` for `qf_services`
 
@@ -176,6 +178,8 @@ Notes:
 | QnA Portal API | `http://localhost:5010` |
 | QnA Public API | `http://localhost:5020` |
 | QnA Worker Hangfire Dashboard | `http://localhost:5030/HangfireDashboard` |
+| Direct Portal API | `http://localhost:5040` |
+| Broadcast Portal API | `http://localhost:5050` |
 | Tenant Worker API | no HTTP surface; background host only |
 | PostgreSQL | `localhost:5432` |
 | Redis | `localhost:6379` |

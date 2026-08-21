@@ -5,6 +5,8 @@ SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 COMPOSE_FILE="$SCRIPT_DIR/docker-compose.backend.yml"
 SERVICES=(
   querify.qna.portal.api
+  querify.direct.portal.api
+  querify.broadcast.portal.api
   querify.tenant.backoffice.api
   querify.tenant.portal.api
   querify.tenant.public.api
@@ -28,7 +30,7 @@ docker compose -p qf_services -f "$COMPOSE_FILE" rm -f "${SERVICES[@]}" >/dev/nu
 
 print_banner "Querify Backend Docker Images..."
 
-docker images --format '{{.Repository}} {{.ID}}' | awk '$1 ~ /^querify\.(tenant|qna)\./ {print $2}' | xargs -r docker rmi -f
+docker images --format '{{.Repository}} {{.ID}}' | awk '$1 ~ /^querify\.(tenant|qna|direct|broadcast)\./ {print $2}' | xargs -r docker rmi -f
 
 print_banner "Starting Backend Containers..."
 

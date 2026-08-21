@@ -4,6 +4,8 @@ $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 $ComposeFile = Join-Path $ScriptDir 'docker-compose.backend.yml'
 $Services = @(
   'querify.qna.portal.api',
+  'querify.direct.portal.api',
+  'querify.broadcast.portal.api',
   'querify.tenant.backoffice.api',
   'querify.tenant.portal.api',
   'querify.tenant.public.api',
@@ -30,7 +32,7 @@ docker compose -p qf_services -f $ComposeFile rm -f @Services 2>$null | Out-Null
 Write-Banner "Querify Backend Docker Images..."
 
 $images = docker images --format '{{.Repository}} {{.ID}}' |
-  Where-Object { $_ -match '^querify\.(tenant|qna)\.[^ ]+\s+' } |
+  Where-Object { $_ -match '^querify\.(tenant|qna|direct|broadcast)\.[^ ]+\s+' } |
   ForEach-Object { $_.Split(' ', [System.StringSplitOptions]::RemoveEmptyEntries)[1] }
 
 if ($images) {

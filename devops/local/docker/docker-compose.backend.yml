@@ -15,6 +15,34 @@ services:
       - "host.docker.internal:host-gateway"
     networks:
       - qf-network
+  querify.direct.portal.api:
+    image: querify.direct.portal.api
+    build:
+      context: ../../..
+      dockerfile: dotnet/Querify.Direct.Portal.Api/Dockerfile
+    ports:
+      - "5040:5040"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:5040
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    networks:
+      - qf-network
+  querify.broadcast.portal.api:
+    image: querify.broadcast.portal.api
+    build:
+      context: ../../..
+      dockerfile: dotnet/Querify.Broadcast.Portal.Api/Dockerfile
+    ports:
+      - "5050:5050"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:5050
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    networks:
+      - qf-network
   querify.tenant.backoffice.api:
     image: querify.tenant.backoffice.api
     build:

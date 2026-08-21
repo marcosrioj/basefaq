@@ -35,19 +35,16 @@ export function SidebarMenuPrimary({
       path === pathname || (path.length > 1 && pathname.startsWith(path)),
     [pathname],
   );
-  const activeRootItem = portalNavigation.find((item) =>
-    item.children
-      ? item.children.some((child) => matchPath(child.path)) ||
-        item.activePaths?.some(matchPath)
-      : item.activePaths?.some(matchPath)
-        ? true
-        : matchPath(item.path),
-  );
+  const isItemActive = (item: NavigationItem): boolean =>
+    matchPath(item.path) ||
+    Boolean(item.activePaths?.some(matchPath)) ||
+    Boolean(item.children?.some((child) => isItemActive(child)));
+  const activeRootItem = portalNavigation.find(isItemActive);
   const activeRootValue = activeRootItem?.children
     ? `${activeRootItem.key}:${pathname}`
     : (activeRootItem?.key ?? pathname);
   const selectedNavigationValue = activeRootItem?.children
-    ? (activeRootItem.children.find((child) => matchPath(child.path))?.path ??
+    ? (activeRootItem.children.find(isItemActive)?.path ??
       (activeRootItem.key === "qna" ? "/app/spaces" : pathname))
     : (activeRootItem?.path ?? pathname);
 

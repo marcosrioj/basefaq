@@ -33,6 +33,7 @@ public class TenantDbContext(
     public DbSet<BillingPayment> BillingPayments { get; set; } = null!;
     public DbSet<BillingProviderSubscription> BillingProviderSubscriptions { get; set; } = null!;
     public DbSet<BillingWebhookInbox> BillingWebhookInboxes { get; set; } = null!;
+    public DbSet<ChannelConnection> ChannelConnections { get; set; } = null!;
     public DbSet<EmailOutbox> EmailOutboxes { get; set; } = null!;
     public DbSet<TenantConnection> TenantConnections { get; set; } = null!;
     public DbSet<TenantEntitlementSnapshot> TenantEntitlementSnapshots { get; set; } = null!;
@@ -62,6 +63,10 @@ public class TenantDbContext(
 
         modelBuilder.Entity<TenantConnection>()
             .Property(connection => connection.ConnectionString)
+            .HasConversion(converter);
+
+        modelBuilder.Entity<ChannelConnection>()
+            .Property(connection => connection.ConnectionData)
             .HasConversion(converter);
     }
 

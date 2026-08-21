@@ -2,10 +2,11 @@ import {
   ModuleEnum,
   TenantEdition,
   TenantUserRoleType,
-} from '@/shared/constants/backend-enums';
+} from "@/shared/constants/backend-enums";
 
 export type TenantSummaryDto = {
   id: string;
+  workspaceId: string;
   slug: string;
   name: string;
   edition: TenantEdition;

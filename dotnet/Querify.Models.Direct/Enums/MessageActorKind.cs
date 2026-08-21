@@ -11,7 +11,7 @@ public enum MessageActorKind
     Contact = 1,
 
     /// <summary>
-    /// Querify User
+    /// Message was written by an authenticated tenant member participating without an assigned agent role.
     /// </summary>
     User = 6,
 

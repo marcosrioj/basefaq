@@ -8,7 +8,7 @@ This is the workflow for changes that start in a module model and affect persist
 
 The goal is not to add layers. The goal is to keep the model simple, preserve supported behavior, and remove duplicated concepts before they spread through the rest of the system.
 
-The current Querify module split is documented in [`business/value_proposition.md`](business/value_proposition.md). The current modules are Tenant, QnA, Direct, Broadcast, and Trust. Tenant owns the control plane. QnA, Direct, Broadcast, and Trust own product behavior. Treat each module persistence boundary as the owner of its own behavior; do not park behavior in QnA because the QnA model already has a channel, source, or activity enum value that sounds close.
+The current Querify module split is documented in [`business/value_proposition/value_proposition.md`](business/value_proposition/value_proposition.md). The current modules are Tenant, QnA, Direct, Broadcast, and Trust. Tenant owns the control plane. QnA, Direct, Broadcast, and Trust own product behavior. Treat each module persistence boundary as the owner of its own behavior; do not park behavior in QnA because the QnA model already has a channel, source, or activity enum value that sounds close.
 
 ## Before Starting
 
@@ -27,7 +27,9 @@ If those documents do not describe the behavior you are changing, inspect the cl
 - Do not add Direct conversation, handoff, ticket-resolution, or agent-assist workflow state to QnA entities.
 - Do not add Broadcast social, public-comment, mention, community-thread, or campaign interaction workflow state to QnA entities.
 - Do not add Trust validation, governance, decision-history, or auditability state to QnA, Direct, Broadcast, or Tenant entities.
-- `Querify.Direct.Common.Persistence.DirectDb` and `Querify.Broadcast.Common.Persistence.BroadcastDb` contain their current module entity models. Write or update those entities only for concrete module behavior; do not add placeholder entities or empty folders only to satisfy a split.
+- `Querify.Direct.Common.Domain` and `Querify.Broadcast.Common.Domain` own their module entities and reusable entity rules; their matching persistence projects own EF configurations and `DbContext` behavior. Add only concrete module behavior, not placeholder entities or empty folders.
+- Tenant owns workspace-level channel connection metadata and encrypted provider configuration. Direct and Broadcast store only the `ChannelConnectionId` they use; do not add cross-database EF navigations or duplicate provider secrets in product databases.
+- A workspace uses one stable `WorkspaceId` across its module-specific tenant rows. Resolve the active QnA tenant as the workspace base for shared control-plane resources, then resolve Direct or Broadcast tenant IDs by module when entering product persistence.
 - Repository artifacts must be written in English even when the prompt, chat, or review request is in another language. This includes code identifiers, comments, tests, seed data labels, documentation, Markdown, `en-US` UI copy keys, and handoff notes. The only expected exceptions are non-`en-US` locale values and external quoted/source material that must stay in its original language.
 - Command handlers return simple values only. Complex DTOs belong to queries.
 - Portal UI copy is frontend-owned. Backend DTOs should not return translated labels.
@@ -125,8 +127,10 @@ Relevant locations:
 - QnA contracts: `dotnet/Querify.Models.QnA/Enums`
 - QnA domain entities and entity-related business rules: `dotnet/Querify.QnA.Common.Domain/Entities` and `dotnet/Querify.QnA.Common.Domain/BusinessRules`
 - QnA persistence infrastructure: `dotnet/Querify.QnA.Common.Persistence.QnADb`
-- Direct contracts and persistence entities: `dotnet/Querify.Models.Direct`, `dotnet/Querify.Direct.Common.Persistence.DirectDb/Entities`
-- Broadcast contracts and persistence entities: `dotnet/Querify.Models.Broadcast`, `dotnet/Querify.Broadcast.Common.Persistence.BroadcastDb/Entities`
+- Direct contracts and domain entities: `dotnet/Querify.Models.Direct`, `dotnet/Querify.Direct.Common.Domain/Entities`
+- Direct persistence infrastructure: `dotnet/Querify.Direct.Common.Persistence.DirectDb`
+- Broadcast contracts and domain entities: `dotnet/Querify.Models.Broadcast`, `dotnet/Querify.Broadcast.Common.Domain/Entities`
+- Broadcast persistence infrastructure: `dotnet/Querify.Broadcast.Common.Persistence.BroadcastDb`
 - Trust contracts and persistence entities use `Querify.Models.Trust` and a Trust persistence boundary when those projects are in scope for the change
 
 Process:
@@ -242,8 +246,10 @@ Relevant module locations:
 - QnA API hosts: `dotnet/Querify.QnA.Portal.Api`, `dotnet/Querify.QnA.Public.Api`
 - QnA worker host: `dotnet/Querify.QnA.Worker.Api`
 - QnA business modules: `dotnet/Querify.QnA.<Surface>.Business.<Feature>`
-- Direct persistence module: `dotnet/Querify.Direct.Common.Persistence.DirectDb`
-- Broadcast persistence module: `dotnet/Querify.Broadcast.Common.Persistence.BroadcastDb`
+- Direct Portal host and business modules: `dotnet/Querify.Direct.Portal.Api`, `dotnet/Querify.Direct.Portal.Business.<Feature>`
+- Direct domain and persistence modules: `dotnet/Querify.Direct.Common.Domain`, `dotnet/Querify.Direct.Common.Persistence.DirectDb`
+- Broadcast Portal host and business modules: `dotnet/Querify.Broadcast.Portal.Api`, `dotnet/Querify.Broadcast.Portal.Business.<Feature>`
+- Broadcast domain and persistence modules: `dotnet/Querify.Broadcast.Common.Domain`, `dotnet/Querify.Broadcast.Common.Persistence.BroadcastDb`
 
 Every module uses the same feature-scoped module pattern. Keep behavior out of another module's handlers unless the use case is explicitly reading or writing an asset owned by that other module.
 
@@ -505,6 +511,8 @@ Backend test stage:
 ```bash
 dotnet test dotnet/Querify.QnA.Portal.Test.IntegrationTests/Querify.QnA.Portal.Test.IntegrationTests.csproj
 dotnet test dotnet/Querify.QnA.Public.Test.IntegrationTests/Querify.QnA.Public.Test.IntegrationTests.csproj
+dotnet test dotnet/Querify.Direct.Portal.Business.Test.IntegrationTests/Querify.Direct.Portal.Business.Test.IntegrationTests.csproj
+dotnet test dotnet/Querify.Broadcast.Portal.Business.Test.IntegrationTests/Querify.Broadcast.Portal.Business.Test.IntegrationTests.csproj
 dotnet test dotnet/Querify.Common.Architecture.Test.IntegrationTest/Querify.Common.Architecture.Test.IntegrationTest.csproj
 ```
 
@@ -514,11 +522,15 @@ Frontend stage:
 cd apps/portal
 npm run lint
 npm run build
+npm run locales:check
 ```
 
 Frontend manual validation should also confirm:
 
 - the workspace switcher remains in the sidebar header
+- Base, Direct, and Broadcast remain grouped under Modules, while workspace controls remain under Administration
+- Base is visually identified as the primary knowledge module and module child routes preserve their parent context
+- Channel Connections remains under Settings because it is shared workspace infrastructure rather than a Direct- or Broadcast-owned record
 - the fixed sidebar appears only at desktop widths and the mobile/tablet header plus drawer remains active below `xl`
 - relationship sections behave as local tabs, not anchors or redirects to global list pages
 - child lists with more than five items expose 5, 10, and 20 item pagination

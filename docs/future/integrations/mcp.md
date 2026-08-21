@@ -720,7 +720,7 @@ to Tenant.
 |---|---|
 | [`../../integrations/mcp-server.md`](../../integrations/mcp-server.md) | Native .NET Stage 3 runbook and tool list |
 | [`mcp-source-to-qna.md`](mcp-source-to-qna.md) | Deep-dive on Source Generation pipeline design and Gaps 1–4 |
-| [`../../business/value_proposition.md`](../../business/value_proposition.md) | Module boundaries and cross-module handoff model |
+| [`../../business/value_proposition/value_proposition.md`](../../business/value_proposition/value_proposition.md) | Module boundaries and cross-module handoff model |
 | [`../../backend/architecture/solution-architecture.md`](../../backend/architecture/solution-architecture.md) | Runtime surfaces, `ISessionService`, multitenancy model |
 | [`../../backend/architecture/dotnet-backend-overview.md`](../../backend/architecture/dotnet-backend-overview.md) | Feature-scoped module pattern for adding `Querify.Mcp.Server` |
 | [`../../backend/architecture/solution-cqrs-write-rules.md`](../../backend/architecture/solution-cqrs-write-rules.md) | CQRS write rules applied by every tool that calls a command |

@@ -1,6 +1,5 @@
 using Querify.Common.EntityFramework.Core.Abstractions;
 using Querify.Common.EntityFramework.Core.Entities;
-using Querify.Common.EntityFramework.Tenant.Entities;
 using Querify.Models.Direct.Enums;
 
 namespace Querify.Direct.Common.Domain.Entities;
@@ -10,12 +9,8 @@ namespace Querify.Direct.Common.Domain.Entities;
 /// </summary>
 public class Conversation : BaseEntity, IMustHaveTenant
 {
+    /// <summary>Maximum optional conversation subject length accepted by persistence.</summary>
     public const int MaxSubjectLength = 500;
-
-    /// <summary>
-    /// Entry surface used to route support conversation behavior without storing QnA channel state.
-    /// </summary>
-    public required ChannelConnectionKind Channel { get; set; }
 
     /// <summary>
     /// Current lifecycle state used to decide whether the conversation is still active or already completed.
@@ -27,11 +22,21 @@ public class Conversation : BaseEntity, IMustHaveTenant
     /// </summary>
     public string? Subject { get; set; }
 
+    /// <summary>
+    /// Contact served by this conversation; the referenced contact must belong to the same Direct tenant.
+    /// </summary>
     public required Guid ContactId { get; set; }
+
+    /// <summary>
+    /// Navigation to the contact used for Direct persistence and contact-scoped reads.
+    /// </summary>
     public required Contact Contact { get; set; }
-    
+
+    /// <summary>
+    /// Tenant control-plane channel connection used to receive and deliver this conversation.
+    /// The ID is intentionally stored without an EF navigation because Tenant and Direct use separate databases.
+    /// </summary>
     public required Guid ChannelConnectionId { get; set; }
-    public required ChannelConnection ChannelConnection { get; set; }
 
     /// <summary>
     /// Messages owned by this conversation; tenant integrity is enforced through the parent relationship.

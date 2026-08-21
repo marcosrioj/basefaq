@@ -1,27 +1,40 @@
-const readEnv = (value: string | undefined, fallback = '') =>
+const readEnv = (value: string | undefined, fallback = "") =>
   value && value.trim().length > 0 ? value : fallback;
 
-const qnaPortalApiUrl = readEnv(import.meta.env.VITE_PORTAL_QNA_API_URL, 'http://localhost:5010');
+const qnaPortalApiUrl = readEnv(
+  import.meta.env.VITE_PORTAL_QNA_API_URL,
+  "http://localhost:5010",
+);
+const directPortalApiUrl = readEnv(
+  import.meta.env.VITE_PORTAL_DIRECT_API_URL,
+  "http://localhost:5040",
+);
+const broadcastPortalApiUrl = readEnv(
+  import.meta.env.VITE_PORTAL_BROADCAST_API_URL,
+  "http://localhost:5050",
+);
 const systemUrls = {
   s3Url: readEnv(import.meta.env.VITE_PORTAL_SYSTEM_S3_URL),
 } as const;
 
 export const RuntimeEnv = {
-  appName: 'Querify QnA Portal',
-  baseUrl: import.meta.env.BASE_URL ?? '/',
+  appName: "Querify Portal",
+  baseUrl: import.meta.env.BASE_URL ?? "/",
   systemUrls,
   qnaPortalApiUrl,
+  directPortalApiUrl,
+  broadcastPortalApiUrl,
   tenantPortalApiUrl: readEnv(
     import.meta.env.VITE_PORTAL_TENANT_API_URL,
-    'http://localhost:5002',
+    "http://localhost:5002",
   ),
   auth0Domain: readEnv(
     import.meta.env.VITE_AUTH0_DOMAIN,
-    'querify.us.auth0.com',
+    "querify.us.auth0.com",
   ),
   auth0Audience: readEnv(
     import.meta.env.VITE_AUTH0_AUDIENCE,
-    'https://querify.net',
+    "https://querify.net",
   ),
   auth0ClientId: readEnv(import.meta.env.VITE_AUTH0_CLIENT_ID),
   auth0RedirectUri: readEnv(import.meta.env.VITE_AUTH0_REDIRECT_URI),

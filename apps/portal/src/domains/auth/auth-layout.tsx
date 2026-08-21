@@ -47,11 +47,11 @@ export function AuthLayout() {
             <div className="max-w-xl space-y-5">
               <div className="space-y-3">
                 <h1 className="text-2xl font-semibold text-mono">
-                  {t("Manage your Querify QnA workspace")}
+                  {t("Manage your Querify workspace")}
                 </h1>
                 <p className="text-base font-medium text-secondary-foreground">
                   {t(
-                    "Sign in to manage spaces, questions, answers, sources, activity, billing, and workspace settings.",
+                    "Sign in to manage Base, Direct, Broadcast, billing, and workspace settings.",
                   )}
                 </p>
               </div>

@@ -1,4 +1,5 @@
 using Querify.Tenant.BackOffice.Business.Billing.Extensions;
+using Querify.Tenant.BackOffice.Business.ChannelConnection.Extensions;
 using Querify.Tenant.BackOffice.Business.Tenant.Extensions;
 using Querify.Tenant.BackOffice.Business.User.Extensions;
 
@@ -9,6 +10,7 @@ public static class ServiceCollectionExtensions
     public static void AddFeatures(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddBillingBusiness();
+        services.AddChannelConnectionBusiness();
         services.AddTenantBusiness();
         services.AddUserBusiness();
     }

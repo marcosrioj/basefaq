@@ -18,6 +18,7 @@ public static class TestDataFactory
         string? name = null,
         TenantEdition edition = TenantEdition.Free,
         ModuleEnum module = ModuleEnum.QnA,
+        Guid? workspaceId = null,
         string? connectionString = null,
         bool isActive = true,
         Guid? userId = null)
@@ -25,9 +26,11 @@ public static class TestDataFactory
         var ownerUserId = userId ?? Guid.NewGuid();
         await EnsureUserExistsAsync(dbContext, ownerUserId);
 
+        var tenantId = id ?? Guid.NewGuid();
         var tenant = new Common.EntityFramework.Tenant.Entities.Tenant
         {
-            Id = id ?? Guid.NewGuid(),
+            Id = tenantId,
+            WorkspaceId = workspaceId ?? tenantId,
             Slug = slug ?? $"tenant-{Guid.NewGuid():N}",
             Name = name ?? "Default Tenant",
             Edition = edition,

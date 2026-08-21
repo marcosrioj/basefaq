@@ -19,6 +19,59 @@ export enum TenantUserRoleType {
   Member = 6,
 }
 
+export enum ChannelConnectionKind {
+  WebChat = 1,
+  Instagram = 6,
+  Messenger = 11,
+  TikTok = 16,
+  Snapchat = 21,
+  WhatsApp = 26,
+  Telegram = 31,
+  Email = 36,
+  Sms = 41,
+  Other = 46,
+}
+
+export enum ChannelConnectionStatus {
+  Pending = 1,
+  Connected = 6,
+  Disconnected = 11,
+  Expired = 16,
+  Error = 21,
+  Suspended = 26,
+}
+
+export enum ConversationStatus {
+  Open = 1,
+  Closed = 6,
+}
+
+export enum MessageActorKind {
+  Contact = 1,
+  User = 6,
+  Automation = 11,
+  Agent = 16,
+  System = 21,
+}
+
+export enum BroadcastThreadStatus {
+  Open = 1,
+  Closed = 6,
+}
+
+export enum BroadcastActorKind {
+  ExternalUser = 1,
+  Brand = 6,
+  System = 11,
+}
+
+export enum BroadcastItemKind {
+  Post = 1,
+  Comment = 6,
+  SharedMessage = 11,
+  Other = 16,
+}
+
 export enum BillingProviderType {
   Unknown = 1,
   Stripe = 6,
@@ -156,159 +209,225 @@ export enum ActorKind {
 }
 
 export const tenantEditionLabels: Record<TenantEdition, string> = {
-  [TenantEdition.Free]: 'Free',
-  [TenantEdition.Starter]: 'Starter',
-  [TenantEdition.Pro]: 'Pro',
-  [TenantEdition.Business]: 'Business',
-  [TenantEdition.Enterprise]: 'Enterprise',
+  [TenantEdition.Free]: "Free",
+  [TenantEdition.Starter]: "Starter",
+  [TenantEdition.Pro]: "Pro",
+  [TenantEdition.Business]: "Business",
+  [TenantEdition.Enterprise]: "Enterprise",
 };
 
 export const tenantUserRoleTypeLabels: Record<TenantUserRoleType, string> = {
-  [TenantUserRoleType.Owner]: 'Owner',
-  [TenantUserRoleType.Member]: 'Member',
+  [TenantUserRoleType.Owner]: "Owner",
+  [TenantUserRoleType.Member]: "Member",
+};
+
+export const channelConnectionKindLabels: Record<
+  ChannelConnectionKind,
+  string
+> = {
+  [ChannelConnectionKind.WebChat]: "Web chat",
+  [ChannelConnectionKind.Instagram]: "Instagram",
+  [ChannelConnectionKind.Messenger]: "Messenger",
+  [ChannelConnectionKind.TikTok]: "TikTok",
+  [ChannelConnectionKind.Snapchat]: "Snapchat",
+  [ChannelConnectionKind.WhatsApp]: "WhatsApp",
+  [ChannelConnectionKind.Telegram]: "Telegram",
+  [ChannelConnectionKind.Email]: "Email",
+  [ChannelConnectionKind.Sms]: "SMS",
+  [ChannelConnectionKind.Other]: "Other",
+};
+
+export const channelConnectionStatusLabels: Record<
+  ChannelConnectionStatus,
+  string
+> = {
+  [ChannelConnectionStatus.Pending]: "Pending",
+  [ChannelConnectionStatus.Connected]: "Connected",
+  [ChannelConnectionStatus.Disconnected]: "Disconnected",
+  [ChannelConnectionStatus.Expired]: "Expired",
+  [ChannelConnectionStatus.Error]: "Error",
+  [ChannelConnectionStatus.Suspended]: "Suspended",
+};
+
+export const conversationStatusLabels: Record<ConversationStatus, string> = {
+  [ConversationStatus.Open]: "Open",
+  [ConversationStatus.Closed]: "Closed",
+};
+
+export const messageActorKindLabels: Record<MessageActorKind, string> = {
+  [MessageActorKind.Contact]: "Contact",
+  [MessageActorKind.User]: "User",
+  [MessageActorKind.Automation]: "Automation",
+  [MessageActorKind.Agent]: "Agent",
+  [MessageActorKind.System]: "System",
+};
+
+export const broadcastThreadStatusLabels: Record<
+  BroadcastThreadStatus,
+  string
+> = {
+  [BroadcastThreadStatus.Open]: "Open",
+  [BroadcastThreadStatus.Closed]: "Closed",
+};
+
+export const broadcastActorKindLabels: Record<BroadcastActorKind, string> = {
+  [BroadcastActorKind.ExternalUser]: "External user",
+  [BroadcastActorKind.Brand]: "Brand",
+  [BroadcastActorKind.System]: "System",
+};
+
+export const broadcastItemKindLabels: Record<BroadcastItemKind, string> = {
+  [BroadcastItemKind.Post]: "Post",
+  [BroadcastItemKind.Comment]: "Comment",
+  [BroadcastItemKind.SharedMessage]: "Shared message",
+  [BroadcastItemKind.Other]: "Other",
 };
 
 export const billingProviderLabels: Record<BillingProviderType, string> = {
-  [BillingProviderType.Unknown]: 'Unknown',
-  [BillingProviderType.Stripe]: 'Stripe',
+  [BillingProviderType.Unknown]: "Unknown",
+  [BillingProviderType.Stripe]: "Stripe",
 };
 
 export const billingIntervalLabels: Record<BillingIntervalType, string> = {
-  [BillingIntervalType.Unknown]: 'Unknown',
-  [BillingIntervalType.Day]: 'Day',
-  [BillingIntervalType.Week]: 'Week',
-  [BillingIntervalType.Month]: 'Month',
-  [BillingIntervalType.Year]: 'Year',
-  [BillingIntervalType.OneTime]: 'One time',
+  [BillingIntervalType.Unknown]: "Unknown",
+  [BillingIntervalType.Day]: "Day",
+  [BillingIntervalType.Week]: "Week",
+  [BillingIntervalType.Month]: "Month",
+  [BillingIntervalType.Year]: "Year",
+  [BillingIntervalType.OneTime]: "One time",
 };
 
-export const billingInvoiceStatusLabels: Record<BillingInvoiceStatus, string> = {
-  [BillingInvoiceStatus.Unknown]: 'Unknown',
-  [BillingInvoiceStatus.Draft]: 'Draft',
-  [BillingInvoiceStatus.Open]: 'Open',
-  [BillingInvoiceStatus.Paid]: 'Paid',
-  [BillingInvoiceStatus.Uncollectible]: 'Uncollectible',
-  [BillingInvoiceStatus.Void]: 'Void',
-  [BillingInvoiceStatus.Failed]: 'Failed',
-};
-
-export const billingPaymentStatusLabels: Record<BillingPaymentStatus, string> = {
-  [BillingPaymentStatus.Unknown]: 'Unknown',
-  [BillingPaymentStatus.Pending]: 'Pending',
-  [BillingPaymentStatus.Succeeded]: 'Succeeded',
-  [BillingPaymentStatus.Failed]: 'Failed',
-  [BillingPaymentStatus.Refunded]: 'Refunded',
-};
-
-export const tenantSubscriptionStatusLabels: Record<TenantSubscriptionStatus, string> =
+export const billingInvoiceStatusLabels: Record<BillingInvoiceStatus, string> =
   {
-    [TenantSubscriptionStatus.Unknown]: 'Unknown',
-    [TenantSubscriptionStatus.Trialing]: 'Trialing',
-    [TenantSubscriptionStatus.Active]: 'Active',
-    [TenantSubscriptionStatus.PastDue]: 'Past due',
-    [TenantSubscriptionStatus.Unpaid]: 'Unpaid',
-    [TenantSubscriptionStatus.Canceled]: 'Canceled',
-    [TenantSubscriptionStatus.Incomplete]: 'Incomplete',
-    [TenantSubscriptionStatus.IncompleteExpired]: 'Incomplete expired',
-    [TenantSubscriptionStatus.Paused]: 'Paused',
+    [BillingInvoiceStatus.Unknown]: "Unknown",
+    [BillingInvoiceStatus.Draft]: "Draft",
+    [BillingInvoiceStatus.Open]: "Open",
+    [BillingInvoiceStatus.Paid]: "Paid",
+    [BillingInvoiceStatus.Uncollectible]: "Uncollectible",
+    [BillingInvoiceStatus.Void]: "Void",
+    [BillingInvoiceStatus.Failed]: "Failed",
   };
 
+export const billingPaymentStatusLabels: Record<BillingPaymentStatus, string> =
+  {
+    [BillingPaymentStatus.Unknown]: "Unknown",
+    [BillingPaymentStatus.Pending]: "Pending",
+    [BillingPaymentStatus.Succeeded]: "Succeeded",
+    [BillingPaymentStatus.Failed]: "Failed",
+    [BillingPaymentStatus.Refunded]: "Refunded",
+  };
+
+export const tenantSubscriptionStatusLabels: Record<
+  TenantSubscriptionStatus,
+  string
+> = {
+  [TenantSubscriptionStatus.Unknown]: "Unknown",
+  [TenantSubscriptionStatus.Trialing]: "Trialing",
+  [TenantSubscriptionStatus.Active]: "Active",
+  [TenantSubscriptionStatus.PastDue]: "Past due",
+  [TenantSubscriptionStatus.Unpaid]: "Unpaid",
+  [TenantSubscriptionStatus.Canceled]: "Canceled",
+  [TenantSubscriptionStatus.Incomplete]: "Incomplete",
+  [TenantSubscriptionStatus.IncompleteExpired]: "Incomplete expired",
+  [TenantSubscriptionStatus.Paused]: "Paused",
+};
+
 export const spaceStatusLabels: Record<SpaceStatus, string> = {
-  [SpaceStatus.Draft]: 'Draft',
-  [SpaceStatus.Active]: 'Active',
-  [SpaceStatus.Archived]: 'Archived',
+  [SpaceStatus.Draft]: "Draft",
+  [SpaceStatus.Active]: "Active",
+  [SpaceStatus.Archived]: "Archived",
 };
 
 export const visibilityScopeLabels: Record<VisibilityScope, string> = {
-  [VisibilityScope.Internal]: 'Internal',
-  [VisibilityScope.Authenticated]: 'Authenticated',
-  [VisibilityScope.Public]: 'Public',
+  [VisibilityScope.Internal]: "Internal",
+  [VisibilityScope.Authenticated]: "Authenticated",
+  [VisibilityScope.Public]: "Public",
 };
 
 export const questionStatusLabels: Record<QuestionStatus, string> = {
-  [QuestionStatus.Draft]: 'Draft',
-  [QuestionStatus.Active]: 'Active',
-  [QuestionStatus.Archived]: 'Archived',
+  [QuestionStatus.Draft]: "Draft",
+  [QuestionStatus.Active]: "Active",
+  [QuestionStatus.Archived]: "Archived",
 };
 
 export const channelKindLabels: Record<ChannelKind, string> = {
-  [ChannelKind.Manual]: 'Manual',
-  [ChannelKind.Widget]: 'Widget',
-  [ChannelKind.Api]: 'API',
-  [ChannelKind.HelpCenter]: 'Help center',
-  [ChannelKind.Import]: 'Import',
-  [ChannelKind.Other]: 'Other',
+  [ChannelKind.Manual]: "Manual",
+  [ChannelKind.Widget]: "Widget",
+  [ChannelKind.Api]: "API",
+  [ChannelKind.HelpCenter]: "Help center",
+  [ChannelKind.Import]: "Import",
+  [ChannelKind.Other]: "Other",
 };
 
 export const answerKindLabels: Record<AnswerKind, string> = {
-  [AnswerKind.Official]: 'Official',
-  [AnswerKind.Community]: 'Community',
-  [AnswerKind.Imported]: 'Imported',
+  [AnswerKind.Official]: "Official",
+  [AnswerKind.Community]: "Community",
+  [AnswerKind.Imported]: "Imported",
 };
 
 export const answerStatusLabels: Record<AnswerStatus, string> = {
-  [AnswerStatus.Draft]: 'Draft',
-  [AnswerStatus.Active]: 'Active',
-  [AnswerStatus.Archived]: 'Archived',
+  [AnswerStatus.Draft]: "Draft",
+  [AnswerStatus.Active]: "Active",
+  [AnswerStatus.Archived]: "Archived",
 };
 
 export const sourceRoleLabels: Record<SourceRole, string> = {
-  [SourceRole.Origin]: 'Origin',
-  [SourceRole.Context]: 'Context',
-  [SourceRole.Evidence]: 'Evidence',
-  [SourceRole.Reference]: 'Reference',
+  [SourceRole.Origin]: "Origin",
+  [SourceRole.Context]: "Context",
+  [SourceRole.Evidence]: "Evidence",
+  [SourceRole.Reference]: "Reference",
 };
 
 export const sourceUploadStatusLabels: Record<SourceUploadStatus, string> = {
-  [SourceUploadStatus.None]: 'External',
-  [SourceUploadStatus.Pending]: 'Pending',
-  [SourceUploadStatus.Uploaded]: 'Uploaded',
-  [SourceUploadStatus.Verified]: 'Verified',
-  [SourceUploadStatus.Quarantined]: 'Quarantined',
-  [SourceUploadStatus.Failed]: 'Failed',
-  [SourceUploadStatus.Expired]: 'Expired',
+  [SourceUploadStatus.None]: "External",
+  [SourceUploadStatus.Pending]: "Pending",
+  [SourceUploadStatus.Uploaded]: "Uploaded",
+  [SourceUploadStatus.Verified]: "Verified",
+  [SourceUploadStatus.Quarantined]: "Quarantined",
+  [SourceUploadStatus.Failed]: "Failed",
+  [SourceUploadStatus.Expired]: "Expired",
 };
 
 export const sourceGenerationRunStatusLabels: Record<
   SourceGenerationRunStatus,
   string
 > = {
-  [SourceGenerationRunStatus.Pending]: 'Pending',
-  [SourceGenerationRunStatus.Running]: 'Running',
-  [SourceGenerationRunStatus.Completed]: 'Completed',
-  [SourceGenerationRunStatus.Failed]: 'Failed',
+  [SourceGenerationRunStatus.Pending]: "Pending",
+  [SourceGenerationRunStatus.Running]: "Running",
+  [SourceGenerationRunStatus.Completed]: "Completed",
+  [SourceGenerationRunStatus.Failed]: "Failed",
 };
 
 export const sourceGenerationTagModeLabels: Record<
   SourceGenerationTagMode,
   string
 > = {
-  [SourceGenerationTagMode.None]: 'None',
-  [SourceGenerationTagMode.SuggestOnly]: 'Suggest only',
-  [SourceGenerationTagMode.CreateAndAttach]: 'Create and attach',
+  [SourceGenerationTagMode.None]: "None",
+  [SourceGenerationTagMode.SuggestOnly]: "Suggest only",
+  [SourceGenerationTagMode.CreateAndAttach]: "Create and attach",
 };
 
 export const activityKindLabels: Record<ActivityKind, string> = {
-  [ActivityKind.QuestionCreated]: 'Question created',
-  [ActivityKind.QuestionUpdated]: 'Question updated',
-  [ActivityKind.QuestionDraft]: 'Question draft',
-  [ActivityKind.QuestionActive]: 'Question active',
-  [ActivityKind.QuestionArchived]: 'Question archived',
-  [ActivityKind.AnswerCreated]: 'Answer created',
-  [ActivityKind.AnswerUpdated]: 'Answer updated',
-  [ActivityKind.AnswerDraft]: 'Answer draft',
-  [ActivityKind.AnswerActive]: 'Answer active',
-  [ActivityKind.AnswerArchived]: 'Answer archived',
-  [ActivityKind.FeedbackReceived]: 'Feedback received',
-  [ActivityKind.VoteReceived]: 'Vote received',
+  [ActivityKind.QuestionCreated]: "Question created",
+  [ActivityKind.QuestionUpdated]: "Question updated",
+  [ActivityKind.QuestionDraft]: "Question draft",
+  [ActivityKind.QuestionActive]: "Question active",
+  [ActivityKind.QuestionArchived]: "Question archived",
+  [ActivityKind.AnswerCreated]: "Answer created",
+  [ActivityKind.AnswerUpdated]: "Answer updated",
+  [ActivityKind.AnswerDraft]: "Answer draft",
+  [ActivityKind.AnswerActive]: "Answer active",
+  [ActivityKind.AnswerArchived]: "Answer archived",
+  [ActivityKind.FeedbackReceived]: "Feedback received",
+  [ActivityKind.VoteReceived]: "Vote received",
 };
 
 export const actorKindLabels: Record<ActorKind, string> = {
-  [ActorKind.System]: 'System',
-  [ActorKind.Customer]: 'Customer',
-  [ActorKind.Contributor]: 'Contributor',
-  [ActorKind.Moderator]: 'Moderator',
-  [ActorKind.Integration]: 'Integration',
+  [ActorKind.System]: "System",
+  [ActorKind.Customer]: "Customer",
+  [ActorKind.Contributor]: "Contributor",
+  [ActorKind.Moderator]: "Moderator",
+  [ActorKind.Integration]: "Integration",
 };
 
 export type BackendEnumSelectOption = {

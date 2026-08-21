@@ -1,7 +1,7 @@
-import { Command, Search } from 'lucide-react';
-import { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { usePortalI18n } from '@/shared/lib/use-portal-i18n';
+import { Command, Search } from "lucide-react";
+import { useState } from "react";
+import { Link } from "react-router-dom";
+import { usePortalI18n } from "@/shared/lib/use-portal-i18n";
 import {
   Button,
   Dialog,
@@ -9,57 +9,63 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from '@/shared/ui';
+} from "@/shared/ui";
 
 const shortcuts = [
-  { label: 'Go to dashboard', to: '/app/dashboard' },
-  { label: 'Open spaces', to: '/app/spaces' },
-  { label: 'Open tags', to: '/app/tags' },
-  { label: 'Open sources', to: '/app/sources' },
-  { label: 'Open billing', to: '/app/billing' },
+  { label: "Go to dashboard", to: "/app/dashboard" },
+  { label: "Open spaces", to: "/app/spaces" },
+  { label: "Open tags", to: "/app/tags" },
+  { label: "Open sources", to: "/app/sources" },
+  { label: "Open conversations", to: "/app/direct/conversations" },
+  { label: "Open Broadcast threads", to: "/app/broadcast/threads" },
+  {
+    label: "Open channel connections",
+    to: "/app/settings/channel-connections",
+  },
+  { label: "Open billing", to: "/app/billing" },
 ];
 
 export function PortalCommandDialog({
-  variant = 'toolbar',
+  variant = "toolbar",
 }: {
-  variant?: 'toolbar' | 'icon' | 'sidebar';
+  variant?: "toolbar" | "icon" | "sidebar";
 }) {
   const [open, setOpen] = useState(false);
   const { t } = usePortalI18n();
 
   return (
     <>
-      {variant === 'toolbar' ? (
+      {variant === "toolbar" ? (
         <Button
           variant="outline"
           className="hidden min-w-[180px] justify-start text-muted-foreground xl:flex"
           onClick={() => setOpen(true)}
         >
           <Search className="size-4" />
-          {t('Search portal')}
+          {t("Search portal")}
         </Button>
       ) : null}
 
-      {variant === 'icon' ? (
+      {variant === "icon" ? (
         <Button
           variant="ghost"
           mode="icon"
           className="hover:bg-background hover:[&_svg]:text-primary"
-          aria-label={t('Search portal')}
+          aria-label={t("Search portal")}
           onClick={() => setOpen(true)}
         >
           <Search className="size-4" />
         </Button>
       ) : null}
 
-      {variant === 'sidebar' ? (
+      {variant === "sidebar" ? (
         <Button
           variant="outline"
           className="w-full justify-start text-muted-foreground"
           onClick={() => setOpen(true)}
         >
           <Search className="size-4" />
-          {t('Search portal')}
+          {t("Search portal")}
           <span className="ms-auto text-xs text-muted-foreground">cmd + /</span>
         </Button>
       ) : null}
@@ -67,17 +73,17 @@ export function PortalCommandDialog({
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="sm:max-w-xl">
           <DialogHeader>
-            <DialogTitle>{t('Portal command search')}</DialogTitle>
+            <DialogTitle>{t("Portal command search")}</DialogTitle>
             <DialogDescription>
               {t(
-                'The command surface is intentionally lean for now. Use it as a quick launcher while full global search stays a placeholder.',
+                "The command surface is intentionally lean for now. Use it as a quick launcher while full global search stays a placeholder.",
               )}
             </DialogDescription>
           </DialogHeader>
           <div className="rounded-2xl border border-border p-2">
             <div className="flex items-center gap-2 rounded-xl bg-muted/60 px-3 py-2 text-sm text-muted-foreground">
               <Search className="size-4" />
-              {t('Search is route-launch only in this foundation build.')}
+              {t("Search is route-launch only in this foundation build.")}
             </div>
             <div className="mt-3 grid gap-2">
               {shortcuts.map((shortcut) => (

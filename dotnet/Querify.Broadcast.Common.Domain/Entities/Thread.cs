@@ -1,6 +1,5 @@
 using Querify.Common.EntityFramework.Core.Abstractions;
 using Querify.Common.EntityFramework.Core.Entities;
-using Querify.Common.EntityFramework.Tenant.Entities;
 using Querify.Models.Broadcast.Enums;
 
 namespace Querify.Broadcast.Common.Domain.Entities;
@@ -10,6 +9,7 @@ namespace Querify.Broadcast.Common.Domain.Entities;
 /// </summary>
 public class Thread : BaseEntity, IMustHaveTenant
 {
+    /// <summary>Maximum optional Broadcast thread title length accepted by persistence.</summary>
     public const int MaxTitleLength = 1000;
 
     /// <summary>
@@ -22,7 +22,11 @@ public class Thread : BaseEntity, IMustHaveTenant
     /// </summary>
     public string? Title { get; set; }
 
-    public required ChannelConnection ChannelConnection { get; set; }
+    /// <summary>
+    /// Tenant control-plane channel connection used to capture and respond to this public interaction.
+    /// The ID is intentionally stored without an EF navigation because Tenant and Broadcast use separate databases.
+    /// </summary>
+    public required Guid ChannelConnectionId { get; set; }
 
     /// <summary>
     /// Broadcast items owned by this thread; tenant integrity is enforced through the parent relationship.

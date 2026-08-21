@@ -44,7 +44,7 @@ export function LoginPage() {
         <div className="space-y-2">
           <h2 className="text-3xl font-semibold text-mono">{t("Sign in")}</h2>
           <p className="text-sm leading-6 text-muted-foreground">
-            {t("Manage your Querify QnA workspace")}
+            {t("Manage your Querify workspace")}
           </p>
         </div>
       </div>

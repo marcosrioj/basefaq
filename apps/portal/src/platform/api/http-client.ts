@@ -1,13 +1,13 @@
-import { ApiError, isAbortError, toApiError } from '@/platform/api/api-error';
-import { RuntimeEnv } from '@/platform/runtime/env';
-import { translateText } from '@/shared/lib/i18n-core';
+import { ApiError, isAbortError, toApiError } from "@/platform/api/api-error";
+import { RuntimeEnv } from "@/platform/runtime/env";
+import { translateText } from "@/shared/lib/i18n-core";
 
-export type PortalService = 'tenant' | 'qna';
+export type PortalService = "tenant" | "qna" | "direct" | "broadcast";
 
 export type RequestOptions = {
   service: PortalService;
   path: string;
-  method?: 'GET' | 'POST' | 'PUT' | 'DELETE';
+  method?: "GET" | "POST" | "PUT" | "DELETE";
   accessToken?: string;
   tenantId?: string;
   query?: Record<string, unknown>;
@@ -18,58 +18,66 @@ export type RequestOptions = {
 const serviceBaseUrl: Record<PortalService, string> = {
   tenant: RuntimeEnv.tenantPortalApiUrl,
   qna: RuntimeEnv.qnaPortalApiUrl,
+  direct: RuntimeEnv.directPortalApiUrl,
+  broadcast: RuntimeEnv.broadcastPortalApiUrl,
 };
 
 function getServiceLabel(service: PortalService) {
-  if (service === 'tenant') {
-    return translateText('Tenant API');
+  if (service === "tenant") {
+    return translateText("Tenant API");
   }
 
-  return translateText('QnA API');
+  if (service === "qna") {
+    return translateText("Base API");
+  }
+
+  return service === "direct"
+    ? translateText("Direct API")
+    : translateText("Broadcast API");
 }
 
 function buildHttpErrorFallback(service: PortalService, status: number) {
   switch (status) {
     case 400:
-      return translateText('The request is invalid.');
+      return translateText("The request is invalid.");
     case 401:
-      return translateText('Your session expired. Sign in again.');
+      return translateText("Your session expired. Sign in again.");
     case 403:
-      return translateText('You do not have access to this workspace.');
+      return translateText("You do not have access to this workspace.");
     case 404:
-      return translateText('The requested record was not found.');
+      return translateText("The requested record was not found.");
     case 409:
-      return translateText('This change conflicts with the current data.');
+      return translateText("This change conflicts with the current data.");
     case 422:
-      return translateText('The submitted data is invalid.');
+      return translateText("The submitted data is invalid.");
     case 429:
-      return translateText('{serviceLabel} is throttling requests right now.', {
+      return translateText("{serviceLabel} is throttling requests right now.", {
         serviceLabel: getServiceLabel(service),
       });
     default:
       return status >= 500
-        ? translateText('{serviceLabel} is unavailable right now.', {
+        ? translateText("{serviceLabel} is unavailable right now.", {
             serviceLabel: getServiceLabel(service),
           })
-        : translateText('{serviceLabel} request failed.', {
+        : translateText("{serviceLabel} request failed.", {
             serviceLabel: getServiceLabel(service),
           });
   }
 }
 
 function buildNetworkErrorMessage(service: PortalService) {
-  if (typeof navigator !== 'undefined' && navigator.onLine === false) {
-    return translateText('You are offline.');
+  if (typeof navigator !== "undefined" && navigator.onLine === false) {
+    return translateText("You are offline.");
   }
 
-  return translateText('Cannot reach the {serviceLabel}.', {
+  return translateText("Cannot reach the {serviceLabel}.", {
     serviceLabel: getServiceLabel(service),
   });
 }
 
 function buildQueryString(query?: Record<string, unknown>) {
   if (!query) {
-    return '';
+    return "";
   }
 
   const params = new URLSearchParams();
@@ -78,7 +86,7 @@ function buildQueryString(query?: Record<string, unknown>) {
     if (
       rawValue === undefined ||
       rawValue === null ||
-      rawValue === '' ||
+      rawValue === "" ||
       (Array.isArray(rawValue) && rawValue.length === 0)
     ) {
       continue;
@@ -93,13 +101,13 @@ function buildQueryString(query?: Record<string, unknown>) {
   }
 
   const queryString = params.toString();
-  return queryString ? `?${queryString}` : '';
+  return queryString ? `?${queryString}` : "";
 }
 
 export async function portalRequest<T>({
   service,
   path,
-  method = 'GET',
+  method = "GET",
   accessToken,
   tenantId,
   query,
@@ -108,19 +116,19 @@ export async function portalRequest<T>({
 }: RequestOptions): Promise<T> {
   const url = `${serviceBaseUrl[service]}${path}${buildQueryString(query)}`;
   const headers = new Headers({
-    Accept: 'application/json',
+    Accept: "application/json",
   });
 
   if (accessToken) {
-    headers.set('Authorization', `Bearer ${accessToken}`);
+    headers.set("Authorization", `Bearer ${accessToken}`);
   }
 
   if (tenantId) {
-    headers.set('X-Tenant-Id', tenantId);
+    headers.set("X-Tenant-Id", tenantId);
   }
 
   if (body !== undefined) {
-    headers.set('Content-Type', 'application/json');
+    headers.set("Content-Type", "application/json");
   }
 
   let response: Response;
@@ -162,8 +170,8 @@ export async function portalRequest<T>({
     return (await response.json()) as T;
   }
 
-  const contentType = response.headers.get('content-type');
-  if (contentType?.includes('application/json')) {
+  const contentType = response.headers.get("content-type");
+  if (contentType?.includes("application/json")) {
     return (await response.json()) as T;
   }
 
@@ -173,7 +181,7 @@ export async function portalRequest<T>({
 
 export function requireAccessToken(token?: string) {
   if (!token) {
-    throw new ApiError(translateText('Sign in again to continue.'), 401);
+    throw new ApiError(translateText("Sign in again to continue."), 401);
   }
 
   return token;
@@ -181,7 +189,7 @@ export function requireAccessToken(token?: string) {
 
 export function requireTenantId(tenantId?: string) {
   if (!tenantId) {
-    throw new ApiError(translateText('Select a workspace to continue.'), 400);
+    throw new ApiError(translateText("Select a workspace to continue."), 400);
   }
 
   return tenantId;

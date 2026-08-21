@@ -1,10 +1,17 @@
-import { PortalRole } from '@/platform/auth/types';
+import { PortalRole } from "@/platform/auth/types";
 import {
   ActivityKind,
   ActorKind,
   AnswerKind,
   AnswerStatus,
+  BroadcastActorKind,
+  BroadcastItemKind,
+  BroadcastThreadStatus,
+  ChannelConnectionKind,
+  ChannelConnectionStatus,
   ChannelKind,
+  ConversationStatus,
+  MessageActorKind,
   QuestionStatus,
   SourceRole,
   SourceUploadStatus,
@@ -12,13 +19,20 @@ import {
   TenantEdition,
   TenantUserRoleType,
   VisibilityScope,
-} from '@/shared/constants/backend-enums';
+} from "@/shared/constants/backend-enums";
 import {
   activityKindPresentation,
   actorKindPresentation,
   answerKindPresentation,
   answerStatusPresentation,
+  broadcastActorKindPresentation,
+  broadcastItemKindPresentation,
+  broadcastThreadStatusPresentation,
+  channelConnectionKindPresentation,
+  channelConnectionStatusPresentation,
   channelKindPresentation,
+  conversationStatusPresentation,
+  messageActorKindPresentation,
   questionStatusPresentation,
   sourceRolePresentation,
   sourceUploadStatusPresentation,
@@ -28,14 +42,14 @@ import {
   type BadgeVariant,
   type EnumPresentation,
   visibilityPresentation,
-} from '@/shared/constants/enum-ui';
-import { usePortalI18n } from '@/shared/lib/use-portal-i18n';
-import { Badge } from '@/shared/ui';
+} from "@/shared/constants/enum-ui";
+import { usePortalI18n } from "@/shared/lib/use-portal-i18n";
+import { Badge } from "@/shared/ui";
 
 const unknownPresentation: EnumPresentation = {
-  label: 'Unknown',
-  description: 'The API returned an unsupported value.',
-  badgeVariant: 'outline',
+  label: "Unknown",
+  description: "The API returned an unsupported value.",
+  badgeVariant: "outline",
   sortGroup: Number.MAX_SAFE_INTEGER,
 };
 
@@ -45,93 +59,203 @@ function getPresentation<T extends string | number>(
 ) {
   return value === null || value === undefined
     ? unknownPresentation
-    : presentations[value] ?? unknownPresentation;
+    : (presentations[value] ?? unknownPresentation);
 }
 
-function BadgeText({
-  text,
-  variant,
-}: {
-  text: string;
-  variant: BadgeVariant;
-}) {
+function BadgeText({ text, variant }: { text: string; variant: BadgeVariant }) {
   const { t } = usePortalI18n();
 
-  return <Badge variant={variant} appearance="outline">{t(text)}</Badge>;
+  return (
+    <Badge variant={variant} appearance="outline">
+      {t(text)}
+    </Badge>
+  );
 }
 
 export function RoleBadge({ role }: { role: PortalRole }) {
-  return <BadgeText text={role} variant={role === 'Admin' ? 'primary' : 'secondary'} />;
+  return (
+    <BadgeText
+      text={role}
+      variant={role === "Admin" ? "primary" : "secondary"}
+    />
+  );
 }
 
 export function TenantUserRoleBadge({ role }: { role: TenantUserRoleType }) {
   const presentation = getPresentation(tenantUserRolePresentation, role);
 
-  return <BadgeText text={presentation.label} variant={presentation.badgeVariant} />;
+  return (
+    <BadgeText text={presentation.label} variant={presentation.badgeVariant} />
+  );
 }
 
 export function TenantEditionBadge({ edition }: { edition: TenantEdition }) {
   const presentation = getPresentation(tenantEditionPresentation, edition);
 
-  return <BadgeText text={presentation.label} variant={presentation.badgeVariant} />;
+  return (
+    <BadgeText text={presentation.label} variant={presentation.badgeVariant} />
+  );
 }
 
 export function SpaceStatusBadge({ status }: { status: SpaceStatus }) {
   const presentation = getPresentation(spaceStatusPresentation, status);
 
-  return <BadgeText text={presentation.label} variant={presentation.badgeVariant} />;
+  return (
+    <BadgeText text={presentation.label} variant={presentation.badgeVariant} />
+  );
 }
 
-export function VisibilityBadge({ visibility }: { visibility: VisibilityScope }) {
+export function VisibilityBadge({
+  visibility,
+}: {
+  visibility: VisibilityScope;
+}) {
   const presentation = getPresentation(visibilityPresentation, visibility);
 
-  return <BadgeText text={presentation.label} variant={presentation.badgeVariant} />;
+  return (
+    <BadgeText text={presentation.label} variant={presentation.badgeVariant} />
+  );
 }
 
 export function QuestionStatusBadge({ status }: { status: QuestionStatus }) {
   const presentation = getPresentation(questionStatusPresentation, status);
 
-  return <BadgeText text={presentation.label} variant={presentation.badgeVariant} />;
+  return (
+    <BadgeText text={presentation.label} variant={presentation.badgeVariant} />
+  );
 }
 
 export function ChannelKindBadge({ kind }: { kind: ChannelKind }) {
   const presentation = getPresentation(channelKindPresentation, kind);
 
-  return <BadgeText text={presentation.label} variant={presentation.badgeVariant} />;
+  return (
+    <BadgeText text={presentation.label} variant={presentation.badgeVariant} />
+  );
 }
 
 export function AnswerKindBadge({ kind }: { kind: AnswerKind }) {
   const presentation = getPresentation(answerKindPresentation, kind);
 
-  return <BadgeText text={presentation.label} variant={presentation.badgeVariant} />;
+  return (
+    <BadgeText text={presentation.label} variant={presentation.badgeVariant} />
+  );
 }
 
 export function AnswerStatusBadge({ status }: { status: AnswerStatus }) {
   const presentation = getPresentation(answerStatusPresentation, status);
 
-  return <BadgeText text={presentation.label} variant={presentation.badgeVariant} />;
+  return (
+    <BadgeText text={presentation.label} variant={presentation.badgeVariant} />
+  );
 }
 
 export function SourceRoleBadge({ role }: { role: SourceRole }) {
   const presentation = getPresentation(sourceRolePresentation, role);
 
-  return <BadgeText text={presentation.label} variant={presentation.badgeVariant} />;
+  return (
+    <BadgeText text={presentation.label} variant={presentation.badgeVariant} />
+  );
 }
 
-export function SourceUploadStatusBadge({ status }: { status: SourceUploadStatus }) {
+export function SourceUploadStatusBadge({
+  status,
+}: {
+  status: SourceUploadStatus;
+}) {
   const presentation = getPresentation(sourceUploadStatusPresentation, status);
 
-  return <BadgeText text={presentation.label} variant={presentation.badgeVariant} />;
+  return (
+    <BadgeText text={presentation.label} variant={presentation.badgeVariant} />
+  );
 }
 
 export function ActivityKindBadge({ kind }: { kind: ActivityKind }) {
   const presentation = getPresentation(activityKindPresentation, kind);
 
-  return <BadgeText text={presentation.label} variant={presentation.badgeVariant} />;
+  return (
+    <BadgeText text={presentation.label} variant={presentation.badgeVariant} />
+  );
 }
 
 export function ActorKindBadge({ kind }: { kind: ActorKind }) {
   const presentation = getPresentation(actorKindPresentation, kind);
 
-  return <BadgeText text={presentation.label} variant={presentation.badgeVariant} />;
+  return (
+    <BadgeText text={presentation.label} variant={presentation.badgeVariant} />
+  );
+}
+
+export function ChannelConnectionKindBadge({
+  kind,
+}: {
+  kind: ChannelConnectionKind;
+}) {
+  const presentation = getPresentation(channelConnectionKindPresentation, kind);
+  return (
+    <BadgeText text={presentation.label} variant={presentation.badgeVariant} />
+  );
+}
+
+export function ChannelConnectionStatusBadge({
+  status,
+}: {
+  status: ChannelConnectionStatus;
+}) {
+  const presentation = getPresentation(
+    channelConnectionStatusPresentation,
+    status,
+  );
+  return (
+    <BadgeText text={presentation.label} variant={presentation.badgeVariant} />
+  );
+}
+
+export function ConversationStatusBadge({
+  status,
+}: {
+  status: ConversationStatus;
+}) {
+  const presentation = getPresentation(conversationStatusPresentation, status);
+  return (
+    <BadgeText text={presentation.label} variant={presentation.badgeVariant} />
+  );
+}
+
+export function MessageActorKindBadge({ kind }: { kind: MessageActorKind }) {
+  const presentation = getPresentation(messageActorKindPresentation, kind);
+  return (
+    <BadgeText text={presentation.label} variant={presentation.badgeVariant} />
+  );
+}
+
+export function BroadcastThreadStatusBadge({
+  status,
+}: {
+  status: BroadcastThreadStatus;
+}) {
+  const presentation = getPresentation(
+    broadcastThreadStatusPresentation,
+    status,
+  );
+  return (
+    <BadgeText text={presentation.label} variant={presentation.badgeVariant} />
+  );
+}
+
+export function BroadcastActorKindBadge({
+  kind,
+}: {
+  kind: BroadcastActorKind;
+}) {
+  const presentation = getPresentation(broadcastActorKindPresentation, kind);
+  return (
+    <BadgeText text={presentation.label} variant={presentation.badgeVariant} />
+  );
+}
+
+export function BroadcastItemKindBadge({ kind }: { kind: BroadcastItemKind }) {
+  const presentation = getPresentation(broadcastItemKindPresentation, kind);
+  return (
+    <BadgeText text={presentation.label} variant={presentation.badgeVariant} />
+  );
 }

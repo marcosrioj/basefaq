@@ -38,12 +38,16 @@ If a shared primitive already matches the use case, do not replace it with ad ho
 
 - Primary navigation belongs in the left sidebar.
 - The workspace switcher belongs in the sidebar header.
+- Group primary navigation by user task: Modules, Administration, and Account. Module records and workspace infrastructure must not be mixed into one flat list.
+- Label the QnA module **Base** and pair it with the knowledge-base icon so its role as the primary knowledge foundation is visible without hiding the QnA implementation boundary.
+- Direct and Broadcast are sibling module parents. Keep their feature routes nested beneath the module parent so active state and breadcrumbs preserve module context.
+- Channel Connections belongs in Settings because it configures shared workspace infrastructure used by multiple modules.
 - The top toolbar is for the unified page trail, command search, language, notifications, and the user menu.
 - The unified page trail combines parent breadcrumbs, the current page title, optional back navigation, and compact title hints. Do not render a second page title in the content header.
 - QnA child breadcrumbs must follow the owning lineage with the generic parent label, for example Space -> Question -> question title, Space -> Question -> Answer -> Activity, or Answer -> Follow-up question navigation. Only the Space detail page itself should show the Space name.
 - Breadcrumb/title text must truncate inside the toolbar instead of wrapping or widening the shell.
-- Do not use the QnA module navigation as primary app navigation.
-- Use the QnA module visual language only for in-screen child and relationship management.
+- Do not use in-screen QnA relationship navigation as primary app navigation.
+- Use the QnA relationship visual language only for in-screen child and relationship management.
 - The left sidebar belongs to desktop only. Mobile and tablet widths use the header plus drawer through the `xl` breakpoint.
 - Keep shell rendering and CSS breakpoints in sync. If `PortalSidebar`, `MobileHeader`, or `useIsMobile` changes, verify all three still switch at the same width.
 - The app shell must not impose a minimum content width. Add `min-w-0` to root, shell, main, card, and flex children that need to shrink.

@@ -4,6 +4,19 @@
         <TargetFramework>net10.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
+        <PackageId>Querify.Direct.Portal.Business.Contact</PackageId>
     </PropertyGroup>
+
+    <ItemGroup>
+        <FrameworkReference Include="Microsoft.AspNetCore.App" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\Querify.Common.Infrastructure.Core\Querify.Common.Infrastructure.Core.csproj" />
+        <ProjectReference Include="..\Querify.Common.Infrastructure.MediatR\Querify.Common.Infrastructure.MediatR.csproj" />
+        <ProjectReference Include="..\Querify.Direct.Common.Domain\Querify.Direct.Common.Domain.csproj" />
+        <ProjectReference Include="..\Querify.Direct.Common.Persistence.DirectDb\Querify.Direct.Common.Persistence.DirectDb.csproj" />
+        <ProjectReference Include="..\Querify.Models.Direct\Querify.Models.Direct.csproj" />
+    </ItemGroup>
 
 </Project>

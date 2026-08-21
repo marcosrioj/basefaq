@@ -28,6 +28,8 @@ The repository root contains one primary `.NET` solution file, `Querify.sln`. It
 | `Querify.QnA.Public.Api` | public QnA access and public signaling APIs | `5020` |
 | `Querify.Tenant.Worker.Api` | control-plane worker for billing webhooks and email outbox processing | n/a |
 | `Querify.QnA.Worker.Api` | QnA worker for RabbitMQ source-upload verification and Hangfire-backed operational jobs | `5030` |
+| `Querify.Direct.Portal.Api` | authenticated Direct contact, conversation, and message APIs | `5040` |
+| `Querify.Broadcast.Portal.Api` | authenticated Broadcast thread and captured-item APIs | `5050` |
 
 ## Core architectural patterns
 
@@ -75,14 +77,21 @@ Inside each area, business modules are further split by feature, for example:
 - `Querify.QnA.Portal.Business.Activity`
 - `Querify.QnA.Public.Business.Space`
 - `Querify.QnA.Public.Business.Question`
+- `Querify.Direct.Portal.Business.Contact`
+- `Querify.Direct.Portal.Business.Conversation`
+- `Querify.Direct.Portal.Business.ConversationMessage`
+- `Querify.Broadcast.Portal.Business.Thread`
+- `Querify.Broadcast.Portal.Business.Item`
 - `Querify.Tenant.Portal.Business.Tenant`
+- `Querify.Tenant.Portal.Business.ChannelConnection`
 - `Querify.Tenant.BackOffice.Business.User`
+- `Querify.Tenant.BackOffice.Business.ChannelConnection`
 - `Querify.Tenant.Public.Business.Billing`
 - `Querify.Tenant.BackOffice.Business.Billing`
 
 This keeps controller, service, command, and query code grouped by domain capability instead of by technical layer alone. Each module uses the same feature-scoped ownership rule: add behavior to the smallest module feature project that owns the use case, keep source files in that project, and compose API hosts from feature registrations.
 
-The current runtime catalog contains Tenant and QnA API/business projects. Direct and Broadcast are represented by their persistence boundaries. Trust is part of the module taxonomy and has no active runtime project in this repository snapshot.
+The runtime catalog contains Tenant, QnA, Direct, and Broadcast API/business projects. Trust remains part of the module taxonomy but does not expose a Portal API host in this repository snapshot.
 
 ### 3. CQRS with MediatR is the standard application pattern
 
@@ -131,10 +140,10 @@ Querify uses separate EF Core context boundaries for module data responsibilitie
 
 | Module | Context | Responsibility |
 |---|---|---|
-| Tenant | `TenantDbContext` | global tenant metadata, users, tenant memberships, module connection mapping, billing, entitlements, and control-plane background-processing state |
+| Tenant | `TenantDbContext` | global tenant metadata, stable workspace/module mapping, users, memberships, channel connections, billing, entitlements, and control-plane background-processing state |
 | QnA | QnA module `DbContext` | tenant-specific QnA module data such as spaces, questions, answers, source links, tag links, workflow state, and activity |
 | QnA Worker | `HangfireQnaDbContext` | QnA worker Hangfire storage boundary for durable operational job state |
-| Direct | `DirectDbContext` | tenant-specific Direct module data such as conversations and conversation messages |
+| Direct | `DirectDbContext` | tenant-specific Direct contacts, conversations, and chronological messages |
 | Broadcast | `BroadcastDbContext` | tenant-specific Broadcast module data such as external/community threads and captured items |
 | Trust | no active EF context | validation, governance, decision history, and auditability records belong to the Trust module boundary |
 
@@ -158,7 +167,9 @@ such as the Portal.
 
 Tenant integrity is a mandatory `DbContext` responsibility for tenant module data. When an `IMustHaveTenant` entity references another tenant-owned record, the owning context must validate the relationship before save. The default shape is `DbContext/TenantIntegrity/<Entity>TenantIntegrityExtension.cs`, one focused extension per checked entity or relationship, backed by `TenantIntegrityGuard` and `TenantIntegrityLookupCacheBase` or a module-specific lookup cache that reads referenced records with `IgnoreQueryFilters()`.
 
-`Querify.Direct.Common.Persistence.DirectDb` and `Querify.Broadcast.Common.Persistence.BroadcastDb` contain the current Direct and Broadcast entity, enum, configuration, DbContext, and registration-extension scope. API hosts, business modules, migrations, additional workflow entities, and seed flows for those behaviors belong in the same module boundaries.
+Direct and Broadcast follow the QnA physical decomposition: `Querify.<Module>.Common.Domain` owns entities and reusable entity rules, `Querify.<Module>.Common.Persistence.<Module>Db` owns EF configuration and tenant integrity, `Querify.<Module>.Portal.Business.<Feature>` owns feature-scoped CQRS/API behavior, and `Querify.<Module>.Portal.Api` is the composition root.
+
+`TenantDbContext` is the control-plane owner for workspace-level `ChannelConnection` records and encrypted provider configuration. Each workspace has one stable `WorkspaceId` shared by its module-specific tenant rows. Channel connections are stored against the active QnA tenant, which acts as the workspace base record. Direct conversations and Broadcast threads retain only `ChannelConnectionId`; they validate that identifier through the Tenant control plane before writes and intentionally do not define cross-database EF navigations.
 
 `Querify.QnA.Common.Persistence.HangfireQnaDb` is intentionally narrower: it owns the QnA worker's Hangfire storage connection, design-time EF context, registration extension, and migrations boundary. Hangfire's internal storage tables remain provider-owned by `Hangfire.PostgreSql`, with versions pinned in `Querify.Common.Infrastructure.Hangfire`.
 

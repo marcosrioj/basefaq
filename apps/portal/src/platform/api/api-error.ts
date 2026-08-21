@@ -1,4 +1,4 @@
-import { translateText } from '@/shared/lib/i18n-core';
+import { translateText } from "@/shared/lib/i18n-core";
 
 type ApiErrorPayload = {
   errorCode?: number;
@@ -34,7 +34,7 @@ export class ApiError extends Error {
     context?: ApiErrorContext,
   ) {
     super(message);
-    this.name = 'ApiError';
+    this.name = "ApiError";
     this.status = status;
     this.errorCode = errorCode;
     this.data = data;
@@ -44,25 +44,25 @@ export class ApiError extends Error {
 
 const isApiErrorPayload = (value: unknown): value is ApiErrorPayload => {
   return (
-    typeof value === 'object' &&
+    typeof value === "object" &&
     value !== null &&
-    ('messageError' in value ||
-      'MessageError' in value ||
-      'errorCode' in value ||
-      'ErrorCode' in value ||
-      'message' in value ||
-      'title' in value ||
-      'detail' in value ||
-      'errors' in value)
+    ("messageError" in value ||
+      "MessageError" in value ||
+      "errorCode" in value ||
+      "ErrorCode" in value ||
+      "message" in value ||
+      "title" in value ||
+      "detail" in value ||
+      "errors" in value)
   );
 };
 
 const GENERIC_MESSAGES = new Set([
-  'Api error',
-  'Querify request failed.',
-  'One or more validation errors occurred.',
-  'Request failed.',
-  'Something went wrong while communicating with Querify.',
+  "Api error",
+  "Querify request failed.",
+  "One or more validation errors occurred.",
+  "Request failed.",
+  "Something went wrong while communicating with Querify.",
 ]);
 
 const API_ERROR_MESSAGE_ALIASES: Array<{
@@ -71,73 +71,100 @@ const API_ERROR_MESSAGE_ALIASES: Array<{
 }> = [
   {
     pattern: /^.+ '.+' was not found\.$/,
-    message: 'The requested record was not found.',
+    message: "The requested record was not found.",
   },
   {
     pattern: /^Current user profile was not found\.$/,
-    message: 'The requested record was not found.',
+    message: "The requested record was not found.",
   },
   {
     pattern: /^Accepted answer '.+' belongs to a different question\.$/,
-    message: 'The accepted answer belongs to a different question.',
+    message: "The accepted answer belongs to a different question.",
   },
   {
     pattern: /^User '.+' already belongs to tenant '.+'\.$/,
-    message: 'This email is already a member of the workspace.',
+    message: "This email is already a member of the workspace.",
   },
   {
     pattern: /^Tenant '.+' is not allowed for the current user\.$/,
-    message: 'You do not have access to this workspace.',
+    message: "You do not have access to this workspace.",
   },
   {
     pattern: /^Tenant context is missing from the current request\.$/,
-    message: 'Select a workspace to continue.',
+    message: "Select a workspace to continue.",
   },
   {
     pattern: /^External user ID is missing from the current session\.$/,
-    message: 'Your session expired. Sign in again.',
+    message: "Your session expired. Sign in again.",
   },
   {
     pattern: /^HttpContext is missing from the current request\.$/,
-    message: 'Your session expired. Sign in again.',
+    message: "Your session expired. Sign in again.",
   },
   {
     pattern: /^Client key .+\.$/,
-    message: 'The request is invalid.',
+    message: "The request is invalid.",
   },
   {
     pattern: /^Missing required header '.+'\.$/,
-    message: 'The request is invalid.',
+    message: "The request is invalid.",
   },
   {
     pattern: /^Header '.+' (is required|must be a valid GUID)\.$/,
-    message: 'The request is invalid.',
+    message: "The request is invalid.",
   },
   {
     pattern: /^Tenant ID '.+' required\.$/,
-    message: 'The request is invalid.',
+    message: "The request is invalid.",
   },
   {
     pattern: /^Unsupported cipher format\.$/,
-    message: 'The request is invalid.',
+    message: "The request is invalid.",
   },
   {
     pattern: /^Time zone is invalid\.$/,
-    message: 'The submitted data is invalid.',
+    message: "The submitted data is invalid.",
+  },
+  {
+    pattern:
+      /^(Unsupported (message actor kind|Broadcast item kind|Broadcast actor kind|conversation status|thread status|channel connection kind)|Message body must contain between 1 and \d+ characters|Item body must contain between 1 and \d+ characters|Connection data is required|Connection data must be a JSON object|Connection data cannot exceed \d+ characters|Connection data must contain valid JSON)\.$/,
+    message: "The submitted data is invalid.",
+  },
+  {
+    pattern: /^Closed conversations cannot receive new messages\.$/,
+    message:
+      "This conversation is closed. Reopen it before adding another message.",
+  },
+  {
+    pattern: /^Closed threads cannot receive new items\.$/,
+    message:
+      "This Broadcast thread is closed. Reopen it before adding another captured item.",
+  },
+  {
+    pattern: /^The selected Direct module is not available\.$/,
+    message: "Direct is not available",
+  },
+  {
+    pattern: /^The selected Broadcast module is not available\.$/,
+    message: "Broadcast is not available",
+  },
+  {
+    pattern: /^The workspace does not have an active QnA base tenant\.$/,
+    message: "The workspace does not have an active Base tenant.",
   },
   {
     pattern: /^Stripe .+\.$/,
-    message: 'The request is invalid.',
+    message: "The request is invalid.",
   },
   {
     pattern:
       /^(Billing webhook ingress is not ready|Cors Options Not Found|Missing connection string|Redis .+ is missing|Tenant '.+' has an invalid connection string|Current tenant connection for .+ was not found)\.?/,
-    message: 'The service is unavailable right now.',
+    message: "The service is unavailable right now.",
   },
 ];
 
 function normalizeText(value: unknown) {
-  return typeof value === 'string' && value.trim() ? value.trim() : undefined;
+  return typeof value === "string" && value.trim() ? value.trim() : undefined;
 }
 
 function resolveApiErrorMessage(message: string) {
@@ -146,8 +173,8 @@ function resolveApiErrorMessage(message: string) {
     return undefined;
   }
 
-  if (normalizedMessage === 'One or more validation errors occurred.') {
-    return 'The submitted data is invalid.';
+  if (normalizedMessage === "One or more validation errors occurred.") {
+    return "The submitted data is invalid.";
   }
 
   const alias = API_ERROR_MESSAGE_ALIASES.find(({ pattern }) =>
@@ -168,9 +195,9 @@ function parsePayload(rawBody: string, contentType?: string | null): unknown {
   }
 
   const looksLikeJson =
-    contentType?.includes('application/json') ||
-    trimmedBody.startsWith('{') ||
-    trimmedBody.startsWith('[');
+    contentType?.includes("application/json") ||
+    trimmedBody.startsWith("{") ||
+    trimmedBody.startsWith("[");
 
   if (!looksLikeJson) {
     return trimmedBody;
@@ -189,7 +216,7 @@ function normalizeErrorData(data: unknown) {
     return data;
   }
 
-  if (!normalizedText.startsWith('{') && !normalizedText.startsWith('[')) {
+  if (!normalizedText.startsWith("{") && !normalizedText.startsWith("[")) {
     return normalizedText;
   }
 
@@ -215,14 +242,14 @@ function extractValidationMessage(
       continue;
     }
 
-    return 'The submitted data is invalid.';
+    return "The submitted data is invalid.";
   }
 
   return undefined;
 }
 
 function extractPayloadMessage(payload: unknown) {
-  if (typeof payload === 'string') {
+  if (typeof payload === "string") {
     return normalizeText(payload);
   }
 
@@ -245,9 +272,9 @@ function extractPayloadErrorCode(payload: unknown) {
     return undefined;
   }
 
-  return typeof payload.errorCode === 'number'
+  return typeof payload.errorCode === "number"
     ? payload.errorCode
-    : typeof payload.ErrorCode === 'number'
+    : typeof payload.ErrorCode === "number"
       ? payload.ErrorCode
       : undefined;
 }
@@ -261,21 +288,21 @@ function extractPayloadData(payload: unknown) {
 }
 
 export function isAbortError(error: unknown) {
-  if (error instanceof DOMException && error.name === 'AbortError') {
+  if (error instanceof DOMException && error.name === "AbortError") {
     return true;
   }
 
   return (
     error instanceof Error &&
-    (error.name === 'AbortError' ||
-      error.name === 'CanceledError' ||
-      error.message === 'canceled')
+    (error.name === "AbortError" ||
+      error.name === "CanceledError" ||
+      error.message === "canceled")
   );
 }
 
 export function toErrorMessage(
   error: unknown,
-  fallbackMessage = translateText('Request failed.'),
+  fallbackMessage = translateText("Request failed."),
 ) {
   if (error instanceof ApiError) {
     const message = normalizeText(error.message);
@@ -288,7 +315,7 @@ export function toErrorMessage(
 
   if (error instanceof Error) {
     const message = normalizeText(error.message);
-    if (message && message !== 'Failed to fetch' && message !== 'Load failed') {
+    if (message && message !== "Failed to fetch" && message !== "Load failed") {
       return translateApiErrorMessage(message);
     }
   }
@@ -302,7 +329,7 @@ export async function toApiError(
   context?: ApiErrorContext,
 ): Promise<ApiError> {
   const rawBody = await response.text();
-  const payload = parsePayload(rawBody, response.headers.get('content-type'));
+  const payload = parsePayload(rawBody, response.headers.get("content-type"));
   const payloadMessage = extractPayloadMessage(payload);
   const message = payloadMessage
     ? (resolveApiErrorMessage(payloadMessage) ?? fallbackMessage)

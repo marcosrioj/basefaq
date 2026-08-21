@@ -5,6 +5,7 @@ namespace Querify.Models.Tenant.Dtos.Tenant;
 
 public class TenantCreateRequestDto
 {
+    public Guid? WorkspaceId { get; set; }
     public required string Slug { get; set; }
     public required string Name { get; set; }
     public required TenantEdition Edition { get; set; }

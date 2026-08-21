@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net10.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <PackageId>Querify.Broadcast.Portal.Business.Item</PackageId>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <FrameworkReference Include="Microsoft.AspNetCore.App" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\Querify.Broadcast.Common.Domain\Querify.Broadcast.Common.Domain.csproj" />
+        <ProjectReference Include="..\Querify.Broadcast.Common.Persistence.BroadcastDb\Querify.Broadcast.Common.Persistence.BroadcastDb.csproj" />
+        <ProjectReference Include="..\Querify.Common.Infrastructure.Core\Querify.Common.Infrastructure.Core.csproj" />
+        <ProjectReference Include="..\Querify.Common.Infrastructure.MediatR\Querify.Common.Infrastructure.MediatR.csproj" />
+        <ProjectReference Include="..\Querify.Models.Broadcast\Querify.Models.Broadcast.csproj" />
+    </ItemGroup>
+
+</Project>

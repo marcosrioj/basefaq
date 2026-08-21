@@ -9,6 +9,7 @@ namespace Querify.Broadcast.Common.Domain.Entities;
 /// </summary>
 public class Item : BaseEntity, IMustHaveTenant
 {
+    /// <summary>Maximum captured Broadcast item body length accepted by persistence.</summary>
     public const int MaxBodyLength = 12000;
 
     /// <summary>
@@ -20,6 +21,11 @@ public class Item : BaseEntity, IMustHaveTenant
     /// Navigation to the owning thread used for persistence relationship tracking and tenant validation.
     /// </summary>
     public Thread Thread { get; set; } = null!;
+
+    /// <summary>
+    /// Interaction shape used to distinguish posts, comments, shared messages, and fallback items.
+    /// </summary>
+    public required ItemKind Kind { get; set; }
 
     /// <summary>
     /// Author role used to separate external audience activity, brand responses, and system entries.

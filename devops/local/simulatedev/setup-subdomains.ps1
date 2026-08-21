@@ -7,6 +7,8 @@ param(
     [int]$PortalAppPort = 5500,
     [int]$QnaPortalPort = 5010,
     [int]$QnaPublicPort = 5020,
+    [int]$DirectPortalPort = 5040,
+    [int]$BroadcastPortalPort = 5050,
     [int]$TestPort = 5999,
     [string]$ObjectStorageEndpointHost = "",
     [int]$ObjectStorageEndpointPort = 9000,
@@ -169,6 +171,28 @@ server {
         proxy_set_header Connection $connection_upgrade;
     }
 
+    location /api/direct/ {
+        proxy_pass http://__UPSTREAM_HOST__:__DIRECT_PORTAL_PORT__;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection $connection_upgrade;
+    }
+
+    location /api/broadcast/ {
+        proxy_pass http://__UPSTREAM_HOST__:__BROADCAST_PORTAL_PORT__;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection $connection_upgrade;
+    }
+
     location / {
         proxy_pass http://__UPSTREAM_HOST__:__PORTAL_APP_PORT__;
         proxy_http_version 1.1;
@@ -304,6 +328,8 @@ $nginxConfig = $nginxTemplate.
     Replace("__PORTAL_APP_PORT__", $PortalAppPort.ToString()).
     Replace("__QNA_PORTAL_PORT__", $QnaPortalPort.ToString()).
     Replace("__QNA_PUBLIC_PORT__", $QnaPublicPort.ToString()).
+    Replace("__DIRECT_PORTAL_PORT__", $DirectPortalPort.ToString()).
+    Replace("__BROADCAST_PORTAL_PORT__", $BroadcastPortalPort.ToString()).
     Replace("__TEST_PORT__", $TestPort.ToString()).
     Replace("__OBJECT_STORAGE_ENDPOINT_HOST__", $ObjectStorageEndpointHost).
     Replace("__OBJECT_STORAGE_ENDPOINT_PORT__", $ObjectStorageEndpointPort.ToString()).
@@ -356,6 +382,8 @@ Write-Host "  dev.portal.querify.net            -> $UpstreamHost`:$PortalAppPort
 Write-Host "  dev.portal.querify.net/api/tenant -> $UpstreamHost`:$TenantPortalPort"
 Write-Host "  dev.portal.querify.net/api/user   -> $UpstreamHost`:$TenantPortalPort"
 Write-Host "  dev.portal.querify.net/api/qna    -> $UpstreamHost`:$QnaPortalPort"
+Write-Host "  dev.portal.querify.net/api/direct -> $UpstreamHost`:$DirectPortalPort"
+Write-Host "  dev.portal.querify.net/api/broadcast -> $UpstreamHost`:$BroadcastPortalPort"
 Write-Host "  dev.portal.querify.net/s3         -> $ObjectStorageEndpointHost`:$ObjectStorageEndpointPort"
 Write-Host "  dev.tenant.backoffice.querify.net -> $UpstreamHost`:$TenantBackOfficePort"
 Write-Host "  dev.tenant.portal.querify.net     -> $UpstreamHost`:$TenantPortalPort"

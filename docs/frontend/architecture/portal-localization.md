@@ -121,9 +121,20 @@ When adding a new backend `ApiErrorException` message that can reach the Portal:
 When adding new Portal UI copy:
 
 1. add the key to `en-US.json`
-2. keep the other locale JSON files aligned with the same key set
-3. route the UI copy through the Portal translation helpers
-4. avoid moving translated presentation strings into backend DTOs
+2. provide an actual translation in every other locale; product names such as Base, Direct, and Broadcast may remain intentionally unchanged
+3. preserve every `{placeholder}` name exactly across locales
+4. keep the other locale JSON files aligned with the same key set
+5. route the UI copy through the Portal translation helpers
+6. avoid moving translated presentation strings into backend DTOs
+
+Run the catalog validator after any locale edit:
+
+```bash
+cd apps/portal
+npm run locales:check
+```
+
+`apps/portal/scripts/validate-locales.mjs` validates all 20 catalogs against `en-US.json`, rejects missing or extra keys, requires string values, and verifies placeholder parity. Run lint and build after it; catalog parity does not prove that a translation is semantically correct.
 
 ## Persistence note
 

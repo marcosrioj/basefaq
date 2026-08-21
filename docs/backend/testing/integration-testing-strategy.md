@@ -23,17 +23,20 @@ The repository currently contains these backend-facing automated test projects:
 - `Querify.QnA.Public.Test.IntegrationTests`
 - `Querify.Tenant.BackOffice.Test.IntegrationTests`
 - `Querify.Tenant.Portal.Test.IntegrationTests`
+- `Querify.Direct.Portal.Business.Test.IntegrationTests`
+- `Querify.Broadcast.Portal.Business.Test.IntegrationTests`
 - `Querify.Tenant.Public.Test.IntegrationTests`
 - `Querify.Tenant.Worker.Test.IntegrationTests`
 - `Querify.Common.Architecture.Test.IntegrationTest`
 
-The first six focus on service behavior. The architecture test project enforces repository rules such as the write-side contract expectations from [`../architecture/repository-rules.md`](../architecture/repository-rules.md).
+The service test projects focus on command/query behavior, EF relationships, tenant integrity, and negative paths. The architecture test project enforces repository rules such as the write-side contract expectations from [`../architecture/repository-rules.md`](../architecture/repository-rules.md).
 
 ## What counts as an integration test here
 
 An integration test should verify at least two real components working together, for example:
 
 - handler plus EF Core plus PostgreSQL
+- handler plus the real EF Core model on an isolated relational SQLite database for deterministic PR coverage
 - middleware plus auth/session context plus persistence
 - controller plus tenant resolution plus database state
 - event publication plus consumer execution
@@ -114,6 +117,8 @@ Focus:
 ## Environment strategy
 
 - use isolated databases per run when possible
+- use the shared in-memory SQLite harness for fast handler, projection, relationship, and tenant-integrity coverage that does not depend on PostgreSQL-specific behavior
+- use isolated PostgreSQL databases for migrations, provider-specific SQL, collation, concurrency, and release-critical persistence behavior
 - keep test data deterministic
 - avoid sharing mutable global state between tests
 - prefer builders and factory helpers over ad hoc entity setup

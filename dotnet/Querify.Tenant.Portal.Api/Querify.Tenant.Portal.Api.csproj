@@ -27,6 +27,7 @@
         <ProjectReference Include="..\Querify.Common.Infrastructure.Swagger\Querify.Common.Infrastructure.Swagger.csproj"/>
         <ProjectReference Include="..\Querify.Common.Infrastructure.ApiErrorHandling\Querify.Common.Infrastructure.ApiErrorHandling.csproj"/>
         <ProjectReference Include="..\Querify.Tenant.Portal.Business.Billing\Querify.Tenant.Portal.Business.Billing.csproj"/>
+        <ProjectReference Include="..\Querify.Tenant.Portal.Business.ChannelConnection\Querify.Tenant.Portal.Business.ChannelConnection.csproj"/>
         <ProjectReference Include="..\Querify.Tenant.Portal.Business.Tenant\Querify.Tenant.Portal.Business.Tenant.csproj"/>
         <ProjectReference Include="..\Querify.Tenant.Portal.Business.User\Querify.Tenant.Portal.Business.User.csproj"/>
     </ItemGroup>

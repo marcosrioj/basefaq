@@ -13,6 +13,8 @@ This guide explains how the backend is organized under `dotnet/`, which APIs exi
 | `Querify.Tenant.Public.Api` | public tenant ingress endpoints such as Stripe webhooks | public surface | none | `5004` |
 | `Querify.QnA.Portal.Api` | authenticated QnA management for spaces, questions, answers, tags, sources, workflow, activity, and Portal SignalR notifications | Auth0 JWT | `X-Tenant-Id` for HTTP APIs; SignalR authorizes the user and joins all allowed QnA tenant groups by default | `5010` |
 | `Querify.QnA.Public.Api` | public QnA access plus vote and feedback signaling over questions and answers | public surface | `X-Client-Key` | `5020` |
+| `Querify.Direct.Portal.Api` | authenticated Direct contact, conversation, and chronological message management | Auth0 JWT | Direct module tenant id in `X-Tenant-Id` | `5040` |
+| `Querify.Broadcast.Portal.Api` | authenticated Broadcast thread and chronological captured-item management | Auth0 JWT | Broadcast module tenant id in `X-Tenant-Id` | `5050` |
 
 | Worker | Responsibility | Data boundary | Local port |
 |---|---|---|---:|
@@ -29,6 +31,8 @@ These projects contain ASP.NET Core startup, middleware, and DI registration:
 
 - `Querify.QnA.Portal.Api`
 - `Querify.QnA.Public.Api`
+- `Querify.Direct.Portal.Api`
+- `Querify.Broadcast.Portal.Api`
 - `Querify.Tenant.BackOffice.Api`
 - `Querify.Tenant.Portal.Api`
 - `Querify.Tenant.Public.Api`
@@ -62,9 +66,18 @@ Current API/business implementation in this solution:
   - `Querify.Tenant.BackOffice.Business.Tenant`
   - `Querify.Tenant.BackOffice.Business.User`
   - `Querify.Tenant.BackOffice.Business.Billing`
+  - `Querify.Tenant.BackOffice.Business.ChannelConnection`
 - Tenant Portal:
   - `Querify.Tenant.Portal.Business.Tenant`
   - `Querify.Tenant.Portal.Business.User`
+  - `Querify.Tenant.Portal.Business.ChannelConnection`
+- Direct Portal:
+  - `Querify.Direct.Portal.Business.Contact`
+  - `Querify.Direct.Portal.Business.Conversation`
+  - `Querify.Direct.Portal.Business.ConversationMessage`
+- Broadcast Portal:
+  - `Querify.Broadcast.Portal.Business.Thread`
+  - `Querify.Broadcast.Portal.Business.Item`
 - Tenant Public:
   - `Querify.Tenant.Public.Business.Billing`
 - Tenant Worker:
@@ -78,8 +91,10 @@ Current module persistence implementation:
   - `Querify.QnA.Common.Persistence.QnADb`
   - `Querify.QnA.Common.Persistence.HangfireQnaDb`
 - Direct:
+  - `Querify.Direct.Common.Domain`
   - `Querify.Direct.Common.Persistence.DirectDb`
 - Broadcast:
+  - `Querify.Broadcast.Common.Domain`
   - `Querify.Broadcast.Common.Persistence.BroadcastDb`
 - Trust:
   - no active persistence project in this repository snapshot
@@ -95,7 +110,9 @@ Current module persistence implementation:
 - `Querify.QnA.Common.Domain`: QnA domain entities and reusable entity-related business rules shared by QnA persistence, business features, seed data, and tests
 - `Querify.QnA.Common.Persistence.QnADb`: QnA module database context and persistence
 - `Querify.QnA.Common.Persistence.HangfireQnaDb`: QnA worker Hangfire storage registration, design-time context, and migrations boundary
-- `Querify.Direct.Common.Persistence.DirectDb`: Direct module tenant persistence for conversations and conversation messages
+- `Querify.Direct.Common.Domain`: Direct contacts, conversations, messages, and reusable lifecycle rules
+- `Querify.Direct.Common.Persistence.DirectDb`: Direct module tenant persistence, EF configuration, indexes, and relationship tenant integrity
+- `Querify.Broadcast.Common.Domain`: Broadcast threads, captured items, and reusable lifecycle rules
 - `Querify.Broadcast.Common.Persistence.BroadcastDb`: Broadcast module tenant persistence for public/community threads and captured items
 - `Querify.Common.Infrastructure.Core`: shared core abstractions and backend helper services
 - `Querify.Common.Infrastructure.ApiErrorHandling`: API error handling conventions and
@@ -140,6 +157,8 @@ Current module persistence implementation:
 - `Querify.QnA.Public.Test.IntegrationTests`
 - `Querify.Tenant.BackOffice.Test.IntegrationTests`
 - `Querify.Tenant.Portal.Test.IntegrationTests`
+- `Querify.Direct.Portal.Business.Test.IntegrationTests`
+- `Querify.Broadcast.Portal.Business.Test.IntegrationTests`
 - `Querify.Tenant.Public.Test.IntegrationTests`
 - `Querify.Tenant.Worker.Test.IntegrationTests`
 - `Querify.Common.Architecture.Test.IntegrationTest`
@@ -249,10 +268,11 @@ The default tenant-integrity pattern is:
 
 ### Direct and Broadcast databases
 
-`DirectDbContext` and `BroadcastDbContext` are present as tenant module persistence boundaries for the Querify module split described in [`../../business/value_proposition.md`](../../business/value_proposition.md).
+`DirectDbContext` and `BroadcastDbContext` are active tenant module persistence boundaries for the Querify module split described in [`../../business/value_proposition/value_proposition.md`](../../business/value_proposition/value_proposition.md). Their Portal hosts follow the same Controller -> Service -> command/query composition used by QnA.
 
 `DirectDbContext` stores the 1:1 resolution behavior that should not live in QnA:
 
+- contacts
 - conversations
 - conversation messages
 
@@ -261,7 +281,29 @@ The default tenant-integrity pattern is:
 - external and community interaction threads
 - captured thread items
 
-These projects define the current entity, enum, configuration, DbContext, and registration-extension scope for their modules. API hosts, business modules, migrations, additional workflow entities, and seed flows belong in the same module boundary as the behavior.
+Direct exposes contacts and conversations as feature-scoped CRUD APIs and appends messages to an open conversation timeline. Broadcast exposes thread CRUD APIs and appends captured items to an open thread timeline. Closed timelines remain readable but reject new entries. Both contexts enforce parent-child tenant integrity before save.
+
+### Workspace and channel connection ownership
+
+`TenantDbContext` owns workspace-level channel connection metadata, provider status, operational timestamps, and encrypted JSON connection data. Provider secrets are write-only at the Portal API boundary. Read DTOs never expose `ConnectionData`.
+
+Every module-specific tenant row in one workspace shares a stable `WorkspaceId`. The active QnA tenant is the workspace base record and owns the workspace's `ChannelConnection` rows. Portal clients select that base workspace, then resolve sibling Direct and Broadcast tenant IDs by `WorkspaceId` and `ModuleEnum` before calling product APIs.
+
+Direct `Conversation.ChannelConnectionId` and Broadcast `Thread.ChannelConnectionId` are intentional cross-database identifiers, not EF relationships. Create and update handlers validate that the selected connection belongs to the same workspace, is enabled, and has `Connected` status through `TenantDbContext`. Product databases do not persist provider credentials or duplicate connection status.
+
+### Manual schema handoff
+
+No EF migrations are generated or executed by the behavior-change workflow. A separately approved schema change must reconcile each deployed database with the following model:
+
+1. Tenant database: add nullable `WorkspaceId` to `Tenants`, backfill one shared value for all module rows in each logical workspace, make it required, then add unique index `IX_Tenant_WorkspaceId_Module`.
+2. Tenant database: create `ChannelConnections` with the shared base/audit/soft-delete fields plus `Name`, `ProviderKey`, `Kind`, encrypted `ConnectionData`, `Status`, `IsEnabled`, credential/connection/synchronization/error UTC timestamps, `LastErrorMessage`, and `TenantId`.
+3. Tenant database: add a restrictive foreign key from `ChannelConnections.TenantId` to `Tenants.Id`, unique index `IX_ChannelConnection_TenantId_ProviderKey`, and lookup index `IX_ChannelConnection_TenantId_IsEnabled_Status_Kind`.
+4. Direct database: ensure `Contacts`, `Conversations`, and `ConversationMessages` match their current configurations; rename `SurName` to `Surname` and `TiktokProfileUrl` to `TikTokProfileUrl` without dropping data.
+5. Direct database: add required `ContactId` and `ChannelConnectionId` to conversations after explicit backfill, remove the obsolete conversation `Channel` column, add the Contact relationship, and add the configured tenant/status/contact/channel and chronological-message indexes.
+6. Broadcast database: ensure `Threads` and `Items` match their current configurations; add and backfill required `Threads.ChannelConnectionId`; add and classify required `Items.Kind`; then add the configured status/channel and chronological-item indexes.
+7. Validate that every Direct conversation contact and message parent has the same tenant, every Broadcast item parent has the same tenant, every channel connection points to an active QnA base tenant, and each workspace has at most one tenant row per module before enabling constraints.
+
+The backfill mapping for workspace groups, channel connections, conversation contacts, and Broadcast item kinds is domain data and must be reviewed explicitly. Do not substitute generated IDs or a blanket enum value when the source data does not determine the correct relationship or classification.
 
 Trust has no active persistence project in this repository snapshot. Validation, governance, and auditability data belongs to the Trust module boundary instead of sharing QnA, Direct, or Broadcast persistence by default.
 
@@ -296,6 +338,8 @@ dotnet run --project dotnet/Querify.Tenant.Portal.Api
 dotnet run --project dotnet/Querify.Tenant.Public.Api
 dotnet run --project dotnet/Querify.QnA.Portal.Api
 dotnet run --project dotnet/Querify.QnA.Public.Api
+dotnet run --project dotnet/Querify.Direct.Portal.Api
+dotnet run --project dotnet/Querify.Broadcast.Portal.Api
 dotnet run --project dotnet/Querify.Tenant.Worker.Api
 dotnet run --project dotnet/Querify.QnA.Worker.Api
 ```

@@ -28,8 +28,9 @@ public class DirectDbContext : BaseDbContext<DirectDbContext>
     {
     }
 
-    public DbSet<Conversation> Conversations { get; set; }
-    public DbSet<ConversationMessageEntity> ConversationMessages { get; set; }
+    public DbSet<Contact> Contacts { get; set; } = null!;
+    public DbSet<Conversation> Conversations { get; set; } = null!;
+    public DbSet<ConversationMessageEntity> ConversationMessages { get; set; } = null!;
 
     protected override IEnumerable<string> ConfigurationNamespaces =>
     [
@@ -46,6 +47,7 @@ public class DirectDbContext : BaseDbContext<DirectDbContext>
     private void EnsureTenantIntegrity()
     {
         var cache = new TenantIntegrityLookupCacheBase(this);
+        this.EnsureConversationTenantIntegrity(cache);
         this.EnsureConversationMessageTenantIntegrity(cache);
     }
 }

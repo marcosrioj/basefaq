@@ -9,6 +9,7 @@ namespace Querify.Direct.Common.Domain.Entities;
 /// </summary>
 public class ConversationMessage : BaseEntity, IMustHaveTenant
 {
+    /// <summary>Maximum Direct message body length accepted by persistence.</summary>
     public const int MaxBodyLength = 12000;
 
     /// <summary>

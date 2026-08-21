@@ -7,7 +7,14 @@ import {
   BillingInvoiceStatus,
   BillingPaymentStatus,
   BillingProviderType,
+  BroadcastActorKind,
+  BroadcastItemKind,
+  BroadcastThreadStatus,
+  ChannelConnectionKind,
+  ChannelConnectionStatus,
   ChannelKind,
+  ConversationStatus,
+  MessageActorKind,
   ModuleEnum,
   QuestionStatus,
   SourceRole,
@@ -25,7 +32,14 @@ import {
   billingInvoiceStatusLabels,
   billingPaymentStatusLabels,
   billingProviderLabels,
+  broadcastActorKindLabels,
+  broadcastItemKindLabels,
+  broadcastThreadStatusLabels,
+  channelConnectionKindLabels,
+  channelConnectionStatusLabels,
   channelKindLabels,
+  conversationStatusLabels,
+  messageActorKindLabels,
   questionStatusLabels,
   sourceRoleLabels,
   sourceUploadStatusLabels,
@@ -61,8 +75,9 @@ export const modulePresentation: Record<ModuleEnum, EnumPresentation> = {
     sortGroup: 1,
   },
   [ModuleEnum.QnA]: {
-    label: "QnA",
-    description: "Questions, answers, sources, tags, and activity.",
+    label: "Base",
+    description:
+      "Primary knowledge base for questions, answers, sources, tags, and activity.",
     badgeVariant: "primary",
     sortGroup: 2,
   },
@@ -86,6 +101,139 @@ export const modulePresentation: Record<ModuleEnum, EnumPresentation> = {
   },
 };
 
+export const channelConnectionKindPresentation = Object.fromEntries(
+  Object.entries(channelConnectionKindLabels).map(([value, label]) => [
+    value,
+    {
+      label,
+      description:
+        "External provider surface used by Direct or Broadcast workflows.",
+      badgeVariant: "info",
+      sortGroup: Number(value),
+    },
+  ]),
+) as Record<ChannelConnectionKind, EnumPresentation>;
+
+export const channelConnectionStatusPresentation: Record<
+  ChannelConnectionStatus,
+  EnumPresentation
+> = {
+  [ChannelConnectionStatus.Pending]: {
+    label: channelConnectionStatusLabels[ChannelConnectionStatus.Pending],
+    description: "Configuration is waiting for provider verification.",
+    badgeVariant: "warning",
+    sortGroup: 1,
+  },
+  [ChannelConnectionStatus.Connected]: {
+    label: channelConnectionStatusLabels[ChannelConnectionStatus.Connected],
+    description:
+      "Provider authorization is valid and the connection is available.",
+    badgeVariant: "success",
+    sortGroup: 2,
+  },
+  [ChannelConnectionStatus.Disconnected]: {
+    label: channelConnectionStatusLabels[ChannelConnectionStatus.Disconnected],
+    description: "Provider communication is currently unavailable.",
+    badgeVariant: "outline",
+    sortGroup: 3,
+  },
+  [ChannelConnectionStatus.Expired]: {
+    label: channelConnectionStatusLabels[ChannelConnectionStatus.Expired],
+    description: "Provider credentials have expired and require rotation.",
+    badgeVariant: "warning",
+    sortGroup: 1,
+  },
+  [ChannelConnectionStatus.Error]: {
+    label: channelConnectionStatusLabels[ChannelConnectionStatus.Error],
+    description: "The latest provider operation failed.",
+    badgeVariant: "destructive",
+    sortGroup: 0,
+  },
+  [ChannelConnectionStatus.Suspended]: {
+    label: channelConnectionStatusLabels[ChannelConnectionStatus.Suspended],
+    description: "Provider or operator policy has suspended the connection.",
+    badgeVariant: "warning",
+    sortGroup: 1,
+  },
+};
+
+export const conversationStatusPresentation: Record<
+  ConversationStatus,
+  EnumPresentation
+> = {
+  [ConversationStatus.Open]: {
+    label: conversationStatusLabels[ConversationStatus.Open],
+    description: "Conversation can receive and send new messages.",
+    badgeVariant: "success",
+    sortGroup: 1,
+  },
+  [ConversationStatus.Closed]: {
+    label: conversationStatusLabels[ConversationStatus.Closed],
+    description: "Conversation is complete and its timeline is read-only.",
+    badgeVariant: "outline",
+    sortGroup: 2,
+  },
+};
+
+export const messageActorKindPresentation = Object.fromEntries(
+  Object.entries(messageActorKindLabels).map(([value, label]) => [
+    value,
+    {
+      label,
+      description: "Role that authored the Direct timeline message.",
+      badgeVariant:
+        Number(value) === MessageActorKind.Contact ? "secondary" : "primary",
+      sortGroup: Number(value),
+    },
+  ]),
+) as Record<MessageActorKind, EnumPresentation>;
+
+export const broadcastThreadStatusPresentation: Record<
+  BroadcastThreadStatus,
+  EnumPresentation
+> = {
+  [BroadcastThreadStatus.Open]: {
+    label: broadcastThreadStatusLabels[BroadcastThreadStatus.Open],
+    description: "Thread can continue receiving captured public interactions.",
+    badgeVariant: "success",
+    sortGroup: 1,
+  },
+  [BroadcastThreadStatus.Closed]: {
+    label: broadcastThreadStatusLabels[BroadcastThreadStatus.Closed],
+    description: "Thread is complete and its captured timeline is read-only.",
+    badgeVariant: "outline",
+    sortGroup: 2,
+  },
+};
+
+export const broadcastActorKindPresentation = Object.fromEntries(
+  Object.entries(broadcastActorKindLabels).map(([value, label]) => [
+    value,
+    {
+      label,
+      description: "Role that produced the captured Broadcast item.",
+      badgeVariant:
+        Number(value) === BroadcastActorKind.ExternalUser
+          ? "secondary"
+          : "primary",
+      sortGroup: Number(value),
+    },
+  ]),
+) as Record<BroadcastActorKind, EnumPresentation>;
+
+export const broadcastItemKindPresentation = Object.fromEntries(
+  Object.entries(broadcastItemKindLabels).map(([value, label]) => [
+    value,
+    {
+      label,
+      description:
+        "Public interaction shape captured in the Broadcast timeline.",
+      badgeVariant: "info",
+      sortGroup: Number(value),
+    },
+  ]),
+) as Record<BroadcastItemKind, EnumPresentation>;
+
 export const tenantEditionPresentation = Object.fromEntries(
   Object.entries(tenantEditionLabels).map(([value, label]) => [
     value,
@@ -105,7 +253,8 @@ export const tenantUserRolePresentation: Record<
 > = {
   [TenantUserRoleType.Owner]: {
     label: tenantUserRoleTypeLabels[TenantUserRoleType.Owner],
-    description: "Can administer billing, members, settings, and workspace keys.",
+    description:
+      "Can administer billing, members, settings, and workspace keys.",
     badgeVariant: "primary",
     sortGroup: 1,
   },
@@ -123,7 +272,8 @@ export const billingProviderPresentation = Object.fromEntries(
     {
       label,
       description: "Billing processor.",
-      badgeVariant: Number(value) === BillingProviderType.Stripe ? "info" : "outline",
+      badgeVariant:
+        Number(value) === BillingProviderType.Stripe ? "info" : "outline",
       sortGroup: Number(value),
     },
   ]),
@@ -135,7 +285,8 @@ export const billingIntervalPresentation = Object.fromEntries(
     {
       label,
       description: "Billing cadence.",
-      badgeVariant: Number(value) === BillingIntervalType.Unknown ? "outline" : "secondary",
+      badgeVariant:
+        Number(value) === BillingIntervalType.Unknown ? "outline" : "secondary",
       sortGroup: Number(value),
     },
   ]),
@@ -273,7 +424,9 @@ export const tenantSubscriptionStatusPresentation: Record<
   },
   [TenantSubscriptionStatus.IncompleteExpired]: {
     label:
-      tenantSubscriptionStatusLabels[TenantSubscriptionStatus.IncompleteExpired],
+      tenantSubscriptionStatusLabels[
+        TenantSubscriptionStatus.IncompleteExpired
+      ],
     description: "Incomplete setup expired.",
     badgeVariant: "destructive",
     sortGroup: 0,
@@ -307,26 +460,27 @@ export const spaceStatusPresentation: Record<SpaceStatus, EnumPresentation> = {
   },
 };
 
-export const visibilityPresentation: Record<VisibilityScope, EnumPresentation> = {
-  [VisibilityScope.Internal]: {
-    label: visibilityScopeLabels[VisibilityScope.Internal],
-    description: "Visible only inside the portal.",
-    badgeVariant: "outline",
-    sortGroup: 0,
-  },
-  [VisibilityScope.Authenticated]: {
-    label: visibilityScopeLabels[VisibilityScope.Authenticated],
-    description: "Visible outside the portal to authenticated users.",
-    badgeVariant: "info",
-    sortGroup: 1,
-  },
-  [VisibilityScope.Public]: {
-    label: visibilityScopeLabels[VisibilityScope.Public],
-    description: "Visible outside the portal to any visitor.",
-    badgeVariant: "success",
-    sortGroup: 2,
-  },
-};
+export const visibilityPresentation: Record<VisibilityScope, EnumPresentation> =
+  {
+    [VisibilityScope.Internal]: {
+      label: visibilityScopeLabels[VisibilityScope.Internal],
+      description: "Visible only inside the portal.",
+      badgeVariant: "outline",
+      sortGroup: 0,
+    },
+    [VisibilityScope.Authenticated]: {
+      label: visibilityScopeLabels[VisibilityScope.Authenticated],
+      description: "Visible outside the portal to authenticated users.",
+      badgeVariant: "info",
+      sortGroup: 1,
+    },
+    [VisibilityScope.Public]: {
+      label: visibilityScopeLabels[VisibilityScope.Public],
+      description: "Visible outside the portal to any visitor.",
+      badgeVariant: "success",
+      sortGroup: 2,
+    },
+  };
 
 export const questionStatusPresentation: Record<
   QuestionStatus,
@@ -385,26 +539,27 @@ export const answerKindPresentation: Record<AnswerKind, EnumPresentation> = {
   },
 };
 
-export const answerStatusPresentation: Record<AnswerStatus, EnumPresentation> = {
-  [AnswerStatus.Draft]: {
-    label: answerStatusLabels[AnswerStatus.Draft],
-    description: "Not active yet.",
-    badgeVariant: "warning",
-    sortGroup: 2,
-  },
-  [AnswerStatus.Active]: {
-    label: answerStatusLabels[AnswerStatus.Active],
-    description: "Available as reusable answer knowledge.",
-    badgeVariant: "success",
-    sortGroup: 1,
-  },
-  [AnswerStatus.Archived]: {
-    label: answerStatusLabels[AnswerStatus.Archived],
-    description: "No longer active.",
-    badgeVariant: "outline",
-    sortGroup: 5,
-  },
-};
+export const answerStatusPresentation: Record<AnswerStatus, EnumPresentation> =
+  {
+    [AnswerStatus.Draft]: {
+      label: answerStatusLabels[AnswerStatus.Draft],
+      description: "Not active yet.",
+      badgeVariant: "warning",
+      sortGroup: 2,
+    },
+    [AnswerStatus.Active]: {
+      label: answerStatusLabels[AnswerStatus.Active],
+      description: "Available as reusable answer knowledge.",
+      badgeVariant: "success",
+      sortGroup: 1,
+    },
+    [AnswerStatus.Archived]: {
+      label: answerStatusLabels[AnswerStatus.Archived],
+      description: "No longer active.",
+      badgeVariant: "outline",
+      sortGroup: 5,
+    },
+  };
 
 export const sourceRolePresentation = Object.fromEntries(
   Object.entries(sourceRoleLabels).map(([value, label]) => [
@@ -412,7 +567,8 @@ export const sourceRolePresentation = Object.fromEntries(
     {
       label,
       description: "How this source supports the record.",
-      badgeVariant: Number(value) === SourceRole.Reference ? "primary" : "outline",
+      badgeVariant:
+        Number(value) === SourceRole.Reference ? "primary" : "outline",
       sortGroup: Number(value),
     },
   ]),

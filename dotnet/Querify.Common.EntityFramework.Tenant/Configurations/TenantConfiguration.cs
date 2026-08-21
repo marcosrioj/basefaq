@@ -30,6 +30,9 @@ public class TenantConfiguration : BaseConfiguration<Entities.Tenant>
         builder.Property(p => p.Edition)
             .IsRequired();
 
+        builder.Property(p => p.WorkspaceId)
+            .IsRequired();
+
         builder.Property(p => p.Module)
             .HasColumnName("Module")
             .IsRequired();
@@ -40,6 +43,10 @@ public class TenantConfiguration : BaseConfiguration<Entities.Tenant>
         builder.HasIndex(p => p.Slug)
             .IsUnique()
             .HasDatabaseName("IX_Tenant_Slug");
+
+        builder.HasIndex(p => new { p.WorkspaceId, p.Module })
+            .IsUnique()
+            .HasDatabaseName("IX_Tenant_WorkspaceId_Module");
 
         builder.HasIndex(p => p.ClientKey)
             .IsUnique()

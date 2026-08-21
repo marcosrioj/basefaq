@@ -9,8 +9,10 @@ This document is the main frontend guide for `apps/portal`. It covers scope, tec
 `apps/portal` is the tenant-facing web application for Querify. It is responsible for:
 
 - authenticated workspace access
-- Tenant workspace context, settings, member, profile, and billing flows
+- Tenant workspace context, settings, Channel Connections, member, profile, and billing flows
 - QnA management screens for spaces, questions, answers, sources, tags, and activity
+- Direct contact, conversation, and chronological message workflows
+- Broadcast thread and chronological captured-item workflows
 - frontend-owned localization and direction handling
 
 It is not the BackOffice UI and it does not own BackOffice API concerns.
@@ -70,6 +72,8 @@ The Portal currently integrates with:
 
 - `Querify.Tenant.Portal.Api`
 - `Querify.QnA.Portal.Api`
+- `Querify.Direct.Portal.Api`
+- `Querify.Broadcast.Portal.Api`
 
 Operational constraints reflected in the frontend:
 
@@ -79,7 +83,9 @@ Operational constraints reflected in the frontend:
   `/api/qna/hubs/portal-notifications`, sends the Auth0 access token through the SignalR access
   token factory, and normally connects without a `tenantId` query so the backend can subscribe the
   session to every QnA workspace the user is allowed to access
-- tenant summaries expose `module`, backed by `ModuleEnum` values: Tenant, QnA, Direct, Broadcast, and Trust
+- tenant summaries expose `workspaceId` and `module`, backed by `ModuleEnum` values: Tenant, QnA, Direct, Broadcast, and Trust
+- the workspace switcher lists active QnA tenants as stable workspace base records; Direct and Broadcast calls resolve their sibling tenant IDs from the selected `workspaceId`
+- Channel Connections are requested with the selected base tenant ID and remain Tenant control-plane resources shared by Direct and Broadcast
 - pagination contracts use `SkipCount`, `MaxResultCount`, and `Sorting`
 - backend error payloads follow `{ ErrorCode, MessageError, Data }`; the frontend also accepts camelCase fields defensively
 - Portal UI translation is frontend-owned; backend DTOs do not provide translated labels
@@ -91,11 +97,14 @@ API errors shown in toasts, confirmation failures, or page placeholders must go 
 ## Shell and navigation architecture
 
 - Keep the tenant/workspace switcher in the sidebar header. Do not move it to the top toolbar.
-- Keep primary navigation grouped by user mental model: Workspace, Administration, and Account.
+- Keep primary navigation grouped by user tasks: Modules, Administration, and Account.
+- Under Modules, identify QnA as **Base** with the knowledge-base icon and description. Base is the primary knowledge module, not a generic dashboard group.
+- Keep Direct and Broadcast as sibling module parents with their own child workflows. Direct owns Conversations and Contacts; Broadcast owns Threads.
+- Keep Channel Connections under Settings because connections are workspace infrastructure shared across product modules, not records owned by either product timeline.
 - The top toolbar is for route context and global utilities: breadcrumbs, command search, language, notifications, and user menu.
 - Render page location as one toolbar trail: parent navigation links plus the current page title. Page headers register the current title, back target, and hint text instead of rendering a second competing title in the page body.
 - Toolbar breadcrumb labels must truncate on one line using `min-w-0`; do not wrap or force page overflow.
-- The QnA module navigation is not a primary app navigation replacement. Use it only inside a domain screen for child and relationship management.
+- In-screen relationship navigation is not a replacement for module navigation. Use it only inside a domain screen for child and relationship management.
 - Breadcrumbs for QnA child records must show the full ownership line (e.g., Space name → Question → Activity). Only the Space detail page itself should show the Space name.
 - The fixed sidebar is a desktop-only pattern. Below the `xl` breakpoint, use the mobile/tablet header and drawer.
 - Keep the JavaScript shell breakpoint in `useIsMobile` aligned with the Tailwind breakpoint used by the sidebar and mobile header. Do not let React render one shell mode while CSS displays another.
@@ -198,6 +207,7 @@ For the Portal's Getting Started sequence, setup-progress completion criteria, e
 - Member creation depends on the Tenant Portal member API and may require an already-existing Querify user account depending on backend validation.
 - Billing is backed by the Tenant Portal billing summary, subscription, invoice, and payment endpoints.
 - Some QnA filtering remains constrained by backend list contracts and should stay page-scoped where the API surface is intentionally narrow.
+- Direct and Broadcast pages show an unavailable module state when the selected workspace has no active tenant row for that module; they must not send the Base tenant ID to a product API as a fallback.
 
 ## Vendor baseline note
 

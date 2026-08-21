@@ -8,6 +8,7 @@
     "dev:polling": "vite",
     "build": "tsc && vite build",
     "lint": "eslint src",
+    "locales:check": "node scripts/validate-locales.mjs",
     "format": "prettier --write .",
     "preview": "vite preview"
   },

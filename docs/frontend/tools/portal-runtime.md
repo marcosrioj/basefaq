@@ -12,6 +12,8 @@ Copy `apps/portal/.env.example` to `.env` and configure the Portal client values
 |---|---|
 | `VITE_PORTAL_TENANT_API_URL` | Tenant Portal API base URL |
 | `VITE_PORTAL_QNA_API_URL` | QnA Portal API base URL; also used for the Portal SignalR hub at `/api/qna/hubs/portal-notifications` |
+| `VITE_PORTAL_DIRECT_API_URL` | Direct Portal API base URL |
+| `VITE_PORTAL_BROADCAST_API_URL` | Broadcast Portal API base URL |
 | `VITE_PORTAL_SYSTEM_S3_URL` | optional browser-facing S3 proxy base URL; local subdomain Docker uses `//dev.portal.querify.net/s3` |
 | `VITE_AUTH0_DOMAIN` | Auth0 domain |
 | `VITE_AUTH0_AUDIENCE` | Auth0 API audience |
@@ -66,12 +68,22 @@ npm run build
 npm run lint
 ```
 
+### 7. Locale catalog validation
+
+```bash
+npm run locales:check
+```
+
+This verifies that all 20 locale files contain the same keys, valid JSON values, and the same ICU-style placeholders as `en-US.json`.
+
 ## Backend services required for realistic local testing
 
 At minimum, run:
 
 - `Querify.Tenant.Portal.Api`
 - `Querify.QnA.Portal.Api`
+- `Querify.Direct.Portal.Api` for Direct contacts, conversations, and messages
+- `Querify.Broadcast.Portal.Api` for Broadcast threads and captured items
 
 Depending on the flow, you may also need:
 
@@ -186,7 +198,7 @@ PowerShell equivalents live beside these scripts under `devops/local/docker/*.ps
 
 The Portal-only compose file is `devops/local/docker/docker-compose.frontend.yml`. The full-stack helper `./devops/local/docker/docker.sh` assumes base services are already running, then combines `devops/local/docker/docker-compose.backend.yml` and `devops/local/docker/docker-compose.frontend.yml` for the app containers. The Portal is exposed on `http://localhost:5500`.
 
-When the local subdomain proxy is active, the frontend Docker compose file points both Portal API base URLs at `//dev.portal.querify.net`. The proxy routes `/api/tenant/*` and `/api/user/*` to the Tenant Portal API and `/api/qna/*` to the QnA Portal API, including `/api/qna/hubs/portal-notifications` for SignalR, keeping browser requests same-origin and avoiding local cross-origin TLS failures.
+When the local subdomain proxy is active, the frontend Docker compose file points all four Portal API base URLs at `//dev.portal.querify.net`. The proxy routes `/api/tenant/*` and `/api/user/*` to the Tenant Portal API, `/api/qna/*` to the QnA Portal API, `/api/direct/*` to the Direct Portal API, and `/api/broadcast/*` to the Broadcast Portal API. The QnA route includes `/api/qna/hubs/portal-notifications` for SignalR. This keeps browser requests same-origin and avoids local cross-origin TLS failures.
 
 ## Current gaps
 
@@ -198,6 +210,7 @@ When the local subdomain proxy is active, the frontend Docker compose file point
 ```bash
 npm run build
 npm run lint
+npm run locales:check
 ```
 
 For the required manual regression pass before merge, use [`../testing/validation-guide.md`](../testing/validation-guide.md).
