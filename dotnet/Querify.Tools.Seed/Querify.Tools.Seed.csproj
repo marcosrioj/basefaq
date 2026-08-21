@@ -10,6 +10,8 @@
     <ItemGroup>
         <ProjectReference Include="..\Querify.Common.EntityFramework.Tenant\Querify.Common.EntityFramework.Tenant.csproj"/>
         <ProjectReference Include="..\Querify.Common.Infrastructure.Core\Querify.Common.Infrastructure.Core.csproj"/>
+        <ProjectReference Include="..\Querify.Broadcast.Common.Persistence.BroadcastDb\Querify.Broadcast.Common.Persistence.BroadcastDb.csproj"/>
+        <ProjectReference Include="..\Querify.Direct.Common.Persistence.DirectDb\Querify.Direct.Common.Persistence.DirectDb.csproj"/>
         <ProjectReference Include="..\Querify.QnA.Common.Domain\Querify.QnA.Common.Domain.csproj"/>
         <ProjectReference Include="..\Querify.QnA.Common.Persistence.QnADb\Querify.QnA.Common.Persistence.QnADb.csproj"/>
     </ItemGroup>

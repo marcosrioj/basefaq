@@ -1,5 +1,7 @@
 using Querify.Common.EntityFramework.Tenant;
 using Querify.Common.EntityFramework.Core;
+using Querify.Broadcast.Common.Persistence.BroadcastDb.DbContext;
+using Querify.Direct.Common.Persistence.DirectDb.DbContext;
 using Querify.QnA.Common.Persistence.QnADb.DbContext;
 using Querify.Tools.Migration.Services;
 using Querify.Models.Common.Enums;
@@ -28,13 +30,20 @@ internal static class TenantMigrationUpdater
 
         var tenantConnectionStrings = tenantDbContext.Tenants
             .AsNoTracking()
-            .Where(item => item.Module == ResolveTenantModule(module))
+            .Where(item => item.Module == module)
             .Select(item => item.ConnectionString)
+            .ToList()
+            .Concat(
+                tenantDbContext.TenantConnections
+                    .AsNoTracking()
+                    .Where(item => item.Module == module && item.IsCurrent)
+                    .Select(item => item.ConnectionString)
+                    .ToList())
             .ToList();
 
         if (tenantConnectionStrings.Count == 0)
         {
-            Console.WriteLine($"No tenants found for {module}.");
+            Console.WriteLine($"No tenant metadata found for {module}.");
             return;
         }
 
@@ -50,7 +59,7 @@ internal static class TenantMigrationUpdater
             return;
         }
 
-        Console.WriteLine($"Applying migrations for {module} ({uniqueConnections.Count} tenant(s))...");
+        Console.WriteLine($"Applying migrations for {module} ({uniqueConnections.Count} database(s))...");
 
         var index = 1;
         foreach (var connectionString in uniqueConnections)
@@ -63,13 +72,6 @@ internal static class TenantMigrationUpdater
         Console.WriteLine("Database update completed.");
     }
 
-    private static ModuleEnum ResolveTenantModule(ModuleEnum module)
-    {
-        return module == ModuleEnum.QnA
-            ? ModuleEnum.QnA
-            : throw new InvalidOperationException($"Database update is not supported for {module}.");
-    }
-
     private static void ApplyMigration(
         ModuleEnum module,
         string connectionString,
@@ -78,23 +80,60 @@ internal static class TenantMigrationUpdater
         NoopTenantConnectionStringProvider tenantConnectionProvider,
         IHttpContextAccessor httpContextAccessor)
     {
-        if (module != ModuleEnum.QnA)
-        {
-            throw new InvalidOperationException($"Database update is not supported for {module}.");
-        }
-
-        var options = new DbContextOptionsBuilder<QnADbContext>()
-            .UseNpgsql(connectionString)
-            .Options;
-
         PostgresDatabaseProvisioner.EnsureDatabaseExists(connectionString);
-        using var qnaDbContext = new QnADbContext(
-            options,
-            sessionService,
-            configuration,
-            tenantConnectionProvider,
-            httpContextAccessor);
 
-        qnaDbContext.Database.Migrate();
+        switch (module)
+        {
+            case ModuleEnum.QnA:
+            {
+                var options = new DbContextOptionsBuilder<QnADbContext>()
+                    .UseNpgsql(connectionString)
+                    .Options;
+
+                using var dbContext = new QnADbContext(
+                    options,
+                    sessionService,
+                    configuration,
+                    tenantConnectionProvider,
+                    httpContextAccessor);
+
+                dbContext.Database.Migrate();
+                break;
+            }
+            case ModuleEnum.Direct:
+            {
+                var options = new DbContextOptionsBuilder<DirectDbContext>()
+                    .UseNpgsql(connectionString)
+                    .Options;
+
+                using var dbContext = new DirectDbContext(
+                    options,
+                    sessionService,
+                    configuration,
+                    tenantConnectionProvider,
+                    httpContextAccessor);
+
+                dbContext.Database.Migrate();
+                break;
+            }
+            case ModuleEnum.Broadcast:
+            {
+                var options = new DbContextOptionsBuilder<BroadcastDbContext>()
+                    .UseNpgsql(connectionString)
+                    .Options;
+
+                using var dbContext = new BroadcastDbContext(
+                    options,
+                    sessionService,
+                    configuration,
+                    tenantConnectionProvider,
+                    httpContextAccessor);
+
+                dbContext.Database.Migrate();
+                break;
+            }
+            default:
+                throw new InvalidOperationException($"Database update is not supported for {module}.");
+        }
     }
 }

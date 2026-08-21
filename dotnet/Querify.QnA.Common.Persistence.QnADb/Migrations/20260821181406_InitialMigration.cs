@@ -33,17 +33,17 @@ namespace Querify.QnA.Common.Persistence.QnADb.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    Kind = table.Column<int>(type: "integer", nullable: false),
                     Locator = table.Column<string>(type: "character varying(1000)", maxLength: 1000, nullable: false),
+                    StorageKey = table.Column<string>(type: "character varying(1000)", maxLength: 1000, nullable: true),
                     Label = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: true),
                     ContextNote = table.Column<string>(type: "character varying(2000)", maxLength: 2000, nullable: true),
                     ExternalId = table.Column<string>(type: "character varying(250)", maxLength: 250, nullable: true),
                     Language = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
                     MediaType = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
+                    SizeBytes = table.Column<long>(type: "bigint", nullable: true),
                     Checksum = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: false),
                     MetadataJson = table.Column<string>(type: "character varying(8000)", maxLength: 8000, nullable: true),
-                    Visibility = table.Column<int>(type: "integer", nullable: false, defaultValue: 0),
-                    LastVerifiedAtUtc = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    UploadStatus = table.Column<int>(type: "integer", nullable: false, defaultValue: 1),
                     TenantId = table.Column<Guid>(type: "uuid", nullable: false),
                     CreatedDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     CreatedBy = table.Column<string>(type: "text", nullable: true),
@@ -68,7 +68,7 @@ namespace Querify.QnA.Common.Persistence.QnADb.Migrations
                     Summary = table.Column<string>(type: "character varying(2000)", maxLength: 2000, nullable: true),
                     Language = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
                     Status = table.Column<int>(type: "integer", nullable: false),
-                    Visibility = table.Column<int>(type: "integer", nullable: false, defaultValue: 0),
+                    Visibility = table.Column<int>(type: "integer", nullable: false, defaultValue: 1),
                     AcceptsQuestions = table.Column<bool>(type: "boolean", nullable: false),
                     AcceptsAnswers = table.Column<bool>(type: "boolean", nullable: false),
                     TenantId = table.Column<Guid>(type: "uuid", nullable: false),
@@ -106,12 +106,68 @@ namespace Querify.QnA.Common.Persistence.QnADb.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "SourceGenerationRuns",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    SourceId = table.Column<Guid>(type: "uuid", nullable: false),
+                    CreatedSpaceId = table.Column<Guid>(type: "uuid", nullable: true),
+                    Status = table.Column<int>(type: "integer", nullable: false, defaultValue: 1),
+                    FailureReason = table.Column<string>(type: "character varying(2000)", maxLength: 2000, nullable: true),
+                    Warning = table.Column<string>(type: "character varying(2000)", maxLength: 2000, nullable: true),
+                    SpaceName = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
+                    SpaceSlug = table.Column<string>(type: "character varying(160)", maxLength: 160, nullable: true),
+                    Language = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
+                    Visibility = table.Column<int>(type: "integer", nullable: false, defaultValue: 1),
+                    SpaceStatus = table.Column<int>(type: "integer", nullable: false, defaultValue: 1),
+                    AcceptsQuestions = table.Column<bool>(type: "boolean", nullable: false),
+                    AcceptsAnswers = table.Column<bool>(type: "boolean", nullable: false),
+                    ExtractionGoal = table.Column<string>(type: "character varying(2000)", maxLength: 2000, nullable: true),
+                    MaxTopLevelQuestions = table.Column<int>(type: "integer", nullable: false),
+                    MaxFollowUpDepth = table.Column<int>(type: "integer", nullable: false),
+                    MaxAnswersPerQuestion = table.Column<int>(type: "integer", nullable: false),
+                    IncludeFollowUpQuestions = table.Column<bool>(type: "boolean", nullable: false),
+                    TagGenerationMode = table.Column<int>(type: "integer", nullable: false, defaultValue: 11),
+                    SourceRole = table.Column<int>(type: "integer", nullable: false, defaultValue: 11),
+                    RequireEveryAnswerToCiteSource = table.Column<bool>(type: "boolean", nullable: false),
+                    ContentHint = table.Column<string>(type: "character varying(2000)", maxLength: 2000, nullable: true),
+                    RawOutputJson = table.Column<string>(type: "character varying(12000)", maxLength: 12000, nullable: true),
+                    StartedAtUtc = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    CompletedAtUtc = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    TenantId = table.Column<Guid>(type: "uuid", nullable: false),
+                    CreatedDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    CreatedBy = table.Column<string>(type: "text", nullable: true),
+                    UpdatedDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    UpdatedBy = table.Column<string>(type: "text", nullable: true),
+                    DeletedDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    DeletedBy = table.Column<string>(type: "text", nullable: true),
+                    IsDeleted = table.Column<bool>(type: "boolean", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_SourceGenerationRuns", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_SourceGenerationRuns_Sources_SourceId",
+                        column: x => x.SourceId,
+                        principalTable: "Sources",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_SourceGenerationRuns_Spaces_CreatedSpaceId",
+                        column: x => x.CreatedSpaceId,
+                        principalTable: "Spaces",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.SetNull);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "SpaceSources",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
                     SpaceId = table.Column<Guid>(type: "uuid", nullable: false),
                     SourceId = table.Column<Guid>(type: "uuid", nullable: false),
+                    Role = table.Column<int>(type: "integer", nullable: false, defaultValue: 16),
                     TenantId = table.Column<Guid>(type: "uuid", nullable: false),
                     CreatedDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     CreatedBy = table.Column<string>(type: "text", nullable: true),
@@ -210,7 +266,7 @@ namespace Querify.QnA.Common.Persistence.QnADb.Migrations
                     Body = table.Column<string>(type: "character varying(6000)", maxLength: 6000, nullable: true),
                     Kind = table.Column<int>(type: "integer", nullable: false),
                     Status = table.Column<int>(type: "integer", nullable: false),
-                    Visibility = table.Column<int>(type: "integer", nullable: false, defaultValue: 0),
+                    Visibility = table.Column<int>(type: "integer", nullable: false, defaultValue: 1),
                     ContextNote = table.Column<string>(type: "character varying(2000)", maxLength: 2000, nullable: true),
                     AuthorLabel = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: true),
                     AiConfidenceScore = table.Column<int>(type: "integer", nullable: false, defaultValue: 0),
@@ -275,13 +331,14 @@ namespace Querify.QnA.Common.Persistence.QnADb.Migrations
                     Summary = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: true),
                     ContextNote = table.Column<string>(type: "character varying(2000)", maxLength: 2000, nullable: true),
                     Status = table.Column<int>(type: "integer", nullable: false),
-                    Visibility = table.Column<int>(type: "integer", nullable: false, defaultValue: 0),
+                    Visibility = table.Column<int>(type: "integer", nullable: false, defaultValue: 1),
                     OriginChannel = table.Column<int>(type: "integer", nullable: false),
                     AiConfidenceScore = table.Column<int>(type: "integer", nullable: false, defaultValue: 0),
                     FeedbackScore = table.Column<int>(type: "integer", nullable: false),
                     Sort = table.Column<int>(type: "integer", nullable: false),
                     SpaceId = table.Column<Guid>(type: "uuid", nullable: false),
                     AcceptedAnswerId = table.Column<Guid>(type: "uuid", nullable: true),
+                    ParentAnswerId = table.Column<Guid>(type: "uuid", nullable: true),
                     LastActivityAtUtc = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     TenantId = table.Column<Guid>(type: "uuid", nullable: false),
                     CreatedDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
@@ -298,6 +355,12 @@ namespace Querify.QnA.Common.Persistence.QnADb.Migrations
                     table.ForeignKey(
                         name: "FK_Questions_Answers_AcceptedAnswerId",
                         column: x => x.AcceptedAnswerId,
+                        principalTable: "Answers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.SetNull);
+                    table.ForeignKey(
+                        name: "FK_Questions_Answers_ParentAnswerId",
+                        column: x => x.ParentAnswerId,
                         principalTable: "Answers",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.SetNull);
@@ -413,6 +476,11 @@ namespace Querify.QnA.Common.Persistence.QnADb.Migrations
                 column: "QuestionId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Answers_TenantId_Visibility_Status_QuestionId",
+                table: "Answers",
+                columns: new[] { "TenantId", "Visibility", "Status", "QuestionId" });
+
+            migrationBuilder.CreateIndex(
                 name: "IX_AnswerSourceLink_AnswerId_SourceId_Role_Order",
                 table: "AnswerSourceLinks",
                 columns: new[] { "AnswerId", "SourceId", "Role", "Order" },
@@ -449,9 +517,19 @@ namespace Querify.QnA.Common.Persistence.QnADb.Migrations
                 column: "AcceptedAnswerId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Questions_ParentAnswerId",
+                table: "Questions",
+                column: "ParentAnswerId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Questions_SpaceId",
                 table: "Questions",
                 column: "SpaceId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Questions_TenantId_Visibility_Status_SpaceId",
+                table: "Questions",
+                columns: new[] { "TenantId", "Visibility", "Status", "SpaceId" });
 
             migrationBuilder.CreateIndex(
                 name: "IX_QuestionSourceLink_IsDeleted",
@@ -491,9 +569,44 @@ namespace Querify.QnA.Common.Persistence.QnADb.Migrations
                 column: "TenantId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_QuestionTag_TenantId_TagId_QuestionId",
+                table: "QuestionTags",
+                columns: new[] { "TenantId", "TagId", "QuestionId" });
+
+            migrationBuilder.CreateIndex(
                 name: "IX_QuestionTags_TagId",
                 table: "QuestionTags",
                 column: "TagId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_SourceGenerationRun_IsDeleted",
+                table: "SourceGenerationRuns",
+                column: "IsDeleted");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_SourceGenerationRun_TenantId",
+                table: "SourceGenerationRuns",
+                column: "TenantId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_SourceGenerationRuns_CreatedSpaceId",
+                table: "SourceGenerationRuns",
+                column: "CreatedSpaceId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_SourceGenerationRuns_SourceId",
+                table: "SourceGenerationRuns",
+                column: "SourceId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_SourceGenerationRuns_TenantId_SourceId_CreatedDate",
+                table: "SourceGenerationRuns",
+                columns: new[] { "TenantId", "SourceId", "CreatedDate" });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_SourceGenerationRuns_TenantId_Status",
+                table: "SourceGenerationRuns",
+                columns: new[] { "TenantId", "Status" });
 
             migrationBuilder.CreateIndex(
                 name: "IX_Source_IsDeleted",
@@ -504,6 +617,13 @@ namespace Querify.QnA.Common.Persistence.QnADb.Migrations
                 name: "IX_Source_TenantId",
                 table: "Sources",
                 column: "TenantId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Sources_TenantId_StorageKey",
+                table: "Sources",
+                columns: new[] { "TenantId", "StorageKey" },
+                unique: true,
+                filter: "\"StorageKey\" IS NOT NULL");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Space_IsDeleted",
@@ -609,6 +729,10 @@ namespace Querify.QnA.Common.Persistence.QnADb.Migrations
                 name: "FK_Questions_Answers_AcceptedAnswerId",
                 table: "Questions");
 
+            migrationBuilder.DropForeignKey(
+                name: "FK_Questions_Answers_ParentAnswerId",
+                table: "Questions");
+
             migrationBuilder.DropTable(
                 name: "__ChangeHistory");
 
@@ -623,6 +747,9 @@ namespace Querify.QnA.Common.Persistence.QnADb.Migrations
 
             migrationBuilder.DropTable(
                 name: "QuestionTags");
+
+            migrationBuilder.DropTable(
+                name: "SourceGenerationRuns");
 
             migrationBuilder.DropTable(
                 name: "SpaceSources");

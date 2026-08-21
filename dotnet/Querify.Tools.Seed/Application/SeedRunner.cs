@@ -1,5 +1,7 @@
 using Querify.Common.EntityFramework.Core;
 using Querify.Common.EntityFramework.Tenant;
+using Querify.Broadcast.Common.Persistence.BroadcastDb.DbContext;
+using Querify.Direct.Common.Persistence.DirectDb.DbContext;
 using Querify.QnA.Common.Persistence.QnADb.DbContext;
 using Querify.Tools.Seed.Abstractions;
 using Querify.Tools.Seed.Configuration;
@@ -29,12 +31,22 @@ public sealed class SeedRunner(
         var bigDataSettings = BigDataSeedSettings.From(configuration);
         var tenantBuilder = new NpgsqlConnectionStringBuilder(settings.TenantConnectionString);
         var qnaBuilder = new NpgsqlConnectionStringBuilder(settings.QnAConnectionString);
-        var tenantSeedRequest = new TenantSeedRequest(tenantBuilder.ToString(), qnaBuilder.ToString());
+        var directBuilder = new NpgsqlConnectionStringBuilder(settings.DirectConnectionString);
+        var broadcastBuilder = new NpgsqlConnectionStringBuilder(settings.BroadcastConnectionString);
+        var tenantSeedRequest = new TenantSeedRequest(
+            tenantBuilder.ToString(),
+            qnaBuilder.ToString(),
+            directBuilder.ToString(),
+            broadcastBuilder.ToString());
 
         console.WriteLine(
             $"Using TenantDb from appsettings.json: {FormatConnectionInfo(tenantBuilder)}");
         console.WriteLine(
             $"Using QnADb from appsettings.json: {FormatConnectionInfo(qnaBuilder)}");
+        console.WriteLine(
+            $"Using DirectDb from appsettings.json: {FormatConnectionInfo(directBuilder)}");
+        console.WriteLine(
+            $"Using BroadcastDb from appsettings.json: {FormatConnectionInfo(broadcastBuilder)}");
 
         var action = PromptAction(console);
         if (action == SeedAction.Exit)
@@ -54,11 +66,27 @@ public sealed class SeedRunner(
         switch (action)
         {
             case SeedAction.SeedEssentialOnly:
-                EnsureEssentialData(tenantDb, tenantSeedRequest);
+            {
+                var essentialSeed = EnsureEssentialData(tenantDb, tenantSeedRequest);
+                EnsureAllModuleSchemas(
+                    qnaBuilder.ToString(),
+                    directBuilder.ToString(),
+                    broadcastBuilder.ToString(),
+                    seedUserId,
+                    essentialSeed.TenantId,
+                    httpContextAccessor);
                 return 0;
+            }
 
             case SeedAction.SeedRealistic:
-                return SeedRealistic(tenantDb, tenantSeedRequest, qnaBuilder.ToString(), seedUserId, httpContextAccessor);
+                return SeedRealistic(
+                    tenantDb,
+                    tenantSeedRequest,
+                    qnaBuilder.ToString(),
+                    directBuilder.ToString(),
+                    broadcastBuilder.ToString(),
+                    seedUserId,
+                    httpContextAccessor);
 
             case SeedAction.CleanAndSeedRealistic:
                 cleanupService.CleanTenantDb(tenantDb);
@@ -66,12 +94,22 @@ public sealed class SeedRunner(
                     tenantDb,
                     tenantSeedRequest,
                     qnaBuilder.ToString(),
+                    directBuilder.ToString(),
+                    broadcastBuilder.ToString(),
                     seedUserId,
                     httpContextAccessor,
-                    cleanQnADb: true);
+                    cleanModuleDbs: true);
 
             case SeedAction.SeedBigData:
-                return SeedBigData(tenantDb, tenantSeedRequest, qnaBuilder.ToString(), seedUserId, httpContextAccessor, bigDataSettings);
+                return SeedBigData(
+                    tenantDb,
+                    tenantSeedRequest,
+                    qnaBuilder.ToString(),
+                    directBuilder.ToString(),
+                    broadcastBuilder.ToString(),
+                    seedUserId,
+                    httpContextAccessor,
+                    bigDataSettings);
 
             case SeedAction.CleanBigDataOnly:
                 using (var qnaDb = CreateQnADbContext(
@@ -117,8 +155,50 @@ public sealed class SeedRunner(
                     ApplyBigDataCommandTimeout(qnaDb, bigDataSettings);
                     cleanupService.CleanQnADb(qnaDb);
                 }
+                using (var directDb = CreateDirectDbContext(
+                           directBuilder.ToString(),
+                           seedUserId,
+                           Guid.Empty,
+                           httpContextAccessor))
+                {
+                    cleanupService.CleanDirectDb(directDb);
+                }
+                using (var broadcastDb = CreateBroadcastDbContext(
+                           broadcastBuilder.ToString(),
+                           seedUserId,
+                           Guid.Empty,
+                           httpContextAccessor))
+                {
+                    cleanupService.CleanBroadcastDb(broadcastDb);
+                }
 
-                console.WriteLine("TenantDb and QnADb cleaned.");
+                console.WriteLine("TenantDb, QnADb, DirectDb, and BroadcastDb cleaned.");
+                return 0;
+
+            case SeedAction.CleanDirectOnly:
+                using (var directDb = CreateDirectDbContext(
+                           directBuilder.ToString(),
+                           seedUserId,
+                           Guid.Empty,
+                           httpContextAccessor))
+                {
+                    cleanupService.CleanDirectDb(directDb);
+                }
+
+                console.WriteLine("DirectDb cleaned.");
+                return 0;
+
+            case SeedAction.CleanBroadcastOnly:
+                using (var broadcastDb = CreateBroadcastDbContext(
+                           broadcastBuilder.ToString(),
+                           seedUserId,
+                           Guid.Empty,
+                           httpContextAccessor))
+                {
+                    cleanupService.CleanBroadcastDb(broadcastDb);
+                }
+
+                console.WriteLine("BroadcastDb cleaned.");
                 return 0;
 
             case SeedAction.Exit:
@@ -173,6 +253,111 @@ public sealed class SeedRunner(
         return qnaDb;
     }
 
+    private DirectDbContext CreateDirectDbContext(
+        string directConnectionString,
+        Guid seedUserId,
+        Guid seedTenantId,
+        IHttpContextAccessor httpContextAccessor)
+    {
+        var directSessionService = new SeedSessionService(seedUserId, seedTenantId);
+        var directTenantProvider = new StaticTenantConnectionStringProvider(directConnectionString);
+
+        var directDb = dbContextFactory.CreateDirectDbContext(
+            directConnectionString,
+            configuration,
+            directSessionService,
+            directTenantProvider,
+            httpContextAccessor);
+
+        PostgresDatabaseProvisioner.EnsureDatabaseExists(directConnectionString);
+        directDb.Database.Migrate();
+        directDb.TenantFiltersEnabled = false;
+        directDb.SoftDeleteFiltersEnabled = false;
+
+        return directDb;
+    }
+
+    private BroadcastDbContext CreateBroadcastDbContext(
+        string broadcastConnectionString,
+        Guid seedUserId,
+        Guid seedTenantId,
+        IHttpContextAccessor httpContextAccessor)
+    {
+        var broadcastSessionService = new SeedSessionService(seedUserId, seedTenantId);
+        var broadcastTenantProvider = new StaticTenantConnectionStringProvider(broadcastConnectionString);
+
+        var broadcastDb = dbContextFactory.CreateBroadcastDbContext(
+            broadcastConnectionString,
+            configuration,
+            broadcastSessionService,
+            broadcastTenantProvider,
+            httpContextAccessor);
+
+        PostgresDatabaseProvisioner.EnsureDatabaseExists(broadcastConnectionString);
+        broadcastDb.Database.Migrate();
+        broadcastDb.TenantFiltersEnabled = false;
+        broadcastDb.SoftDeleteFiltersEnabled = false;
+
+        return broadcastDb;
+    }
+
+    private void EnsureAllModuleSchemas(
+        string qnaConnectionString,
+        string directConnectionString,
+        string broadcastConnectionString,
+        Guid seedUserId,
+        Guid seedTenantId,
+        IHttpContextAccessor httpContextAccessor)
+    {
+        using var qnaDb = CreateQnADbContext(
+            qnaConnectionString,
+            seedUserId,
+            seedTenantId,
+            httpContextAccessor);
+
+        EnsureAuxiliaryModuleSchemas(
+            directConnectionString,
+            broadcastConnectionString,
+            seedUserId,
+            seedTenantId,
+            httpContextAccessor);
+
+        console.WriteLine("QnA, Direct, and Broadcast schemas ensured.");
+    }
+
+    private void EnsureAuxiliaryModuleSchemas(
+        string directConnectionString,
+        string broadcastConnectionString,
+        Guid seedUserId,
+        Guid seedTenantId,
+        IHttpContextAccessor httpContextAccessor,
+        bool cleanModuleDbs = false)
+    {
+        using (var directDb = CreateDirectDbContext(
+                   directConnectionString,
+                   seedUserId,
+                   seedTenantId,
+                   httpContextAccessor))
+        {
+            if (cleanModuleDbs)
+            {
+                cleanupService.CleanDirectDb(directDb);
+            }
+        }
+
+        using (var broadcastDb = CreateBroadcastDbContext(
+                   broadcastConnectionString,
+                   seedUserId,
+                   seedTenantId,
+                   httpContextAccessor))
+        {
+            if (cleanModuleDbs)
+            {
+                cleanupService.CleanBroadcastDb(broadcastDb);
+            }
+        }
+    }
+
     private EssentialSeedResult EnsureEssentialData(TenantDbContext tenantDb, TenantSeedRequest tenantSeedRequest)
     {
         var essentialSeed = tenantSeeder.EnsureEssentialData(tenantDb, tenantSeedRequest, counts);
@@ -186,11 +371,21 @@ public sealed class SeedRunner(
         TenantDbContext tenantDb,
         TenantSeedRequest tenantSeedRequest,
         string qnaConnectionString,
+        string directConnectionString,
+        string broadcastConnectionString,
         Guid seedUserId,
         IHttpContextAccessor httpContextAccessor,
-        bool cleanQnADb = false)
+        bool cleanModuleDbs = false)
     {
         var essentialSeed = EnsureEssentialData(tenantDb, tenantSeedRequest);
+
+        EnsureAuxiliaryModuleSchemas(
+            directConnectionString,
+            broadcastConnectionString,
+            seedUserId,
+            essentialSeed.TenantId,
+            httpContextAccessor,
+            cleanModuleDbs);
 
         using var qnaDb = CreateQnADbContext(
             qnaConnectionString,
@@ -198,7 +393,7 @@ public sealed class SeedRunner(
             essentialSeed.TenantId,
             httpContextAccessor);
 
-        if (cleanQnADb)
+        if (cleanModuleDbs)
         {
             cleanupService.CleanQnADb(qnaDb);
         }
@@ -227,11 +422,20 @@ public sealed class SeedRunner(
         TenantDbContext tenantDb,
         TenantSeedRequest tenantSeedRequest,
         string qnaConnectionString,
+        string directConnectionString,
+        string broadcastConnectionString,
         Guid seedUserId,
         IHttpContextAccessor httpContextAccessor,
         BigDataSeedSettings bigDataSettings)
     {
         var essentialSeed = EnsureEssentialData(tenantDb, tenantSeedRequest);
+
+        EnsureAuxiliaryModuleSchemas(
+            directConnectionString,
+            broadcastConnectionString,
+            seedUserId,
+            essentialSeed.TenantId,
+            httpContextAccessor);
 
         using var qnaDb = CreateQnADbContext(
             qnaConnectionString,
@@ -280,13 +484,15 @@ public sealed class SeedRunner(
     {
         console.WriteLine("Select action:");
         console.WriteLine("1) Seed Realistic QnA data (default)");
-        console.WriteLine("2) Seed essential data (tenant metadata)");
+        console.WriteLine("2) Seed essential data (tenant metadata + module connections)");
         console.WriteLine("3) Seed Big Data (performance)");
         console.WriteLine("4) Clean databases and seed essential + realistic QnA data");
         console.WriteLine("5) Clean Seed Big Data only");
         console.WriteLine("6) Clean TenantDb only");
         console.WriteLine("7) Clean QnADb only");
-        console.WriteLine("8) Clean TenantDb + QnADb");
+        console.WriteLine("8) Clean TenantDb + QnADb + DirectDb + BroadcastDb");
+        console.WriteLine("9) Clean DirectDb only");
+        console.WriteLine("10) Clean BroadcastDb only");
         console.WriteLine("0) Exit");
         console.Write("Choice: ");
         var input = console.ReadLine();
@@ -299,6 +505,8 @@ public sealed class SeedRunner(
             "6" => SeedAction.CleanTenantOnly,
             "7" => SeedAction.CleanQnAOnly,
             "8" => SeedAction.CleanAllOnly,
+            "9" => SeedAction.CleanDirectOnly,
+            "10" => SeedAction.CleanBroadcastOnly,
             "0" => SeedAction.Exit,
             _ => SeedAction.SeedRealistic
         };
@@ -314,6 +522,8 @@ public sealed class SeedRunner(
         CleanTenantOnly = 26,
         CleanQnAOnly = 31,
         CleanAllOnly = 36,
-        Exit = 41
+        CleanDirectOnly = 41,
+        CleanBroadcastOnly = 46,
+        Exit = 51
     }
 }

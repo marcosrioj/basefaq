@@ -39,10 +39,30 @@ macOS/Linux:
 ./devops/local/docker/base.sh
 ```
 
+To recreate the base-services stack from scratch, including local data volumes:
+
+```bash
+./devops/local/docker/base.sh --reset
+```
+
 Windows PowerShell:
 
 ```powershell
 .\devops\local\docker\base.ps1
+```
+
+PowerShell reset:
+
+```powershell
+.\devops\local\docker\base.ps1 -Reset
+```
+
+The reset mode deletes local infrastructure data, including PostgreSQL, Redis, RabbitMQ, MinIO, SMTP4Dev, Prometheus, and Grafana volumes.
+
+After a reset, the scripts wait up to 30 seconds for Docker to release old host port bindings before starting the stack. If Docker leaves stale `docker-proxy`/`com.docker.proxy` processes holding the stack ports, reset mode stops only those Docker proxy processes and waits again. If your Docker/WSL environment needs longer, override the wait:
+
+```bash
+BASE_RESET_PORT_WAIT_SECONDS=60 ./devops/local/docker/base.sh --reset
 ```
 
 What this starts:
@@ -65,7 +85,7 @@ The helper script also recreates the expected PostgreSQL databases through `devo
 - `qf_broadcast_db_01`
 - `qf_hangfire_qna_db`
 
-Database creation does not apply product schema. Run the supported migration flow or follow the [manual schema handoff](../architecture/dotnet-backend-overview.md#manual-schema-handoff) for Direct and Broadcast before using those module databases.
+Database creation does not apply product schema. Run the seed tool or the supported migration flow before using the module databases.
 
 ### 3. Initialize local schema and seed data
 
@@ -75,10 +95,10 @@ dotnet run --project dotnet/Querify.Tools.Seed
 
 Common choices:
 
-- `2`: seed essential tenant metadata only
-- `3`: clean databases and seed essential plus sample QnA data
+- `2`: seed essential tenant metadata and ensure QnA/Direct/Broadcast schemas
+- `4`: clean databases and seed essential plus sample QnA data
 
-On a clean machine, this is the fastest way to create the tenant schema and the seed-target module schema because the seed application runs EF Core migrations before inserting data.
+On a clean machine, this is the fastest way to create the tenant schema, QnA/Direct/Broadcast tenant connections, and module schemas because the seed application runs EF Core migrations before inserting data.
 
 ### 4. Use the migration tool when you change supported module schema
 
@@ -88,10 +108,12 @@ Use the migration tool after tenant metadata already exists:
 dotnet run --project dotnet/Querify.Tools.Migration
 ```
 
-Or run the QnA module database update non-interactively:
+Or run a module database update non-interactively:
 
 ```bash
 dotnet run --project dotnet/Querify.Tools.Migration -- --module QnA --command database-update
+dotnet run --project dotnet/Querify.Tools.Migration -- --module Direct --command database-update
+dotnet run --project dotnet/Querify.Tools.Migration -- --module Broadcast --command database-update
 ```
 
 The QnA worker's Hangfire storage is not tenant-discovered. For manual control, apply it directly:
@@ -255,6 +277,20 @@ Use `./devops/local/docker/base.sh` or export the variable manually before runni
 
 ```bash
 export REDIS_PASSWORD=RedisTempPassword
+```
+
+### A required local port or container name is already in use
+
+The base-service scripts check required host ports and fixed container names before `docker compose up`. If a port is busy, stop the listed process or container and run the script again. If the owner is a stale Querify base-service container, or if a base-service container name is left behind, reset the stack:
+
+```bash
+./devops/local/docker/base.sh --reset
+```
+
+PowerShell:
+
+```powershell
+.\devops\local\docker\base.ps1 -Reset
 ```
 
 ### Local HTTPS certificate warning

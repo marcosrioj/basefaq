@@ -2,13 +2,19 @@ using Microsoft.Extensions.Configuration;
 
 namespace Querify.Tools.Seed.Configuration;
 
-public sealed record SeedSettings(string TenantConnectionString, string QnAConnectionString)
+public sealed record SeedSettings(
+    string TenantConnectionString,
+    string QnAConnectionString,
+    string DirectConnectionString,
+    string BroadcastConnectionString)
 {
     public static SeedSettings From(IConfiguration configuration)
     {
         var tenant = GetRequiredConnectionString(configuration, "TenantDb");
         var qna = GetRequiredConnectionString(configuration, "QnADb");
-        return new SeedSettings(tenant, qna);
+        var direct = GetRequiredConnectionString(configuration, "DirectDb");
+        var broadcast = GetRequiredConnectionString(configuration, "BroadcastDb");
+        return new SeedSettings(tenant, qna, direct, broadcast);
     }
 
     private static string GetRequiredConnectionString(IConfiguration configuration, string name)

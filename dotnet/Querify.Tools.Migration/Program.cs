@@ -28,7 +28,9 @@ public static class Program
 
         var cliMode = args.Length > 0;
 
-        var module = cliArguments.Module ?? ModuleEnum.QnA;
+        var module = cliMode
+            ? cliArguments.Module ?? ModuleEnum.QnA
+            : MigrationPrompt.SelectModule();
         MigrationCommand command;
 
         if (cliMode)

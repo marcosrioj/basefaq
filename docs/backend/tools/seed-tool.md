@@ -13,14 +13,17 @@ It is designed to work across both the tenant database and module databases, whi
 Essential seed creates or ensures:
 
 - the seed tenant users in `TenantDb`
-- the default module tenant metadata in `TenantDb`
-- tenant-user membership and the QnA module tenant connection
+- the default QnA seed tenant metadata in `TenantDb`
+- tenant-user membership
+- current module tenant connections for `QnA`, `Direct`, and `Broadcast`
 
-This is the minimum required tenant-side data for tenant configuration and module database routing to work correctly.
+This is the minimum required tenant-side data for tenant configuration and module database routing to work correctly. The seed tenant remains a QnA workspace; Direct and Broadcast route through `TenantConnections`.
 
 ### Sample data
 
-Sample seed creates realistic QnA data in the QnA database for the essential seed tenant. Current sample module target: `QnA`.
+Sample seed creates realistic QnA data in the QnA database for the essential seed tenant. Current sample data target: `QnA`.
+
+Direct and Broadcast are included for schema readiness and tenant routing, but the seed tool does not create Direct/Broadcast sample conversations, contacts, threads, or items yet.
 
 It also seeds billing sample scenarios in `TenantDb` covering five tenants with varied states:
 
@@ -40,6 +43,8 @@ The tool reads:
 
 - `ConnectionStrings:TenantDb`
 - `ConnectionStrings:QnADb`
+- `ConnectionStrings:DirectDb`
+- `ConnectionStrings:BroadcastDb`
 
 from `dotnet/Querify.Tools.Seed/appsettings.json`.
 
@@ -54,36 +59,44 @@ dotnet run --project dotnet/Querify.Tools.Seed
 At startup the tool offers these actions:
 
 1. seed realistic sample QnA data
-2. seed essential data
-3. clean databases and seed essential plus sample data
-4. clean `TenantDb` only
-5. clean `QnADb` only
+2. seed essential data and ensure QnA/Direct/Broadcast schemas
+3. seed Big Data performance rows in QnA
+4. clean databases and seed essential plus realistic QnA data
+5. clean Seed Big Data rows only
+6. clean `TenantDb` only
+7. clean `QnADb` only
+8. clean `TenantDb`, `QnADb`, `DirectDb`, and `BroadcastDb`
+9. clean `DirectDb` only
+10. clean `BroadcastDb` only
 0. exit
 
 ## Recommended choices
 
 ### First-time setup
 
-Choose `3` if you want a clean environment with sample content.
+Choose `4` if you want a clean environment with sample content.
 
 ### Essential-only setup
 
-Choose `2` if you want all required `TenantDb` seed data without the QnA sample content.
+Choose `2` if you want all required `TenantDb` seed data and module schemas without the QnA sample content.
 
 ### Sample-only setup
 
-Choose `1` only when essential data already exists. On a clean environment, option `1` will stop and ask you to run the essential seed first.
+Choose `1` for realistic QnA data. It also ensures the essential tenant metadata and Direct/Broadcast routing.
 
 ### Resetting local state
 
-Choose `4` when you want to clear only `TenantDb`.
+Choose `6` when you want to clear only `TenantDb`.
 
-Choose `5` when you want to clear only `QnADb`.
+Choose `7` when you want to clear only `QnADb`.
+
+Choose `8` when you want to clear tenant metadata and all current local module databases.
 
 ## Safety behavior
 
 - the tool logs the tenant and module connection info it is using
 - it applies EF Core migrations before seeding
+- essential seed keeps QnA, Direct, and Broadcast tenant routing in sync with appsettings
 - it asks for confirmation before appending data into non-empty databases
 - seeded module rows must satisfy the same `DbContext/TenantIntegrity` rules as runtime writes
 - sample data that creates tenant-owned relationships must use referenced records from the same tenant

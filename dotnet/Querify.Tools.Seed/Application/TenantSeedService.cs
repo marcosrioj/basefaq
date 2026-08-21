@@ -16,6 +16,13 @@ public sealed class TenantSeedService : ITenantSeedService
     private const string SeedTenantName = "Querify Seed Workspace";
     private const string SeedTenantClientKey = "seed-qna-public";
 
+    private static readonly ModuleEnum[] SeedModuleConnections =
+    [
+        ModuleEnum.QnA,
+        ModuleEnum.Direct,
+        ModuleEnum.Broadcast
+    ];
+
     private static readonly SeedUserProfile[] SeedUserProfiles =
     [
         new("Ava", "Chen", "ava.chen@seed.querify.local", "+1-555-010-0101", "en-US", "America/Vancouver", UserRoleType.Admin),
@@ -76,21 +83,14 @@ public sealed class TenantSeedService : ITenantSeedService
             }
         }
 
-        return dbContext.TenantConnections
-            .IgnoreQueryFilters()
-            .AsNoTracking()
-            .Any(connection =>
-                !connection.IsDeleted &&
-                connection.Module == ModuleEnum.QnA &&
-                connection.IsCurrent &&
-                connection.ConnectionString == request.QnAConnectionString);
+        return SeedModuleConnections.All(module => HasCurrentModuleConnection(dbContext, request, module));
     }
 
     public EssentialSeedResult EnsureEssentialData(TenantDbContext dbContext, TenantSeedRequest request, SeedCounts counts)
     {
         var seedUsers = EnsureSeedUsers(dbContext, counts.UserCount);
         var seedTenant = EnsureSeedTenant(dbContext, request, seedUsers);
-        EnsureCurrentQnAConnection(dbContext, request);
+        EnsureCurrentModuleConnections(dbContext, request);
 
         dbContext.SaveChanges();
 
@@ -182,22 +182,50 @@ public sealed class TenantSeedService : ITenantSeedService
         return tenant;
     }
 
-    private static void EnsureCurrentQnAConnection(TenantDbContext dbContext, TenantSeedRequest request)
+    private static bool HasCurrentModuleConnection(
+        TenantDbContext dbContext,
+        TenantSeedRequest request,
+        ModuleEnum module)
     {
+        var connectionString = ResolveModuleConnectionString(request, module);
+        return dbContext.TenantConnections
+            .IgnoreQueryFilters()
+            .AsNoTracking()
+            .Any(connection =>
+                !connection.IsDeleted &&
+                connection.Module == module &&
+                connection.IsCurrent &&
+                connection.ConnectionString == connectionString);
+    }
+
+    private static void EnsureCurrentModuleConnections(TenantDbContext dbContext, TenantSeedRequest request)
+    {
+        foreach (var module in SeedModuleConnections)
+        {
+            EnsureCurrentModuleConnection(dbContext, request, module);
+        }
+    }
+
+    private static void EnsureCurrentModuleConnection(
+        TenantDbContext dbContext,
+        TenantSeedRequest request,
+        ModuleEnum module)
+    {
+        var connectionString = ResolveModuleConnectionString(request, module);
         var connection = dbContext.TenantConnections
             .IgnoreQueryFilters()
             .ToList()
             .FirstOrDefault(item =>
-                item.Module == ModuleEnum.QnA &&
-                (item.IsCurrent || item.ConnectionString == request.QnAConnectionString));
+                item.Module == module &&
+                (item.IsCurrent || item.ConnectionString == connectionString));
 
         if (connection is null)
         {
             connection = new TenantConnection
             {
                 Id = Guid.NewGuid(),
-                Module = ModuleEnum.QnA,
-                ConnectionString = request.QnAConnectionString,
+                Module = module,
+                ConnectionString = connectionString,
                 IsCurrent = true
             };
 
@@ -206,9 +234,20 @@ public sealed class TenantSeedService : ITenantSeedService
         }
 
         RestoreEntity(connection);
-        connection.ConnectionString = request.QnAConnectionString;
-        connection.Module = ModuleEnum.QnA;
+        connection.ConnectionString = connectionString;
+        connection.Module = module;
         connection.IsCurrent = true;
+    }
+
+    private static string ResolveModuleConnectionString(TenantSeedRequest request, ModuleEnum module)
+    {
+        return module switch
+        {
+            ModuleEnum.QnA => request.QnAConnectionString,
+            ModuleEnum.Direct => request.DirectConnectionString,
+            ModuleEnum.Broadcast => request.BroadcastConnectionString,
+            _ => throw new InvalidOperationException($"Seed connection is not supported for {module}.")
+        };
     }
 
     private static string BuildSeedUserExternalId(int index)

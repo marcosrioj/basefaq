@@ -235,6 +235,43 @@ namespace Querify.Common.EntityFramework.Tenant.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "ChannelConnections",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    Name = table.Column<string>(type: "character varying(120)", maxLength: 120, nullable: false),
+                    ProviderKey = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
+                    Kind = table.Column<int>(type: "integer", nullable: false),
+                    ConnectionData = table.Column<string>(type: "character varying(16000)", maxLength: 16000, nullable: false),
+                    Status = table.Column<int>(type: "integer", nullable: false),
+                    IsEnabled = table.Column<bool>(type: "boolean", nullable: false),
+                    CredentialsExpireAtUtc = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    LastCredentialsRefreshAtUtc = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    LastConnectedAtUtc = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    LastSynchronizedAtUtc = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    LastErrorAtUtc = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    LastErrorMessage = table.Column<string>(type: "character varying(2000)", maxLength: 2000, nullable: true),
+                    TenantId = table.Column<Guid>(type: "uuid", nullable: false),
+                    CreatedDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    CreatedBy = table.Column<string>(type: "text", nullable: true),
+                    UpdatedDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    UpdatedBy = table.Column<string>(type: "text", nullable: true),
+                    DeletedDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    DeletedBy = table.Column<string>(type: "text", nullable: true),
+                    IsDeleted = table.Column<bool>(type: "boolean", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ChannelConnections", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_ChannelConnections_Tenants_TenantId",
+                        column: x => x.TenantId,
+                        principalTable: "Tenants",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "BillingInvoices",
                 columns: table => new
                 {
@@ -506,6 +543,27 @@ namespace Querify.Common.EntityFramework.Tenant.Migrations
                 column: "TenantId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_ChannelConnection_IsDeleted",
+                table: "ChannelConnections",
+                column: "IsDeleted");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ChannelConnection_TenantId",
+                table: "ChannelConnections",
+                column: "TenantId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ChannelConnection_TenantId_IsEnabled_Status_Kind",
+                table: "ChannelConnections",
+                columns: new[] { "TenantId", "IsEnabled", "Status", "Kind" });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ChannelConnection_TenantId_ProviderKey",
+                table: "ChannelConnections",
+                columns: new[] { "TenantId", "ProviderKey" },
+                unique: true);
+
+            migrationBuilder.CreateIndex(
                 name: "IX_EmailOutbox_IsDeleted",
                 table: "EmailOutboxes",
                 column: "IsDeleted");
@@ -632,6 +690,9 @@ namespace Querify.Common.EntityFramework.Tenant.Migrations
 
             migrationBuilder.DropTable(
                 name: "BillingWebhookInboxes");
+
+            migrationBuilder.DropTable(
+                name: "ChannelConnections");
 
             migrationBuilder.DropTable(
                 name: "EmailOutboxes");

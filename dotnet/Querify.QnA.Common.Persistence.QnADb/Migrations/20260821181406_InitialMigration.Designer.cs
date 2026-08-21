@@ -12,8 +12,8 @@ using Querify.QnA.Common.Persistence.QnADb.DbContext;
 namespace Querify.QnA.Common.Persistence.QnADb.Migrations
 {
     [DbContext(typeof(QnADbContext))]
-    [Migration("20260508211456_SourceKindAndUploadCkecksumRemoved")]
-    partial class SourceKindAndUploadCkecksumRemoved
+    [Migration("20260821181406_InitialMigration")]
+    partial class InitialMigration
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -229,6 +229,9 @@ namespace Querify.QnA.Common.Persistence.QnADb.Migrations
                     b.HasIndex("TenantId")
                         .HasDatabaseName("IX_Answer_TenantId");
 
+                    b.HasIndex("TenantId", "Visibility", "Status", "QuestionId")
+                        .HasDatabaseName("IX_Answers_TenantId_Visibility_Status_QuestionId");
+
                     b.ToTable("Answers", (string)null);
                 });
 
@@ -333,6 +336,9 @@ namespace Querify.QnA.Common.Persistence.QnADb.Migrations
                     b.Property<int>("OriginChannel")
                         .HasColumnType("integer");
 
+                    b.Property<Guid?>("ParentAnswerId")
+                        .HasColumnType("uuid");
+
                     b.Property<int>("Sort")
                         .HasColumnType("integer");
 
@@ -372,10 +378,16 @@ namespace Querify.QnA.Common.Persistence.QnADb.Migrations
                     b.HasIndex("IsDeleted")
                         .HasDatabaseName("IX_Question_IsDeleted");
 
+                    b.HasIndex("ParentAnswerId")
+                        .HasDatabaseName("IX_Questions_ParentAnswerId");
+
                     b.HasIndex("SpaceId");
 
                     b.HasIndex("TenantId")
                         .HasDatabaseName("IX_Question_TenantId");
+
+                    b.HasIndex("TenantId", "Visibility", "Status", "SpaceId")
+                        .HasDatabaseName("IX_Questions_TenantId_Visibility_Status_SpaceId");
 
                     b.ToTable("Questions", (string)null);
                 });
@@ -489,6 +501,9 @@ namespace Querify.QnA.Common.Persistence.QnADb.Migrations
                         .IsUnique()
                         .HasDatabaseName("IX_QuestionTag_QuestionId_TagId");
 
+                    b.HasIndex("TenantId", "TagId", "QuestionId")
+                        .HasDatabaseName("IX_QuestionTag_TenantId_TagId_QuestionId");
+
                     b.ToTable("QuestionTags", (string)null);
                 });
 
@@ -535,9 +550,6 @@ namespace Querify.QnA.Common.Persistence.QnADb.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)");
 
-                    b.Property<DateTime?>("LastVerifiedAtUtc")
-                        .HasColumnType("timestamp with time zone");
-
                     b.Property<string>("Locator")
                         .IsRequired()
                         .HasMaxLength(1000)
@@ -572,11 +584,6 @@ namespace Querify.QnA.Common.Persistence.QnADb.Migrations
                         .HasColumnType("integer")
                         .HasDefaultValue(1);
 
-                    b.Property<int>("Visibility")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasDefaultValue(1);
-
                     b.HasKey("Id");
 
                     b.HasIndex("IsDeleted")
@@ -590,6 +597,149 @@ namespace Querify.QnA.Common.Persistence.QnADb.Migrations
                         .HasFilter("\"StorageKey\" IS NOT NULL");
 
                     b.ToTable("Sources", (string)null);
+                });
+
+            modelBuilder.Entity("Querify.QnA.Common.Domain.Entities.SourceGenerationRun", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<bool>("AcceptsAnswers")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("AcceptsQuestions")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTime?>("CompletedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("ContentHint")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("CreatedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("CreatedSpaceId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("DeletedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("ExtractionGoal")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
+
+                    b.Property<string>("FailureReason")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
+
+                    b.Property<bool>("IncludeFollowUpQuestions")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Language")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<int>("MaxAnswersPerQuestion")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("MaxFollowUpDepth")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("MaxTopLevelQuestions")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("RawOutputJson")
+                        .HasMaxLength(12000)
+                        .HasColumnType("character varying(12000)");
+
+                    b.Property<bool>("RequireEveryAnswerToCiteSource")
+                        .HasColumnType("boolean");
+
+                    b.Property<Guid>("SourceId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("SourceRole")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(11);
+
+                    b.Property<string>("SpaceName")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("SpaceSlug")
+                        .HasMaxLength(160)
+                        .HasColumnType("character varying(160)");
+
+                    b.Property<int>("SpaceStatus")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(1);
+
+                    b.Property<DateTime?>("StartedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("Status")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(1);
+
+                    b.Property<int>("TagGenerationMode")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(11);
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("UpdatedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("Visibility")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(1);
+
+                    b.Property<string>("Warning")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreatedSpaceId");
+
+                    b.HasIndex("IsDeleted")
+                        .HasDatabaseName("IX_SourceGenerationRun_IsDeleted");
+
+                    b.HasIndex("SourceId");
+
+                    b.HasIndex("TenantId")
+                        .HasDatabaseName("IX_SourceGenerationRun_TenantId");
+
+                    b.HasIndex("TenantId", "Status")
+                        .HasDatabaseName("IX_SourceGenerationRuns_TenantId_Status");
+
+                    b.HasIndex("TenantId", "SourceId", "CreatedDate")
+                        .HasDatabaseName("IX_SourceGenerationRuns_TenantId_SourceId_CreatedDate");
+
+                    b.ToTable("SourceGenerationRuns", (string)null);
                 });
 
             modelBuilder.Entity("Querify.QnA.Common.Domain.Entities.Space", b =>
@@ -690,6 +840,11 @@ namespace Querify.QnA.Common.Persistence.QnADb.Migrations
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
+
+                    b.Property<int>("Role")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(16);
 
                     b.Property<Guid>("SourceId")
                         .HasColumnType("uuid");
@@ -879,6 +1034,11 @@ namespace Querify.QnA.Common.Persistence.QnADb.Migrations
                         .HasForeignKey("AcceptedAnswerId")
                         .OnDelete(DeleteBehavior.SetNull);
 
+                    b.HasOne("Querify.QnA.Common.Domain.Entities.Answer", "ParentAnswer")
+                        .WithMany("FollowUpQuestions")
+                        .HasForeignKey("ParentAnswerId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
                     b.HasOne("Querify.QnA.Common.Domain.Entities.Space", "Space")
                         .WithMany("Questions")
                         .HasForeignKey("SpaceId")
@@ -886,6 +1046,8 @@ namespace Querify.QnA.Common.Persistence.QnADb.Migrations
                         .IsRequired();
 
                     b.Navigation("AcceptedAnswer");
+
+                    b.Navigation("ParentAnswer");
 
                     b.Navigation("Space");
                 });
@@ -928,6 +1090,24 @@ namespace Querify.QnA.Common.Persistence.QnADb.Migrations
                     b.Navigation("Tag");
                 });
 
+            modelBuilder.Entity("Querify.QnA.Common.Domain.Entities.SourceGenerationRun", b =>
+                {
+                    b.HasOne("Querify.QnA.Common.Domain.Entities.Space", "CreatedSpace")
+                        .WithMany()
+                        .HasForeignKey("CreatedSpaceId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("Querify.QnA.Common.Domain.Entities.Source", "Source")
+                        .WithMany()
+                        .HasForeignKey("SourceId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("CreatedSpace");
+
+                    b.Navigation("Source");
+                });
+
             modelBuilder.Entity("Querify.QnA.Common.Domain.Entities.SpaceSource", b =>
                 {
                     b.HasOne("Querify.QnA.Common.Domain.Entities.Source", "Source")
@@ -968,6 +1148,8 @@ namespace Querify.QnA.Common.Persistence.QnADb.Migrations
 
             modelBuilder.Entity("Querify.QnA.Common.Domain.Entities.Answer", b =>
                 {
+                    b.Navigation("FollowUpQuestions");
+
                     b.Navigation("Sources");
                 });
 

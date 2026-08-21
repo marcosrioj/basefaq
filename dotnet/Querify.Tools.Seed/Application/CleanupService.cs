@@ -1,4 +1,6 @@
 using Querify.Common.EntityFramework.Tenant;
+using Querify.Broadcast.Common.Persistence.BroadcastDb.DbContext;
+using Querify.Direct.Common.Persistence.DirectDb.DbContext;
 using Querify.QnA.Common.Persistence.QnADb.DbContext;
 using Querify.Tools.Seed.Abstractions;
 using Microsoft.EntityFrameworkCore;
@@ -17,6 +19,30 @@ public sealed class CleanupService : ICleanupService
     {
         dbContext.Database.ExecuteSqlRaw(
             "TRUNCATE TABLE \"Activities\", \"AnswerSourceLinks\", \"QuestionSourceLinks\", \"QuestionTags\", \"SpaceSources\", \"SpaceTags\", \"Answers\", \"Questions\", \"Sources\", \"Tags\", \"Spaces\" RESTART IDENTITY CASCADE;");
+    }
+
+    public void CleanDirectDb(DirectDbContext dbContext)
+    {
+        dbContext.Database.ExecuteSqlRaw("""
+            DO $$
+            BEGIN
+                IF to_regclass('"Contacts"') IS NOT NULL THEN
+                    TRUNCATE TABLE "ConversationMessages", "Conversations", "Contacts" RESTART IDENTITY CASCADE;
+                END IF;
+            END $$;
+            """);
+    }
+
+    public void CleanBroadcastDb(BroadcastDbContext dbContext)
+    {
+        dbContext.Database.ExecuteSqlRaw("""
+            DO $$
+            BEGIN
+                IF to_regclass('"Threads"') IS NOT NULL THEN
+                    TRUNCATE TABLE "Items", "Threads" RESTART IDENTITY CASCADE;
+                END IF;
+            END $$;
+            """);
     }
 
     public void CleanBigDataQnADb(QnADbContext dbContext)

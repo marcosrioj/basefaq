@@ -79,22 +79,29 @@ internal static class EfMigrationsRunner
 
     private static string ResolveProjectPath(string solutionRoot, ModuleEnum module)
     {
-        if (module != ModuleEnum.QnA)
+        var projectName = module switch
         {
-            throw new InvalidOperationException($"Migrations are not supported for {module}.");
-        }
+            ModuleEnum.QnA => "Querify.QnA.Common.Persistence.QnADb",
+            ModuleEnum.Direct => "Querify.Direct.Common.Persistence.DirectDb",
+            ModuleEnum.Broadcast => "Querify.Broadcast.Common.Persistence.BroadcastDb",
+            _ => throw new InvalidOperationException($"Migrations are not supported for {module}.")
+        };
 
         return Path.Combine(
             solutionRoot,
             "dotnet",
-            "Querify.QnA.Common.Persistence.QnADb",
-            "Querify.QnA.Common.Persistence.QnADb.csproj");
+            projectName,
+            $"{projectName}.csproj");
     }
 
     private static string ResolveContextName(ModuleEnum module)
     {
-        return module == ModuleEnum.QnA
-            ? "QnADbContext"
-            : throw new InvalidOperationException($"Migrations are not supported for {module}.");
+        return module switch
+        {
+            ModuleEnum.QnA => "QnADbContext",
+            ModuleEnum.Direct => "DirectDbContext",
+            ModuleEnum.Broadcast => "BroadcastDbContext",
+            _ => throw new InvalidOperationException($"Migrations are not supported for {module}.")
+        };
     }
 }

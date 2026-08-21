@@ -58,13 +58,30 @@ internal sealed class MigrationCliArguments
 
     private static ModuleEnum ParseModule(string value)
     {
-        if (string.Equals(value, "1", StringComparison.OrdinalIgnoreCase) ||
-            string.Equals(value, ModuleEnum.QnA.ToString(), StringComparison.OrdinalIgnoreCase))
+        if (IsModuleValue(value, menuValue: "1", module: ModuleEnum.QnA))
         {
             return ModuleEnum.QnA;
         }
 
-        throw new ArgumentException($"Unsupported module '{value}'. Supported: {ModuleEnum.QnA}.");
+        if (IsModuleValue(value, menuValue: "2", module: ModuleEnum.Direct))
+        {
+            return ModuleEnum.Direct;
+        }
+
+        if (IsModuleValue(value, menuValue: "3", module: ModuleEnum.Broadcast))
+        {
+            return ModuleEnum.Broadcast;
+        }
+
+        throw new ArgumentException(
+            $"Unsupported module '{value}'. Supported: {ModuleEnum.QnA}, {ModuleEnum.Direct}, {ModuleEnum.Broadcast}.");
+    }
+
+    private static bool IsModuleValue(string value, string menuValue, ModuleEnum module)
+    {
+        return string.Equals(value, menuValue, StringComparison.OrdinalIgnoreCase) ||
+               string.Equals(value, ((int)module).ToString(), StringComparison.OrdinalIgnoreCase) ||
+               string.Equals(value, module.ToString(), StringComparison.OrdinalIgnoreCase);
     }
 
     private static MigrationCommand ParseCommand(string value)
