@@ -57,7 +57,15 @@ What this starts:
 - Alertmanager
 - Grafana
 
-The helper script also recreates the expected PostgreSQL databases through `devops/local/docker/postgres/create_databases.sql`.
+The helper script also recreates the expected PostgreSQL databases through `devops/local/docker/postgres/create_databases.sql`:
+
+- `qf_tenant_db`
+- `qf_qna_db_01` and `qf_qna_db_02`
+- `qf_direct_db_01`
+- `qf_broadcast_db_01`
+- `qf_hangfire_qna_db`
+
+Database creation does not apply product schema. Run the supported migration flow or follow the [manual schema handoff](../architecture/dotnet-backend-overview.md#manual-schema-handoff) for Direct and Broadcast before using those module databases.
 
 ### 3. Initialize local schema and seed data
 
@@ -163,7 +171,10 @@ Notes:
 
 - the app/API stack expects the external Docker network `qf-network`, which is created by the base-services stack
 - the application images use the repository root as the Docker build context
-- the default appsettings values use `host.docker.internal`, which keeps host and container networking aligned
+- the backend Compose file overrides control-plane infrastructure hosts with Docker DNS names (`postgres`, `cache`, `rabbitmq`, `minio`, `jaeger`, and `smtp`)
+- tenant-specific product database connection strings stored in `TenantDbContext` may still use `host.docker.internal`, which keeps values usable from host-run tools and containers
+- infrastructure hosts, ports, credentials, database names, object-storage endpoints, and Portal/Auth0 values can be overridden through the environment without editing Compose files
+- long-running app containers use `restart: unless-stopped`; the Portal and local proxy also expose Compose healthchecks
 - `devops/local/docker/docker-compose.backend.yml` boots the Tenant, QnA, Direct, and Broadcast APIs plus the Tenant and QnA worker hosts
 - `devops/local/docker/docker-compose.frontend.yml` boots only `querify.portal.app`
 - `./devops/local/docker/docker.sh` combines `devops/local/docker/docker-compose.backend.yml` and `devops/local/docker/docker-compose.frontend.yml` for `qf_services`

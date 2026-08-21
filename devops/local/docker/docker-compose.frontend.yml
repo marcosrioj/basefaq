@@ -1,22 +1,30 @@
 services:
   querify.portal.app:
     image: querify.portal.app
+    restart: unless-stopped
+    init: true
     build:
       context: ../../..
       dockerfile: apps/portal/Dockerfile
     ports:
       - "5500:5500"
     environment:
-      - VITE_PORTAL_TENANT_API_URL=${VITE_PORTAL_TENANT_API_URL:-//dev.portal.querify.net}
-      - VITE_PORTAL_QNA_API_URL=${VITE_PORTAL_QNA_API_URL:-//dev.portal.querify.net}
-      - VITE_PORTAL_DIRECT_API_URL=${VITE_PORTAL_DIRECT_API_URL:-//dev.portal.querify.net}
-      - VITE_PORTAL_BROADCAST_API_URL=${VITE_PORTAL_BROADCAST_API_URL:-//dev.portal.querify.net}
-      - VITE_PORTAL_SYSTEM_S3_URL=${VITE_PORTAL_SYSTEM_S3_URL:-//dev.portal.querify.net/s3}
-      - VITE_AUTH0_DOMAIN=querify.us.auth0.com
-      - VITE_AUTH0_AUDIENCE=https://querify.net
-      - VITE_AUTH0_CLIENT_ID=U3WxjhBCMHAOCb5gDOXSYtdnTQViNb1K
-      - VITE_AUTH0_PASSWORD_RESET_URL=
-      - VITE_AUTH0_LOGOUT_URI=https://dev.portal.querify.net/logout
+      VITE_PORTAL_TENANT_API_URL: ${VITE_PORTAL_TENANT_API_URL:-//dev.portal.querify.net}
+      VITE_PORTAL_QNA_API_URL: ${VITE_PORTAL_QNA_API_URL:-//dev.portal.querify.net}
+      VITE_PORTAL_DIRECT_API_URL: ${VITE_PORTAL_DIRECT_API_URL:-//dev.portal.querify.net}
+      VITE_PORTAL_BROADCAST_API_URL: ${VITE_PORTAL_BROADCAST_API_URL:-//dev.portal.querify.net}
+      VITE_PORTAL_SYSTEM_S3_URL: ${VITE_PORTAL_SYSTEM_S3_URL:-//dev.portal.querify.net/s3}
+      VITE_AUTH0_DOMAIN: ${VITE_AUTH0_DOMAIN:-querify.us.auth0.com}
+      VITE_AUTH0_AUDIENCE: ${VITE_AUTH0_AUDIENCE:-https://querify.net}
+      VITE_AUTH0_CLIENT_ID: ${VITE_AUTH0_CLIENT_ID:-U3WxjhBCMHAOCb5gDOXSYtdnTQViNb1K}
+      VITE_AUTH0_PASSWORD_RESET_URL: ${VITE_AUTH0_PASSWORD_RESET_URL:-}
+      VITE_AUTH0_LOGOUT_URI: ${VITE_AUTH0_LOGOUT_URI:-https://dev.portal.querify.net/logout}
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q --spider http://127.0.0.1:5500/ || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
     networks:
       - qf-network
 

@@ -28,6 +28,8 @@ The approach is intentionally decoupled from host-machine Nginx:
 - `dev.portal.querify.net/api/tenant` -> `http://<upstream-host>:5002`
 - `dev.portal.querify.net/api/user` -> `http://<upstream-host>:5002`
 - `dev.portal.querify.net/api/qna` -> `http://<upstream-host>:5010`
+- `dev.portal.querify.net/api/direct` -> `http://<upstream-host>:5040`
+- `dev.portal.querify.net/api/broadcast` -> `http://<upstream-host>:5050`
 - `dev.tenant.backoffice.querify.net` -> `http://<upstream-host>:5000`
 - `dev.tenant.public.querify.net` -> `http://<upstream-host>:5004`
 - `dev.tenant.portal.querify.net` -> `http://<upstream-host>:5002`
@@ -44,7 +46,7 @@ These defaults match the ports in the current API `launchSettings.json`.
 
 ## Files
 
-- `docker-compose.nginx-proxy.yml`: reverse proxy stack for Linux and Windows
+- `docker-compose.nginx-proxy.yml`: reverse proxy stack and Nginx configuration healthcheck for Linux and Windows
 - `certs/dev.querify.net.crt`: dev TLS certificate used for HTTPS listeners
 - `certs/dev.querify.net.key`: dev TLS private key used for HTTPS listeners
 - `setup-subdomains.sh`: Linux setup

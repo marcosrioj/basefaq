@@ -196,7 +196,7 @@ If you also want the backend APIs and worker in containers, start `./devops/loca
 
 PowerShell equivalents live beside these scripts under `devops/local/docker/*.ps1`.
 
-The Portal-only compose file is `devops/local/docker/docker-compose.frontend.yml`. The full-stack helper `./devops/local/docker/docker.sh` assumes base services are already running, then combines `devops/local/docker/docker-compose.backend.yml` and `devops/local/docker/docker-compose.frontend.yml` for the app containers. The Portal is exposed on `http://localhost:5500`.
+The Portal-only compose file is `devops/local/docker/docker-compose.frontend.yml`. The full-stack helper `./devops/local/docker/docker.sh` assumes base services are already running, then combines `devops/local/docker/docker-compose.backend.yml` and `devops/local/docker/docker-compose.frontend.yml` for the app containers. The Portal is exposed on `http://localhost:5500`, has a Compose healthcheck, and accepts environment overrides for every Portal API and Auth0 runtime value.
 
 When the local subdomain proxy is active, the frontend Docker compose file points all four Portal API base URLs at `//dev.portal.querify.net`. The proxy routes `/api/tenant/*` and `/api/user/*` to the Tenant Portal API, `/api/qna/*` to the QnA Portal API, `/api/direct/*` to the Direct Portal API, and `/api/broadcast/*` to the Broadcast Portal API. The QnA route includes `/api/qna/hubs/portal-notifications` for SignalR. This keeps browser requests same-origin and avoids local cross-origin TLS failures.
 

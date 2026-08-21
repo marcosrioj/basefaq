@@ -1,128 +1,180 @@
 services:
   querify.qna.portal.api:
     image: querify.qna.portal.api
+    restart: unless-stopped
     build:
       context: ../../..
       dockerfile: dotnet/Querify.QnA.Portal.Api/Dockerfile
     ports:
       - "5010:5010"
     environment:
-      - ASPNETCORE_ENVIRONMENT=Development
-      - ASPNETCORE_URLS=http://+:5010
-      - ObjectStorage__Endpoint=http://minio:9000
-      - ObjectStorage__PublicEndpoint=http://localhost:5900
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Development}
+      ASPNETCORE_URLS: http://+:5010
+      ConnectionStrings__TenantDb: "Host=${POSTGRES_HOST:-postgres};Port=${POSTGRES_PORT:-5432};Database=${TENANT_DATABASE:-qf_tenant_db};Username=${POSTGRES_USER:-postgres};Password=${POSTGRES_PASSWORD:-Pass123$};"
+      Redis__Host: ${REDIS_HOST:-cache}
+      Redis__Port: ${REDIS_PORT:-6379}
+      Redis__Password: ${REDIS_PASSWORD:-RedisTempPassword}
+      RabbitMQ__Hostname: ${RABBITMQ_HOST:-rabbitmq}
+      RabbitMQ__Port: ${RABBITMQ_PORT:-5672}
+      RabbitMQ__Username: ${RABBITMQ_USERNAME:-guest}
+      RabbitMQ__Password: ${RABBITMQ_PASSWORD:-guest}
+      ObjectStorage__Endpoint: ${OBJECT_STORAGE_ENDPOINT:-http://minio:9000}
+      ObjectStorage__PublicEndpoint: ${OBJECT_STORAGE_PUBLIC_ENDPOINT:-http://localhost:5900}
     extra_hosts:
       - "host.docker.internal:host-gateway"
     networks:
       - qf-network
   querify.direct.portal.api:
     image: querify.direct.portal.api
+    restart: unless-stopped
     build:
       context: ../../..
       dockerfile: dotnet/Querify.Direct.Portal.Api/Dockerfile
     ports:
       - "5040:5040"
     environment:
-      - ASPNETCORE_ENVIRONMENT=Development
-      - ASPNETCORE_URLS=http://+:5040
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Development}
+      ASPNETCORE_URLS: http://+:5040
+      ConnectionStrings__TenantDb: "Host=${POSTGRES_HOST:-postgres};Port=${POSTGRES_PORT:-5432};Database=${TENANT_DATABASE:-qf_tenant_db};Username=${POSTGRES_USER:-postgres};Password=${POSTGRES_PASSWORD:-Pass123$};"
+      Redis__Host: ${REDIS_HOST:-cache}
+      Redis__Port: ${REDIS_PORT:-6379}
+      Redis__Password: ${REDIS_PASSWORD:-RedisTempPassword}
     extra_hosts:
       - "host.docker.internal:host-gateway"
     networks:
       - qf-network
   querify.broadcast.portal.api:
     image: querify.broadcast.portal.api
+    restart: unless-stopped
     build:
       context: ../../..
       dockerfile: dotnet/Querify.Broadcast.Portal.Api/Dockerfile
     ports:
       - "5050:5050"
     environment:
-      - ASPNETCORE_ENVIRONMENT=Development
-      - ASPNETCORE_URLS=http://+:5050
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Development}
+      ASPNETCORE_URLS: http://+:5050
+      ConnectionStrings__TenantDb: "Host=${POSTGRES_HOST:-postgres};Port=${POSTGRES_PORT:-5432};Database=${TENANT_DATABASE:-qf_tenant_db};Username=${POSTGRES_USER:-postgres};Password=${POSTGRES_PASSWORD:-Pass123$};"
+      Redis__Host: ${REDIS_HOST:-cache}
+      Redis__Port: ${REDIS_PORT:-6379}
+      Redis__Password: ${REDIS_PASSWORD:-RedisTempPassword}
     extra_hosts:
       - "host.docker.internal:host-gateway"
     networks:
       - qf-network
   querify.tenant.backoffice.api:
     image: querify.tenant.backoffice.api
+    restart: unless-stopped
     build:
       context: ../../..
       dockerfile: dotnet/Querify.Tenant.BackOffice.Api/Dockerfile
     ports:
       - "5000:5000"
     environment:
-      - ASPNETCORE_ENVIRONMENT=Development
-      - ASPNETCORE_URLS=http://+:5000
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Development}
+      ASPNETCORE_URLS: http://+:5000
+      ConnectionStrings__TenantDb: "Host=${POSTGRES_HOST:-postgres};Port=${POSTGRES_PORT:-5432};Database=${TENANT_DATABASE:-qf_tenant_db};Username=${POSTGRES_USER:-postgres};Password=${POSTGRES_PASSWORD:-Pass123$};"
+      Redis__Host: ${REDIS_HOST:-cache}
+      Redis__Port: ${REDIS_PORT:-6379}
+      Redis__Password: ${REDIS_PASSWORD:-RedisTempPassword}
     extra_hosts:
       - "host.docker.internal:host-gateway"
     networks:
       - qf-network
   querify.tenant.portal.api:
     image: querify.tenant.portal.api
+    restart: unless-stopped
     build:
       context: ../../..
       dockerfile: dotnet/Querify.Tenant.Portal.Api/Dockerfile
     ports:
       - "5002:5002"
     environment:
-      - ASPNETCORE_ENVIRONMENT=Development
-      - ASPNETCORE_URLS=http://+:5002
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Development}
+      ASPNETCORE_URLS: http://+:5002
+      ConnectionStrings__TenantDb: "Host=${POSTGRES_HOST:-postgres};Port=${POSTGRES_PORT:-5432};Database=${TENANT_DATABASE:-qf_tenant_db};Username=${POSTGRES_USER:-postgres};Password=${POSTGRES_PASSWORD:-Pass123$};"
+      Redis__Host: ${REDIS_HOST:-cache}
+      Redis__Port: ${REDIS_PORT:-6379}
+      Redis__Password: ${REDIS_PASSWORD:-RedisTempPassword}
     extra_hosts:
       - "host.docker.internal:host-gateway"
     networks:
       - qf-network
   querify.tenant.public.api:
     image: querify.tenant.public.api
+    restart: unless-stopped
     build:
       context: ../../..
       dockerfile: dotnet/Querify.Tenant.Public.Api/Dockerfile
     ports:
       - "5004:5004"
     environment:
-      - ASPNETCORE_ENVIRONMENT=Development
-      - ASPNETCORE_URLS=http://+:5004
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Development}
+      ASPNETCORE_URLS: http://+:5004
+      ConnectionStrings__TenantDb: "Host=${POSTGRES_HOST:-postgres};Port=${POSTGRES_PORT:-5432};Database=${TENANT_DATABASE:-qf_tenant_db};Username=${POSTGRES_USER:-postgres};Password=${POSTGRES_PASSWORD:-Pass123$};"
     extra_hosts:
       - "host.docker.internal:host-gateway"
     networks:
       - qf-network
   querify.qna.public.api:
     image: querify.qna.public.api
+    restart: unless-stopped
     build:
       context: ../../..
       dockerfile: dotnet/Querify.QnA.Public.Api/Dockerfile
     ports:
       - "5020:5020"
     environment:
-      - ASPNETCORE_ENVIRONMENT=Development
-      - ASPNETCORE_URLS=http://+:5020
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Development}
+      ASPNETCORE_URLS: http://+:5020
+      ConnectionStrings__TenantDb: "Host=${POSTGRES_HOST:-postgres};Port=${POSTGRES_PORT:-5432};Database=${TENANT_DATABASE:-qf_tenant_db};Username=${POSTGRES_USER:-postgres};Password=${POSTGRES_PASSWORD:-Pass123$};"
+      Redis__Host: ${REDIS_HOST:-cache}
+      Redis__Port: ${REDIS_PORT:-6379}
+      Redis__Password: ${REDIS_PASSWORD:-RedisTempPassword}
+      RabbitMQ__Hostname: ${RABBITMQ_HOST:-rabbitmq}
+      RabbitMQ__Port: ${RABBITMQ_PORT:-5672}
+      RabbitMQ__Username: ${RABBITMQ_USERNAME:-guest}
+      RabbitMQ__Password: ${RABBITMQ_PASSWORD:-guest}
     extra_hosts:
       - "host.docker.internal:host-gateway"
     networks:
       - qf-network
   querify.qna.worker.api:
     image: querify.qna.worker.api
+    restart: unless-stopped
     build:
       context: ../../..
       dockerfile: dotnet/Querify.QnA.Worker.Api/Dockerfile
     ports:
       - "5030:5030"
     environment:
-      - DOTNET_ENVIRONMENT=Development
-      - ASPNETCORE_URLS=http://+:5030
-      - urls=http://+:5030
-      - ObjectStorage__Endpoint=http://minio:9000
-      - ObjectStorage__PublicEndpoint=http://localhost:5900
+      DOTNET_ENVIRONMENT: ${DOTNET_ENVIRONMENT:-Development}
+      ASPNETCORE_URLS: http://+:5030
+      urls: http://+:5030
+      ConnectionStrings__TenantDb: "Host=${POSTGRES_HOST:-postgres};Port=${POSTGRES_PORT:-5432};Database=${TENANT_DATABASE:-qf_tenant_db};Username=${POSTGRES_USER:-postgres};Password=${POSTGRES_PASSWORD:-Pass123$};"
+      ConnectionStrings__HangfireQnaDb: "Host=${POSTGRES_HOST:-postgres};Port=${POSTGRES_PORT:-5432};Database=${HANGFIRE_QNA_DATABASE:-qf_hangfire_qna_db};Username=${POSTGRES_USER:-postgres};Password=${POSTGRES_PASSWORD:-Pass123$};"
+      RabbitMQ__Hostname: ${RABBITMQ_HOST:-rabbitmq}
+      RabbitMQ__Port: ${RABBITMQ_PORT:-5672}
+      RabbitMQ__Username: ${RABBITMQ_USERNAME:-guest}
+      RabbitMQ__Password: ${RABBITMQ_PASSWORD:-guest}
+      ObjectStorage__Endpoint: ${OBJECT_STORAGE_ENDPOINT:-http://minio:9000}
+      ObjectStorage__PublicEndpoint: ${OBJECT_STORAGE_PUBLIC_ENDPOINT:-http://localhost:5900}
     extra_hosts:
       - "host.docker.internal:host-gateway"
     networks:
       - qf-network
   querify.tenant.worker.api:
     image: querify.tenant.worker.api
+    restart: unless-stopped
     build:
       context: ../../..
       dockerfile: dotnet/Querify.Tenant.Worker.Api/Dockerfile
     environment:
-      - DOTNET_ENVIRONMENT=Development
+      DOTNET_ENVIRONMENT: ${DOTNET_ENVIRONMENT:-Development}
+      ConnectionStrings__TenantDb: "Host=${POSTGRES_HOST:-postgres};Port=${POSTGRES_PORT:-5432};Database=${TENANT_DATABASE:-qf_tenant_db};Username=${POSTGRES_USER:-postgres};Password=${POSTGRES_PASSWORD:-Pass123$};"
+      OpenTelemetry__Otlp__Endpoint: ${OTEL_EXPORTER_OTLP_ENDPOINT:-http://jaeger:4317}
+      TenantWorker__EmailDelivery__Smtp__Host: ${SMTP_HOST:-smtp}
+      TenantWorker__EmailDelivery__Smtp__Port: ${SMTP_PORT:-1025}
     extra_hosts:
       - "host.docker.internal:host-gateway"
     networks:
