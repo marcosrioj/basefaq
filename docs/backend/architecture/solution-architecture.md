@@ -140,7 +140,7 @@ Querify uses separate EF Core context boundaries for module data responsibilitie
 
 | Module | Context | Responsibility |
 |---|---|---|
-| Tenant | `TenantDbContext` | global tenant metadata, stable workspace/module mapping, users, memberships, channel connections, billing, entitlements, and control-plane background-processing state |
+| Tenant | `TenantDbContext` | global tenant metadata, users, memberships, channel connections, billing, entitlements, and control-plane background-processing state |
 | QnA | QnA module `DbContext` | tenant-specific QnA module data such as spaces, questions, answers, source links, tag links, workflow state, and activity |
 | QnA Worker | `HangfireQnaDbContext` | QnA worker Hangfire storage boundary for durable operational job state |
 | Direct | `DirectDbContext` | tenant-specific Direct contacts, conversations, and chronological messages |
@@ -169,7 +169,7 @@ Tenant integrity is a mandatory `DbContext` responsibility for tenant module dat
 
 Direct and Broadcast follow the QnA physical decomposition: `Querify.<Module>.Common.Domain` owns entities and reusable entity rules, `Querify.<Module>.Common.Persistence.<Module>Db` owns EF configuration and tenant integrity, `Querify.<Module>.Portal.Business.<Feature>` owns feature-scoped CQRS/API behavior, and `Querify.<Module>.Portal.Api` is the composition root.
 
-`TenantDbContext` is the control-plane owner for workspace-level `ChannelConnection` records and encrypted provider configuration. Each workspace has one stable `WorkspaceId` shared by its module-specific tenant rows. Channel connections are stored against the active QnA tenant, which acts as the workspace base record. Direct conversations and Broadcast threads retain only `ChannelConnectionId`; they validate that identifier through the Tenant control plane before writes and intentionally do not define cross-database EF navigations.
+`TenantDbContext` is the control-plane owner for tenant-scoped `ChannelConnection` records and encrypted provider configuration. `Tenant.Id` is the canonical workspace boundary and `ChannelConnection.TenantId` references it directly. The request keeps that ID across modules; each module's `DbContext` supplies its `ModuleEnum` so the connection provider can select the current physical `TenantConnection` for that module. Active membership in a tenant authorizes the same ID at each module boundary. Direct conversations and Broadcast threads retain only `ChannelConnectionId`; they validate that the connection belongs to the same tenant through the Tenant control plane before writes and intentionally do not define cross-database EF navigations.
 
 `Querify.QnA.Common.Persistence.HangfireQnaDb` is intentionally narrower: it owns the QnA worker's Hangfire storage connection, design-time EF context, registration extension, and migrations boundary. Hangfire's internal storage tables remain provider-owned by `Hangfire.PostgreSql`, with versions pinned in `Querify.Common.Infrastructure.Hangfire`.
 

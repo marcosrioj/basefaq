@@ -23,9 +23,9 @@ public class TenantsCreateOrUpdateTenantsCommandHandler(
         var userId = sessionService.GetUserId();
         var selectedTenantId = request.TenantId;
 
-        var currentConnections = await GetCurrentConnectionsAsync(cancellationToken);
         if (selectedTenantId.HasValue)
         {
+            var currentConnections = await GetCurrentConnectionsAsync(cancellationToken);
             await UpdateSelectedTenantAsync(
                 request,
                 selectedTenantId.Value,
@@ -34,7 +34,7 @@ public class TenantsCreateOrUpdateTenantsCommandHandler(
         }
         else
         {
-            await CreateActiveTenantsAsync(request, userId, currentConnections, cancellationToken);
+            await CreateActiveTenantAsync(request, userId, cancellationToken);
         }
 
         await dbContext.SaveChangesAsync(cancellationToken);
@@ -55,26 +55,6 @@ public class TenantsCreateOrUpdateTenantsCommandHandler(
             .ToDictionaryAsync(entity => entity.Module, entity => entity.ConnectionString, cancellationToken);
     }
 
-    private async Task CreateActiveTenantsAsync(
-        TenantsCreateOrUpdateTenantsCommand request,
-        Guid userId,
-        IReadOnlyDictionary<ModuleEnum, string> currentConnections,
-        CancellationToken cancellationToken)
-    {
-        var workspaceId = Guid.NewGuid();
-        var modules = Enum.GetValues<ModuleEnum>().Where(module => module != ModuleEnum.Tenant);
-
-        foreach (var module in modules)
-        {
-            if (!TryGetConnectionString(currentConnections, module, out var connectionString))
-            {
-                continue;
-            }
-
-            await CreateActiveTenantAsync(request, userId, workspaceId, module, connectionString, cancellationToken);
-        }
-    }
-
     private static bool TryGetConnectionString(
         IReadOnlyDictionary<ModuleEnum, string> currentConnections,
         ModuleEnum module,
@@ -92,22 +72,19 @@ public class TenantsCreateOrUpdateTenantsCommandHandler(
     private async Task CreateActiveTenantAsync(
         TenantsCreateOrUpdateTenantsCommand request,
         Guid userId,
-        Guid workspaceId,
-        ModuleEnum module,
-        string connectionString,
         CancellationToken cancellationToken)
     {
         var tenantId = Guid.NewGuid();
+        var connection = await dbContext.GetCurrentTenantConnection(ModuleEnum.QnA, cancellationToken);
 
         var tenant = new Querify.Common.EntityFramework.Tenant.Entities.Tenant
         {
             Id = tenantId,
-            WorkspaceId = workspaceId,
-            Slug = await GenerateUniqueSlugAsync(request.Name, module, tenantId: null, cancellationToken),
+            Slug = await GenerateUniqueSlugAsync(request.Name, ModuleEnum.QnA, tenantId: null, cancellationToken),
             Name = request.Name,
             Edition = request.Edition,
-            Module = module,
-            ConnectionString = connectionString,
+            Module = ModuleEnum.QnA,
+            ConnectionString = connection.ConnectionString,
             IsActive = true
         };
         TenantUserHelper.SetOwner(tenant.TenantUsers, tenantId, userId);
@@ -121,24 +98,19 @@ public class TenantsCreateOrUpdateTenantsCommandHandler(
         IReadOnlyDictionary<ModuleEnum, string> currentConnections,
         CancellationToken cancellationToken)
     {
-        var selectedTenant = await tenantPortalAccessService.GetAccessibleTenantAsync(tenantId, cancellationToken);
-        var workspaceTenants = await dbContext.Tenants
-            .Where(tenant => tenant.WorkspaceId == selectedTenant.WorkspaceId)
-            .ToListAsync(cancellationToken);
+        var tenant = await tenantPortalAccessService.GetAccessibleTenantAsync(tenantId, cancellationToken);
 
-        foreach (var tenant in workspaceTenants)
+        tenant.Slug = await GenerateUniqueSlugAsync(request.Name, tenant.Module, tenant.Id, cancellationToken);
+        tenant.Name = request.Name;
+        tenant.Edition = request.Edition;
+
+        if (TryGetConnectionString(currentConnections, tenant.Module, out var connectionString))
         {
-            tenant.Slug = await GenerateUniqueSlugAsync(request.Name, tenant.Module, tenant.Id, cancellationToken);
-            tenant.Name = request.Name;
-            tenant.Edition = request.Edition;
-
-            if (TryGetConnectionString(currentConnections, tenant.Module, out var connectionString))
-            {
-                tenant.ConnectionString = connectionString;
-            }
-
-            tenant.IsActive = true;
+            tenant.ConnectionString = connectionString;
         }
+
+        tenant.IsActive = true;
+        dbContext.Tenants.Update(tenant);
     }
 
     private async Task<string> GenerateUniqueSlugAsync(

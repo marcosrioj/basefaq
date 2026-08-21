@@ -10,7 +10,7 @@ public class TenantConnection : BaseEntity
     public required string ConnectionString { get; set; }
 
     /// <summary>
-    /// Querify module that uses this current connection string for tenant module databases.
+    /// Querify module routed to this current physical database connection for active tenants.
     /// </summary>
     public required ModuleEnum Module { get; set; }
 

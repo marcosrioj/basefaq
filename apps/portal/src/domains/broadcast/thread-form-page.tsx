@@ -17,7 +17,7 @@ import {
   broadcastThreadFormSchema,
   type BroadcastThreadFormValues,
 } from "@/domains/broadcast/schemas";
-import { ModuleUnavailableState } from "@/domains/modules/module-unavailable-state";
+import { TenantRequiredState } from "@/domains/modules/tenant-required-state";
 import {
   DetailLayout,
   KeyValueList,
@@ -164,7 +164,7 @@ export function BroadcastThreadFormPage({ mode }: { mode: "create" | "edit" }) {
       }
     >
       {!tenantId ? (
-        <ModuleUnavailableState module="Broadcast" />
+        <TenantRequiredState />
       ) : threadQuery.isError ? (
         <ErrorState
           title="Unable to load Broadcast thread"

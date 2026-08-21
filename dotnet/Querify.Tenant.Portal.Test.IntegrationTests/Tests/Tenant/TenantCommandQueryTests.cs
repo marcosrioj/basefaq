@@ -1,5 +1,6 @@
 using Querify.Common.Architecture.Test.IntegrationTest.Shared.Tenancy;
 using Querify.Common.EntityFramework.Tenant.Providers;
+using Querify.Common.Infrastructure.ApiErrorHandling.Exception;
 using Querify.Models.Common.Enums;
 using Querify.Models.Tenant.Enums;
 using Querify.Tenant.Portal.Business.Tenant.Commands.CreateOrUpdateTenants;
@@ -59,6 +60,11 @@ public class TenantCommandQueryTests
             module: ModuleEnum.QnA,
             connectionString: IntegrationTestConnectionStrings.QnA,
             isCurrent: true);
+        await TestDataFactory.SeedTenantConnectionAsync(
+            context.DbContext,
+            module: ModuleEnum.Direct,
+            connectionString: IntegrationTestConnectionStrings.CreateNamed("direct"),
+            isCurrent: true);
 
         var handler = new TenantsCreateOrUpdateTenantsCommandHandler(
             context.DbContext,
@@ -74,14 +80,15 @@ public class TenantCommandQueryTests
         var result = await handler.Handle(request, CancellationToken.None);
 
         Assert.True(result);
-        var tenant = await context.DbContext.Tenants
+        var tenants = await context.DbContext.Tenants
             .Include(item => item.TenantUsers)
-            .FirstOrDefaultAsync(item =>
+            .Where(item =>
                 item.TenantUsers.Any(tenantUser =>
                     tenantUser.UserId == currentUserId &&
-                    tenantUser.Role == TenantUserRoleType.Owner));
-        Assert.NotNull(tenant);
-        Assert.Equal("Portal Tenant", tenant!.Name);
+                    tenantUser.Role == TenantUserRoleType.Owner))
+            .ToListAsync();
+        var tenant = Assert.Single(tenants);
+        Assert.Equal("Portal Tenant", tenant.Name);
         Assert.Equal(TenantEdition.Free, tenant.Edition);
         Assert.Equal(ModuleEnum.QnA, tenant.Module);
         Assert.Equal(IntegrationTestConnectionStrings.QnA, tenant.ConnectionString);
@@ -141,7 +148,7 @@ public class TenantCommandQueryTests
     }
 
     [Fact]
-    public async Task CreateOrUpdateTenants_SkipsWhenNoCurrentConnectionForModule()
+    public async Task CreateOrUpdateTenants_RejectsCreateWithoutCurrentQnAConnection()
     {
         var currentUserId = Guid.NewGuid();
         using var context = TestContext.Create(userId: currentUserId);
@@ -163,9 +170,10 @@ public class TenantCommandQueryTests
             Edition = TenantEdition.Free
         };
 
-        var result = await handler.Handle(request, CancellationToken.None);
+        var exception = await Assert.ThrowsAsync<ApiErrorException>(() =>
+            handler.Handle(request, CancellationToken.None));
 
-        Assert.True(result);
+        Assert.Equal(404, exception.ErrorCode);
         var tenantCount = await context.DbContext.TenantUsers.CountAsync(item => item.UserId == currentUserId);
         Assert.Equal(0, tenantCount);
     }
@@ -314,12 +322,6 @@ public class TenantCommandQueryTests
             module: ModuleEnum.QnA,
             isActive: true,
             userId: currentUserId);
-        var tenantModuleTenant = await TestDataFactory.SeedTenantAsync(
-            context.DbContext,
-            name: "Tenant Module Workspace",
-            module: ModuleEnum.Tenant,
-            isActive: true,
-            userId: currentUserId);
         await TestDataFactory.SeedTenantAsync(
             context.DbContext,
             name: "Other User QnA Tenant",
@@ -356,9 +358,14 @@ public class TenantCommandQueryTests
         Assert.Contains(selectedTenantId, qnaTenantIds);
         Assert.Contains(secondFaqTenant.Id, qnaTenantIds);
 
+        var directAllowedTenantIds = cachedAllowedTenants[ModuleEnum.Direct.ToString()];
+        Assert.Equal(qnaTenantIds.Order(), directAllowedTenantIds.Order());
+
+        var broadcastAllowedTenantIds = cachedAllowedTenants[ModuleEnum.Broadcast.ToString()];
+        Assert.Equal(qnaTenantIds.Order(), broadcastAllowedTenantIds.Order());
+
         var tenantModuleTenantIds = cachedAllowedTenants[ModuleEnum.Tenant.ToString()];
-        Assert.Single(tenantModuleTenantIds);
-        Assert.Contains(tenantModuleTenant.Id, tenantModuleTenantIds);
+        Assert.Equal(qnaTenantIds.Order(), tenantModuleTenantIds.Order());
     }
 
     private static HttpContext CreateHttpContextWithTenantId(Guid tenantId)

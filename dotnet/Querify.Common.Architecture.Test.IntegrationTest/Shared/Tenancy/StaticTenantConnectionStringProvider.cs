@@ -1,4 +1,5 @@
 using Querify.Common.Infrastructure.Core.Abstractions;
+using Querify.Models.Common.Enums;
 
 namespace Querify.Common.Architecture.Test.IntegrationTest.Shared.Tenancy;
 
@@ -6,7 +7,7 @@ public sealed class StaticTenantConnectionStringProvider(string connectionString
 {
     public string ConnectionString { get; } = connectionString;
 
-    public string GetConnectionString(Guid tenantId)
+    public string GetConnectionString(Guid tenantId, ModuleEnum module)
     {
         return ConnectionString;
     }

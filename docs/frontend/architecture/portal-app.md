@@ -83,9 +83,9 @@ Operational constraints reflected in the frontend:
   `/api/qna/hubs/portal-notifications`, sends the Auth0 access token through the SignalR access
   token factory, and normally connects without a `tenantId` query so the backend can subscribe the
   session to every QnA workspace the user is allowed to access
-- tenant summaries expose `workspaceId` and `module`, backed by `ModuleEnum` values: Tenant, QnA, Direct, Broadcast, and Trust
-- the workspace switcher lists active QnA tenants as stable workspace base records; Direct and Broadcast calls resolve their sibling tenant IDs from the selected `workspaceId`
-- Channel Connections are requested with the selected base tenant ID and remain Tenant control-plane resources shared by Direct and Broadcast
+- tenant summaries expose `module`, backed by `ModuleEnum` values: Tenant, QnA, Direct, Broadcast, and Trust
+- the workspace switcher lists active QnA tenants and sends the selected `Tenant.Id` unchanged to QnA, Direct, Broadcast, and Tenant APIs
+- Channel Connections are requested with the selected `Tenant.Id` and remain Tenant control-plane resources shared by Direct and Broadcast
 - pagination contracts use `SkipCount`, `MaxResultCount`, and `Sorting`
 - backend error payloads follow `{ ErrorCode, MessageError, Data }`; the frontend also accepts camelCase fields defensively
 - Portal UI translation is frontend-owned; backend DTOs do not provide translated labels
@@ -207,7 +207,7 @@ For the Portal's Getting Started sequence, setup-progress completion criteria, e
 - Member creation depends on the Tenant Portal member API and may require an already-existing Querify user account depending on backend validation.
 - Billing is backed by the Tenant Portal billing summary, subscription, invoice, and payment endpoints.
 - Some QnA filtering remains constrained by backend list contracts and should stay page-scoped where the API surface is intentionally narrow.
-- Direct and Broadcast pages show an unavailable module state when the selected workspace has no active tenant row for that module; they must not send the Base tenant ID to a product API as a fallback.
+- Direct and Broadcast pages use the selected `Tenant.Id` directly and show the standard workspace-required state only when no tenant is selected.
 
 ## Vendor baseline note
 

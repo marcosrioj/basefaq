@@ -209,7 +209,7 @@ public abstract class BaseDbContext<TContext> : DbContext, ISoftDeleteFilterStat
 
         var tenantId = _sessionService.GetTenantId(SessionModule);
 
-        var tenantConnectionString = _tenantConnectionStringProvider.GetConnectionString(tenantId);
+        var tenantConnectionString = _tenantConnectionStringProvider.GetConnectionString(tenantId, SessionModule);
 
         if (string.IsNullOrWhiteSpace(tenantConnectionString))
         {

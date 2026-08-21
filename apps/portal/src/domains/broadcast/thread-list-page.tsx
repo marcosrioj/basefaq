@@ -8,7 +8,7 @@ import {
   useDeleteBroadcastThread,
 } from "@/domains/broadcast/hooks";
 import type { BroadcastThreadDto } from "@/domains/broadcast/types";
-import { ModuleUnavailableState } from "@/domains/modules/module-unavailable-state";
+import { TenantRequiredState } from "@/domains/modules/tenant-required-state";
 import { usePortalTimeZone } from "@/domains/settings/settings-hooks";
 import { ListLayout, PageHeader } from "@/shared/layout/page-layouts";
 import {
@@ -260,7 +260,7 @@ export function BroadcastThreadListPage() {
       }
     >
       {!tenantId ? (
-        <ModuleUnavailableState module="Broadcast" />
+        <TenantRequiredState />
       ) : (
         <DataTable
           title="Public interaction queue"

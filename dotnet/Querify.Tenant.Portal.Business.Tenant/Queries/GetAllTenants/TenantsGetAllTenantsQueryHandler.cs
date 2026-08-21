@@ -22,7 +22,6 @@ public class TenantsGetAllTenantsQueryHandler(TenantDbContext dbContext, ISessio
             .Select(entity => new TenantSummaryDto
             {
                 Id = entity.TenantId,
-                WorkspaceId = entity.Tenant.WorkspaceId,
                 Slug = entity.Tenant.Slug,
                 Name = entity.Tenant.Name,
                 Edition = entity.Tenant.Edition,

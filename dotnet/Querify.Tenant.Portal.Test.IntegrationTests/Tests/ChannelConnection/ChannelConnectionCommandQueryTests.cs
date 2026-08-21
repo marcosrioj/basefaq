@@ -1,4 +1,3 @@
-using Querify.Models.Common.Enums;
 using Querify.Models.Tenant.Dtos.ChannelConnection;
 using Querify.Models.Tenant.Enums;
 using Querify.Tenant.Portal.Business.ChannelConnection.Commands.CreateChannelConnection;
@@ -13,28 +12,18 @@ namespace Querify.Tenant.Portal.Test.IntegrationTests.Tests.ChannelConnection;
 public class ChannelConnectionCommandQueryTests
 {
     [Fact]
-    public async Task CreateFromModuleTenant_StoresConnectionOnWorkspaceBaseTenant()
+    public async Task Create_StoresConnectionOnSelectedTenant()
     {
         var userId = Guid.NewGuid();
-        var workspaceId = Guid.NewGuid();
-        var baseTenantId = Guid.NewGuid();
-        var directTenantId = Guid.NewGuid();
-        using var context = TestContext.Create(tenantId: directTenantId, userId: userId);
+        var tenantId = Guid.NewGuid();
+        using var context = TestContext.Create(tenantId: tenantId, userId: userId);
         await TestDataFactory.SeedTenantAsync(
             context.DbContext,
-            id: baseTenantId,
-            module: ModuleEnum.QnA,
-            workspaceId: workspaceId,
-            userId: userId);
-        await TestDataFactory.SeedTenantAsync(
-            context.DbContext,
-            id: directTenantId,
-            module: ModuleEnum.Direct,
-            workspaceId: workspaceId,
+            id: tenantId,
             userId: userId);
 
         var accessService = new TenantPortalAccessService(context.DbContext, context.SessionService);
-        var resolver = new ChannelConnectionTenantResolver(context.DbContext, accessService);
+        var resolver = new ChannelConnectionTenantResolver(accessService);
         var createHandler = new ChannelConnectionsCreateCommandHandler(
             context.DbContext,
             resolver,
@@ -42,7 +31,7 @@ public class ChannelConnectionCommandQueryTests
         var id = await createHandler.Handle(
             new ChannelConnectionsCreateCommand
             {
-                TenantId = directTenantId,
+                TenantId = tenantId,
                 Request = new ChannelConnectionCreateRequestDto
                 {
                     Name = "Primary Instagram",
@@ -57,10 +46,10 @@ public class ChannelConnectionCommandQueryTests
         context.DbContext.ChangeTracker.Clear();
         var getHandler = new ChannelConnectionsGetQueryHandler(context.DbContext, resolver);
         var result = await getHandler.Handle(
-            new ChannelConnectionsGetQuery { TenantId = directTenantId, Id = id },
+            new ChannelConnectionsGetQuery { TenantId = tenantId, Id = id },
             CancellationToken.None);
 
-        Assert.Equal(baseTenantId, result.TenantId);
+        Assert.Equal(tenantId, result.TenantId);
         Assert.Equal("Primary Instagram", result.Name);
         Assert.Equal("instagram-primary", result.ProviderKey);
         Assert.Equal(ChannelConnectionKind.Instagram, result.Kind);

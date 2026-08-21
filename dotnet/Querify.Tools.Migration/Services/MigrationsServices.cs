@@ -17,7 +17,7 @@ internal sealed class MigrationsSessionService : ISessionService
 
 internal sealed class NoopTenantConnectionStringProvider : ITenantConnectionStringProvider
 {
-    public string GetConnectionString(Guid tenantId)
+    public string GetConnectionString(Guid tenantId, ModuleEnum module)
     {
         throw new InvalidOperationException(
             "Tenant connection string provider is not available for design-time migrations.");

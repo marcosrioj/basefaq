@@ -23,10 +23,6 @@ public class TenantUsersAddTenantMemberCommandHandler(
         var tenantId = request.TenantId;
         var currentUserId = sessionService.GetUserId();
         await tenantPortalAccessService.EnsureOwnerAccessAsync(tenantId, cancellationToken);
-        var workspaceId = await dbContext.Tenants
-            .Where(entity => entity.Id == tenantId)
-            .Select(entity => entity.WorkspaceId)
-            .SingleAsync(cancellationToken);
 
         if (request.Role != TenantUserRoleType.Member)
         {
@@ -52,20 +48,13 @@ public class TenantUsersAddTenantMemberCommandHandler(
 
             existingTenantUser.User.GivenName = trimmedName;
 
-            var selectedMembershipId = await EnsureWorkspaceMembershipsAsync(
-                workspaceId,
-                tenantId,
-                existingTenantUser.UserId,
-                request.Role,
-                cancellationToken);
-
             await dbContext.SaveChangesAsync(cancellationToken);
             await AllowedTenantCacheHelper.RemoveUserEntries(
                 allowedTenantStore,
                 [existingTenantUser.UserId],
                 cancellationToken);
 
-            return selectedMembershipId;
+            return existingTenantUser.Id;
         }
 
         var user = await ResolveOrEnsureUserByEmailAsync(normalizedEmail, trimmedName, cancellationToken);
@@ -81,32 +70,21 @@ public class TenantUsersAddTenantMemberCommandHandler(
 
         if (existingMembershipForUser is not null)
         {
-            var selectedMembershipId = await EnsureWorkspaceMembershipsAsync(
-                workspaceId,
-                tenantId,
-                user.Id,
-                request.Role,
-                cancellationToken);
             await dbContext.SaveChangesAsync(cancellationToken);
             await AllowedTenantCacheHelper.RemoveUserEntries(
                 allowedTenantStore,
                 [existingMembershipForUser.UserId],
                 cancellationToken);
 
-            return selectedMembershipId;
+            return existingMembershipForUser.Id;
         }
 
-        var tenantUserId = await EnsureWorkspaceMembershipsAsync(
-            workspaceId,
-            tenantId,
-            user.Id,
-            request.Role,
-            cancellationToken);
+        var tenantUser = await CreateTenantUserAsync(tenantId, request.Role, user.Id, cancellationToken);
 
         await dbContext.SaveChangesAsync(cancellationToken);
         await AllowedTenantCacheHelper.RemoveUserEntries(allowedTenantStore, [user.Id], cancellationToken);
 
-        return tenantUserId;
+        return tenantUser.Id;
     }
 
     private static ApiErrorException CreateExistingTenantUserEmailException()
@@ -116,43 +94,22 @@ public class TenantUsersAddTenantMemberCommandHandler(
             errorCode: (int)HttpStatusCode.BadRequest);
     }
 
-    private async Task<Guid> EnsureWorkspaceMembershipsAsync(
-        Guid workspaceId,
-        Guid selectedTenantId,
-        Guid userId,
+    private async Task<TenantUser> CreateTenantUserAsync(
+        Guid tenantId,
         TenantUserRoleType role,
+        Guid userId,
         CancellationToken cancellationToken)
     {
-        var tenantIds = await dbContext.Tenants
-            .Where(entity => entity.WorkspaceId == workspaceId && entity.IsActive)
-            .Select(entity => entity.Id)
-            .ToListAsync(cancellationToken);
-        var memberships = await dbContext.TenantUsers
-            .Where(entity => tenantIds.Contains(entity.TenantId) && entity.UserId == userId)
-            .ToListAsync(cancellationToken);
-
-        foreach (var siblingTenantId in tenantIds)
+        var tenantUser = new TenantUser
         {
-            var membership = memberships.FirstOrDefault(entity => entity.TenantId == siblingTenantId);
-            if (membership is null)
-            {
-                membership = new TenantUser
-                {
-                    Id = Guid.NewGuid(),
-                    TenantId = siblingTenantId,
-                    UserId = userId,
-                    Role = role
-                };
-                await dbContext.TenantUsers.AddAsync(membership, cancellationToken);
-                memberships.Add(membership);
-            }
-            else
-            {
-                membership.Role = role;
-            }
-        }
+            Id = Guid.NewGuid(),
+            TenantId = tenantId,
+            UserId = userId,
+            Role = role
+        };
 
-        return memberships.Single(entity => entity.TenantId == selectedTenantId).Id;
+        await dbContext.TenantUsers.AddAsync(tenantUser, cancellationToken);
+        return tenantUser;
     }
 
     private async Task<User> ResolveOrEnsureUserByEmailAsync(

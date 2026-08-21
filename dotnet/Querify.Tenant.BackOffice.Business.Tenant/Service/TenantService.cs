@@ -20,7 +20,6 @@ public class TenantService(IMediator mediator) : ITenantService
 
         var command = new TenantsCreateTenantCommand
         {
-            WorkspaceId = requestDto.WorkspaceId,
             Slug = requestDto.Slug,
             Name = requestDto.Name,
             Edition = requestDto.Edition,

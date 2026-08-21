@@ -13,7 +13,7 @@ import {
   useDirectTenantId,
 } from "@/domains/direct/hooks";
 import type { ContactDto } from "@/domains/direct/types";
-import { ModuleUnavailableState } from "@/domains/modules/module-unavailable-state";
+import { TenantRequiredState } from "@/domains/modules/tenant-required-state";
 import { usePortalTimeZone } from "@/domains/settings/settings-hooks";
 import { ListLayout, PageHeader } from "@/shared/layout/page-layouts";
 import { translateText } from "@/shared/lib/i18n-core";
@@ -234,7 +234,7 @@ export function ContactListPage() {
       }
     >
       {!tenantId ? (
-        <ModuleUnavailableState module="Direct" />
+        <TenantRequiredState />
       ) : (
         <DataTable
           title="Contact directory"

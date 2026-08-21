@@ -116,21 +116,6 @@ export function PortalTenantProvider({ children }: PropsWithChildren) {
       ? tenantOptions.find((tenant) => tenant.id === selectedTenantId)
       : undefined;
   const currentTenantId = currentTenant?.id;
-  const currentWorkspaceId = currentTenant?.workspaceId;
-  const moduleTenantIds = useMemo(() => {
-    if (!currentWorkspaceId) {
-      return new Map<ModuleEnum, string>();
-    }
-
-    return new Map(
-      (tenantsQuery.data ?? [])
-        .filter(
-          (tenant) =>
-            tenant.workspaceId === currentWorkspaceId && tenant.isActive,
-        )
-        .map((tenant) => [tenant.module, tenant.id] as const),
-    );
-  }, [currentWorkspaceId, tenantsQuery.data]);
   const isLoading =
     canUseTenants &&
     (tenantsQuery.isLoading ||
@@ -143,11 +128,7 @@ export function PortalTenantProvider({ children }: PropsWithChildren) {
       tenants: tenantOptions,
       currentTenantId,
       currentTenant,
-      currentWorkspaceId,
       isLoading,
-      getModuleTenantId(module) {
-        return moduleTenantIds.get(module);
-      },
       setCurrentTenantId(tenantId) {
         setSelectedTenantId(tenantId);
         setStoredTenantId(tenantId);
@@ -156,15 +137,7 @@ export function PortalTenantProvider({ children }: PropsWithChildren) {
         await tenantsQuery.refetch();
       },
     }),
-    [
-      currentTenant,
-      currentTenantId,
-      currentWorkspaceId,
-      isLoading,
-      moduleTenantIds,
-      tenantOptions,
-      tenantsQuery,
-    ],
+    [currentTenant, currentTenantId, isLoading, tenantOptions, tenantsQuery],
   );
 
   return (

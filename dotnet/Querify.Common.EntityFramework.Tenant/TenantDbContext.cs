@@ -90,6 +90,7 @@ public class TenantDbContext(
     }
 
     public async Task<string> GetTenantConnectionString(Guid tenantId,
+        ModuleEnum module,
         CancellationToken cancellationToken = default)
     {
         var tenant = await Tenants
@@ -105,14 +106,22 @@ public class TenantDbContext(
                 errorCode: (int)HttpStatusCode.NotFound);
         }
 
-        if (string.IsNullOrWhiteSpace(tenant.ConnectionString))
+        var connectionString = tenant.Module == module
+            ? tenant.ConnectionString
+            : await TenantConnections
+                .AsNoTracking()
+                .Where(connection => connection.Module == module && connection.IsCurrent)
+                .Select(connection => connection.ConnectionString)
+                .FirstOrDefaultAsync(cancellationToken);
+
+        if (string.IsNullOrWhiteSpace(connectionString))
         {
             throw new ApiErrorException(
-                $"Tenant '{tenantId}' has an invalid connection string.",
+                $"Tenant '{tenantId}' has no active {module} connection string.",
                 errorCode: (int)HttpStatusCode.InternalServerError);
         }
 
-        return tenant.ConnectionString;
+        return connectionString;
     }
 
     public async Task<Guid> GetUserId(string externalUserId, CancellationToken cancellationToken = default)

@@ -6,7 +6,6 @@ import {
 
 export type TenantSummaryDto = {
   id: string;
-  workspaceId: string;
   slug: string;
   name: string;
   edition: TenantEdition;

@@ -18,7 +18,6 @@ public static class TestDataFactory
         string? name = null,
         TenantEdition edition = TenantEdition.Free,
         ModuleEnum module = ModuleEnum.QnA,
-        Guid? workspaceId = null,
         string? connectionString = null,
         bool isActive = true,
         Guid? userId = null)
@@ -30,7 +29,6 @@ public static class TestDataFactory
         var tenant = new Common.EntityFramework.Tenant.Entities.Tenant
         {
             Id = tenantId,
-            WorkspaceId = workspaceId ?? tenantId,
             Slug = slug ?? $"tenant-{Guid.NewGuid():N}",
             Name = name ?? "Default Tenant",
             Edition = edition,

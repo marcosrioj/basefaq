@@ -26,6 +26,7 @@
         <ProjectReference Include="..\Querify.Direct.Common.Domain\Querify.Direct.Common.Domain.csproj"/>
         <ProjectReference Include="..\Querify.Direct.Common.Persistence.DirectDb\Querify.Direct.Common.Persistence.DirectDb.csproj"/>
         <ProjectReference Include="..\Querify.Direct.Portal.Business.Contact\Querify.Direct.Portal.Business.Contact.csproj"/>
+        <ProjectReference Include="..\Querify.Direct.Portal.Business.Conversation\Querify.Direct.Portal.Business.Conversation.csproj"/>
         <ProjectReference Include="..\Querify.Direct.Portal.Business.ConversationMessage\Querify.Direct.Portal.Business.ConversationMessage.csproj"/>
         <ProjectReference Include="..\Querify.Models.Direct\Querify.Models.Direct.csproj"/>
     </ItemGroup>

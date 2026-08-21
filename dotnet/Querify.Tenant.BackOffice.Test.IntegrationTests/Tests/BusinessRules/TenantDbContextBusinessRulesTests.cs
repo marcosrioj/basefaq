@@ -46,9 +46,28 @@ public class TenantDbContextBusinessRulesTests
             connectionString: IntegrationTestConnectionStrings.QnA,
             isActive: true);
 
-        var result = await context.DbContext.GetTenantConnectionString(tenant.Id);
+        var result = await context.DbContext.GetTenantConnectionString(tenant.Id, ModuleEnum.QnA);
 
         Assert.Equal(tenant.ConnectionString, result);
+    }
+
+    [Fact]
+    public async Task GetTenantConnectionString_ReturnsCurrentConnectionForRequestedModule()
+    {
+        using var context = TestContext.Create();
+        var tenant = await TestDataFactory.SeedTenantAsync(
+            context.DbContext,
+            module: ModuleEnum.QnA,
+            connectionString: IntegrationTestConnectionStrings.QnA);
+        var directConnectionString = IntegrationTestConnectionStrings.CreateNamed("querify-direct-tests");
+        await TestDataFactory.SeedTenantConnectionAsync(
+            context.DbContext,
+            module: ModuleEnum.Direct,
+            connectionString: directConnectionString);
+
+        var result = await context.DbContext.GetTenantConnectionString(tenant.Id, ModuleEnum.Direct);
+
+        Assert.Equal(directConnectionString, result);
     }
 
     [Fact]
@@ -60,7 +79,8 @@ public class TenantDbContextBusinessRulesTests
             isActive: false);
 
         var exception =
-            await Assert.ThrowsAsync<ApiErrorException>(() => context.DbContext.GetTenantConnectionString(tenant.Id));
+            await Assert.ThrowsAsync<ApiErrorException>(() =>
+                context.DbContext.GetTenantConnectionString(tenant.Id, ModuleEnum.QnA));
 
         Assert.Equal(404, exception.ErrorCode);
     }
@@ -72,7 +92,7 @@ public class TenantDbContextBusinessRulesTests
 
         var exception =
             await Assert.ThrowsAsync<ApiErrorException>(() =>
-                context.DbContext.GetTenantConnectionString(Guid.NewGuid()));
+                context.DbContext.GetTenantConnectionString(Guid.NewGuid(), ModuleEnum.QnA));
 
         Assert.Equal(404, exception.ErrorCode);
     }
@@ -87,7 +107,8 @@ public class TenantDbContextBusinessRulesTests
             isActive: true);
 
         var exception =
-            await Assert.ThrowsAsync<ApiErrorException>(() => context.DbContext.GetTenantConnectionString(tenant.Id));
+            await Assert.ThrowsAsync<ApiErrorException>(() =>
+                context.DbContext.GetTenantConnectionString(tenant.Id, ModuleEnum.QnA));
 
         Assert.Equal(500, exception.ErrorCode);
     }

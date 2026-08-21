@@ -141,24 +141,12 @@ const API_ERROR_MESSAGE_ALIASES: Array<{
       "This Broadcast thread is closed. Reopen it before adding another captured item.",
   },
   {
-    pattern: /^The selected Direct module is not available\.$/,
-    message: "Direct is not available",
-  },
-  {
-    pattern: /^The selected Broadcast module is not available\.$/,
-    message: "Broadcast is not available",
-  },
-  {
-    pattern: /^The workspace does not have an active QnA base tenant\.$/,
-    message: "The workspace does not have an active Base tenant.",
-  },
-  {
     pattern: /^Stripe .+\.$/,
     message: "The request is invalid.",
   },
   {
     pattern:
-      /^(Billing webhook ingress is not ready|Cors Options Not Found|Missing connection string|Redis .+ is missing|Tenant '.+' has an invalid connection string|Current tenant connection for .+ was not found)\.?/,
+      /^(Billing webhook ingress is not ready|Cors Options Not Found|Missing connection string|Redis .+ is missing|Tenant '.+' (has an invalid connection string|has no active .+ connection string)|Current tenant connection for .+ was not found)\.?/,
     message: "The service is unavailable right now.",
   },
 ];

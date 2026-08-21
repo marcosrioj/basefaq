@@ -5,17 +5,17 @@ using Querify.Models.Tenant.Enums;
 namespace Querify.Common.EntityFramework.Tenant.Entities;
 
 /// <summary>
-/// Represents one module-specific runtime boundary inside a Querify workspace.
+/// Represents a tenant runtime and data-isolation boundary.
 /// </summary>
 public class Tenant : BaseEntity
 {
-    /// <summary>Maximum module-specific tenant slug length accepted by persistence.</summary>
+    /// <summary>Maximum tenant slug length accepted by persistence.</summary>
     public const int MaxSlugLength = 128;
 
     /// <summary>Maximum workspace display name length accepted by persistence.</summary>
     public const int MaxNameLength = 128;
 
-    /// <summary>Maximum encrypted module database connection string length accepted by persistence.</summary>
+    /// <summary>Maximum encrypted primary database connection string length accepted by persistence.</summary>
     public const int MaxConnectionStringLength = 1024;
 
     /// <summary>Maximum public module client key length accepted by persistence.</summary>
@@ -25,12 +25,12 @@ public class Tenant : BaseEntity
     public const string DefaultTenantName = "Default";
 
     /// <summary>
-    /// URL-safe module-specific identifier used in administrative and routing contexts.
+    /// URL-safe tenant identifier used in administrative and routing contexts.
     /// </summary>
     public required string Slug { get; set; }
 
     /// <summary>
-    /// Workspace display name shared by every module tenant in the same workspace.
+    /// Tenant display name shown throughout the workspace.
     /// </summary>
     public required string Name { get; set; }
 
@@ -40,17 +40,12 @@ public class Tenant : BaseEntity
     public required TenantEdition Edition { get; set; }
 
     /// <summary>
-    /// Stable workspace identifier shared by the QnA, Direct, Broadcast, and Trust tenant records.
-    /// </summary>
-    public required Guid WorkspaceId { get; set; }
-
-    /// <summary>
-    /// Querify module that owns this tenant runtime record and its module database connection.
+    /// Querify module that provides this tenant's primary product surface.
     /// </summary>
     public required ModuleEnum Module { get; set; }
 
     /// <summary>
-    /// Encrypted module database connection string resolved for requests to this tenant.
+    /// Encrypted database connection string for the tenant's primary module.
     /// </summary>
     public required string ConnectionString { get; set; }
 
@@ -60,12 +55,12 @@ public class Tenant : BaseEntity
     public string? ClientKey { get; set; }
 
     /// <summary>
-    /// Indicates whether the module tenant can be selected and used by workspace members.
+    /// Indicates whether the tenant can be selected and used by workspace members.
     /// </summary>
     public bool IsActive { get; set; } = true;
 
     /// <summary>
-    /// User memberships that grant access to this module tenant.
+    /// User memberships that grant access to this tenant.
     /// </summary>
     public ICollection<TenantUser> TenantUsers { get; set; } = [];
 }

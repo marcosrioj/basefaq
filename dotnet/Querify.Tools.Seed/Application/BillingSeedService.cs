@@ -736,7 +736,6 @@ public sealed class BillingSeedService : IBillingSeedService
             tenant = new Tenant
             {
                 Id = id,
-                WorkspaceId = id,
                 Slug = slug,
                 Name = name,
                 Edition = edition,
@@ -750,7 +749,6 @@ public sealed class BillingSeedService : IBillingSeedService
         {
             RestoreEntity(tenant);
             tenant.Slug = slug;
-            tenant.WorkspaceId = id;
             tenant.Name = name;
             tenant.Edition = edition;
             tenant.Module = ModuleEnum.QnA;

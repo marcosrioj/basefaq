@@ -19,7 +19,6 @@ import {
 } from "@/domains/modules/query-keys";
 import { useAuth } from "@/platform/auth/use-auth";
 import { useTenant } from "@/platform/tenant/use-tenant";
-import { ModuleEnum } from "@/shared/constants/backend-enums";
 import { translateText } from "@/shared/lib/i18n-core";
 
 export const broadcastThreadKeys = createModuleDomainKeys(
@@ -29,7 +28,7 @@ export const broadcastThreadKeys = createModuleDomainKeys(
 export const broadcastItemKeys = createModuleDomainKeys("broadcast", "items");
 
 export function useBroadcastTenantId() {
-  return useTenant().getModuleTenantId(ModuleEnum.Broadcast);
+  return useTenant().currentTenantId;
 }
 
 export function useBroadcastThreadList(

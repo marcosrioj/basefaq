@@ -24,7 +24,6 @@ public class TenantsCreateTenantCommandHandler(
         var tenant = new Common.EntityFramework.Tenant.Entities.Tenant
         {
             Id = tenantId,
-            WorkspaceId = request.WorkspaceId ?? tenantId,
             Slug = request.Slug,
             Name = request.Name,
             Edition = request.Edition,

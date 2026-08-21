@@ -13,7 +13,7 @@ import {
   contactFormSchema,
   type ContactFormValues,
 } from "@/domains/direct/schemas";
-import { ModuleUnavailableState } from "@/domains/modules/module-unavailable-state";
+import { TenantRequiredState } from "@/domains/modules/tenant-required-state";
 import {
   DetailLayout,
   KeyValueList,
@@ -129,7 +129,7 @@ export function ContactFormPage({ mode }: { mode: "create" | "edit" }) {
       }
     >
       {!tenantId ? (
-        <ModuleUnavailableState module="Direct" />
+        <TenantRequiredState />
       ) : contactQuery.isError ? (
         <ErrorState
           title="Unable to load contact"

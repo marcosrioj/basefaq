@@ -15,7 +15,7 @@ import {
   conversationMessageFormSchema,
   type ConversationMessageFormValues,
 } from "@/domains/direct/schemas";
-import { ModuleUnavailableState } from "@/domains/modules/module-unavailable-state";
+import { TenantRequiredState } from "@/domains/modules/tenant-required-state";
 import { usePortalTimeZone } from "@/domains/settings/settings-hooks";
 import {
   DetailLayout,
@@ -253,7 +253,7 @@ export function ConversationDetailPage() {
       }
     >
       {!tenantId ? (
-        <ModuleUnavailableState module="Direct" />
+        <TenantRequiredState />
       ) : conversationQuery.isError ? (
         <ErrorState
           title="Unable to load conversation"

@@ -37,19 +37,7 @@ public class TenantUsersDeleteTenantUserCommandHandler(
                 errorCode: (int)HttpStatusCode.BadRequest);
         }
 
-        var workspaceId = await dbContext.Tenants
-            .Where(entity => entity.Id == request.TenantId)
-            .Select(entity => entity.WorkspaceId)
-            .SingleAsync(cancellationToken);
-        var workspaceTenantIds = await dbContext.Tenants
-            .Where(entity => entity.WorkspaceId == workspaceId)
-            .Select(entity => entity.Id)
-            .ToListAsync(cancellationToken);
-        var memberships = await dbContext.TenantUsers
-            .Where(entity => workspaceTenantIds.Contains(entity.TenantId) && entity.UserId == tenantUser.UserId)
-            .ToListAsync(cancellationToken);
-
-        dbContext.TenantUsers.RemoveRange(memberships);
+        dbContext.TenantUsers.Remove(tenantUser);
         await dbContext.SaveChangesAsync(cancellationToken);
         await AllowedTenantCacheHelper.RemoveUserEntries(allowedTenantStore, [tenantUser.UserId], cancellationToken);
     }

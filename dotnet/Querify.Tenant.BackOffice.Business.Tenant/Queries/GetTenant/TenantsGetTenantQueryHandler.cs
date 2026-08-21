@@ -17,7 +17,6 @@ public class TenantsGetTenantQueryHandler(TenantDbContext dbContext)
             .Select(tenant => new TenantDto
             {
                 Id = tenant.Id,
-                WorkspaceId = tenant.WorkspaceId,
                 Slug = tenant.Slug,
                 Name = tenant.Name,
                 Edition = tenant.Edition,

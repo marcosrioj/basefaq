@@ -83,7 +83,7 @@ public class ChannelConnection : BaseEntity, IMustHaveTenant
     public string? LastErrorMessage { get; set; }
 
     /// <summary>
-    /// Base QnA tenant that owns the workspace-level connection in the Tenant control plane.
+    /// Tenant that directly owns the connection in the Tenant control plane.
     /// </summary>
     public required Guid TenantId { get; set; }
 }
